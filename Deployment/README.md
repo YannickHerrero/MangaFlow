@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Bandes pleine largeur et masques inclinés — build 9
+
+Le 18 octobre 2026, **0.1.0 (9)** a été validé par Apple et affecté au même groupe privé à un seul testeur : **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, lien public désactivé. Identifiant : `0d325c86-46cd-482d-9a1a-5360a20ff231`.
+
+Les bandes pleine largeur inclinées restent entières ; les suites de bandes sont regroupées dans les pages mixtes, sans fusionner les cases incrustées. Les masques suivent des diagonales plus prononcées et des jonctions convexes en pointe. Les grands bandeaux de narration détectés hors cadre sont conservés. Le moteur v4 reconvertit les anciens chapitres à leur ouverture. Les compositions très imbriquées restent imparfaites.
+
+Validation : cinq itérations et revue des 19 pages du chapitre privé Blue Lock 309 (LELScan), comparatifs approuvés par l’utilisateur avant publication. 52 tests automatisés réussis ; le test de revue privée supplémentaire a été exécuté explicitement puis désactivé dans la suite courante (53 tests dont un ignoré). Archive signée, signature vérifiée, export et disponibilité TestFlight confirmés. Les images privées et comparatifs restent dans les dossiers ignorés par Git.
+
 ## Téléchargement et import en une action — build 8
 
 Le 18 octobre 2026, **0.1.0 (8)** a été validé par Apple et affecté au groupe privé existant, avec un seul testeur (**INTERNAL_ONLY**, **IN_BETA_TESTING**, aucun lien public). Identifiant : `4a3126c9-2111-4756-907e-569c8a6f4ee1`.
