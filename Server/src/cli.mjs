@@ -2,6 +2,7 @@
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
+import { existsSync, readFileSync } from 'node:fs';
 import http from 'node:http';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -14,8 +15,10 @@ const runtime=path.resolve(process.env.MANGAFLOW_RUNTIME||path.join(base,'.runti
 const socket=path.join(state,'admin.sock');const port=Number(process.env.MANGAFLOW_PORT||9120);
 const bind=process.env.MANGAFLOW_BIND||'0.0.0.0';
 function serverURL(){
-  if(process.env.MANGAFLOW_SERVER_URL){
-    const url=new URL(process.env.MANGAFLOW_SERVER_URL);
+  const saved=path.join(state,'server-url.txt');
+  const configured=process.env.MANGAFLOW_SERVER_URL||(existsSync(saved)?readFileSync(saved,'utf8').trim():null);
+  if(configured){
+    const url=new URL(configured);
     if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.search||url.hash||!['','/'].includes(url.pathname))throw new Error('Invalid server URL');
     return url.origin;
   }
@@ -38,6 +41,11 @@ if(command==='start'){
     try{let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>10000)throw new Error('Request too large');}const data=JSON.parse(raw);let result;
       if(data.action==='pair')result=service.auth.createPairing(serverURL());
       else if(data.action==='pair-simulator')result=service.auth.createPairing(`http://127.0.0.1:${port}`);
+      else if(data.action==='set-url'){
+        const url=new URL(data.url);
+        if(!['http:','https:'].includes(url.protocol)||url.username||url.password||url.search||url.hash||!['','/'].includes(url.pathname))throw new Error('Invalid server URL');
+        await fs.writeFile(path.join(state,'server-url.txt'),url.origin,{mode:0o600});result={serverURL:url.origin};
+      }
       else if(data.action==='devices')result=service.store.data.devices.map(({hash,...d})=>d);
       else if(data.action==='revoke'){service.auth.revoke(data.id);result={revoked:true};}
       else if(data.action==='update'){service.checkUpdate().catch(()=>{});result={state:'checking'};}
@@ -58,6 +66,9 @@ if(command==='start'){
   console.log('Scan in MangaFlow → Sources. This code expires in 5 minutes and can be used once.');
   console.log('For simulator testing, import the pairing payload file: '+file);
   setTimeout(()=>{fs.rm(file,{force:true});fs.rm(path.join(state,'pairing.png'),{force:true});},5*60_000).unref();
+}else if(command==='set-url'){
+  if(!process.argv[3])throw new Error('Usage: node src/cli.mjs set-url SERVER_URL');
+  console.log(await admin('set-url',{url:process.argv[3]}));
 }else if(['devices','status','update','rollback'].includes(command))console.log(JSON.stringify(await admin(command),null,2));
 else if(command==='revoke'){if(!process.argv[3])throw new Error('Usage: node src/cli.mjs revoke DEVICE_ID');console.log(await admin('revoke',{id:process.argv[3]}));}
-else console.log('Commands: start | pair | devices | revoke DEVICE_ID | status | update | rollback');
+else console.log('Commands: start | pair | devices | revoke DEVICE_ID | status | update | rollback | set-url SERVER_URL');

@@ -39,6 +39,18 @@ The API binds to `0.0.0.0:9120` on the Mac. No router port forwarding, public tu
 
 Only a small source selection is exposed. LELScan and MangaDex have passed real catalog → chapters → images → CBZ runs. KadoComi is not yet verified against the live site. WEBTOON FR explicitly has no complete catalog and is displayed with that limitation; URL discovery is outside this MVP. A connector being loadable does not guarantee the site still works. See [validation](../Docs/ONLINE_SOURCES.md).
 
+## Reach the Mac through a private network or HTTPS proxy
+
+A `.local` address is intended for the same physical LAN; it is not generally resolved across a VPN. If the devices communicate through Tailscale, use an existing private HTTPS endpoint instead. For example, after checking that port 9443 is free:
+
+```bash
+/Applications/Tailscale.app/Contents/MacOS/Tailscale serve --bg --https=9443 http://127.0.0.1:9120
+node src/cli.mjs set-url https://YOUR-MAC.YOUR-TAILNET.ts.net:9443
+npm run pair
+```
+
+`set-url` persists the advertised server origin in the private `.state/server-url.txt` file, so subsequent QR codes and restarts keep that address. It does not change the API listener or configure a VPN on the phone. `MANGAFLOW_SERVER_URL` overrides the saved value if set. HTTPS pairing works with the existing iOS build. The proxy remains private to the tailnet; do not enable Funnel. Use the exact MagicDNS name reported by `tailscale status`, not the placeholder above.
+
 ## Administration
 
 Commands use a local Unix socket inside `.state` (directory 0700, socket 0600), not an unauthenticated network admin endpoint.
