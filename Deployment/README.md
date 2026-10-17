@@ -1,5 +1,12 @@
 # TestFlight privé
 
+## Favoris et suivi des téléchargements — build 5
+
+Le 17 octobre 2026, **0.1.0 (5)** a été validé par Apple et affecté au groupe interne existant : **INTERNAL_ONLY**, **IN_BETA_TESTING**, un seul testeur. L’appairage et la bibliothèque existants sont conservés.
+
+Cette version ajoute l’onglet Favoris (manga lié à son serveur et sa source exacts), le cœur dans les chapitres, ainsi que les états de téléchargement, la progression, les erreurs avec nouvelle tentative et l’action Importer et lire directement dans chaque chapitre. Validation : 25 tests unitaires Swift, parcours Blue Lock / LELScan avec téléchargement réel de neuf images, persistance du favori après relancement et ouverture du lecteur, plus le test de non-régression du lecteur existant.
+
+
 ## Sources en ligne — build 4
 
 Le 17 octobre 2026, **0.1.0 (4)** a été validé par Apple et affecté au groupe interne existant, limité à un testeur. États confirmés : **INTERNAL_ONLY** et **IN_BETA_TESTING**. L’archive a été signée et sa signature vérifiée. Cette version ajoute l’onglet Sources, l’appairage QR sur le réseau local et l’import de chapitres téléchargés par le serveur Mac HakuNeko. Aucun App Store public ni nouveau groupe n’a été créé.
