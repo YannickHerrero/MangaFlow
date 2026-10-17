@@ -11,7 +11,7 @@ final class LibraryModel {
     private var work: Task<Void, Never>?
     private var importer: Task<MangaDocument, Error>?
     let store = DocumentStore()
-    private lazy var engine = ConversionEngine(store: store)
+    @ObservationIgnored private lazy var engine = ConversionEngine(store: store)
 
     init() {
         do { documents = try store.loadAll() }
@@ -35,8 +35,8 @@ final class LibraryModel {
                 update(doc)
                 try Task.checkCancellation()
                 activeDocument = doc
-                let converted = try await engine.convert(doc) { [weak self] doc in
-                    await self?.conversionProgress(doc)
+                let converted = try await engine.convert(doc) { [self] doc in
+                    await self.conversionProgress(doc)
                 }
                 update(converted); selected = converted.id
                 exportDiagnostics(converted)
@@ -52,8 +52,8 @@ final class LibraryModel {
             UIApplication.shared.isIdleTimerDisabled = true
             defer { isBusy = false; activeDocument = nil; UIApplication.shared.isIdleTimerDisabled = false }
             do {
-                let converted = try await engine.convert(document) { [weak self] doc in
-                    await self?.conversionProgress(doc)
+                let converted = try await engine.convert(document) { [self] doc in
+                    await self.conversionProgress(doc)
                 }
                 update(converted); selected = converted.id
                 exportDiagnostics(converted)

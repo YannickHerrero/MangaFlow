@@ -26,7 +26,7 @@ struct DocumentStore: Sendable {
         let parts = path.split(separator: "/", omittingEmptySubsequences: false)
         guard !path.hasPrefix("/"), !path.contains("\\"), !parts.contains(".."),
               !parts.contains(where: { $0.hasPrefix(".") || $0 == "__MACOSX" }) else { return false }
-        return ["jpg", "jpeg", "png"].contains(URL(fileURLWithPath: path).pathExtension.lowercased())
+        return ["jpg", "jpeg", "png", "webp"].contains(URL(fileURLWithPath: path).pathExtension.lowercased())
     }
     static func naturalOrder(_ lhs: String, _ rhs: String) -> Bool {
         let comparison = lhs.compare(rhs, options: [.numeric, .caseInsensitive], locale: Locale(identifier: "en_US_POSIX"))
@@ -43,7 +43,7 @@ struct DocumentStore: Sendable {
         catch { throw MangaError.invalidArchive("Impossible d’ouvrir ce CBZ. Vérifie qu’il s’agit d’un ZIP non chiffré.") }
         let entries = archive.filter { $0.type == .file && Self.supportedPath($0.path) }
             .sorted { Self.naturalOrder($0.path, $1.path) }
-        guard !entries.isEmpty else { throw MangaError.invalidArchive("Ce CBZ ne contient aucune page JPEG ou PNG exploitable.") }
+        guard !entries.isEmpty else { throw MangaError.invalidArchive("Ce CBZ ne contient aucune page JPEG, PNG ou WebP exploitable.") }
         guard entries.count <= 3000 else { throw MangaError.invalidArchive("Ce prototype est limité à 3 000 pages par fichier.") }
         var total: UInt64 = 0
         for entry in entries {
