@@ -1,5 +1,11 @@
 # TestFlight privé
 
+## Mise à jour immersive — build 2
+
+Le 17 octobre 2026, **0.1.0 (2)** a été validé par Apple et affecté au même groupe interne, avec exactement un testeur. États confirmés : **INTERNAL_ONLY** et **IN_BETA_TESTING**. Les 17 tests passent, dont le parcours de lecture immersive sur le chapitre 1196. La signature de l’archive a été vérifiée. Aucun nouvel envoi d’invitation n’était nécessaire.
+
+Nouveautés : cases sans espacement ajouté, suppression des repères et du compteur de pages, commandes masquables avec le bouton œil et réaffichables par double toucher. Le simple toucher conserve l’accès à l’original.
+
 ## Première livraison terminée
 
 Le 17 octobre 2026, la version **0.1.0 (1)** a été signée, exportée puis envoyée avec succès. Apple a validé le build et confirme **INTERNAL_ONLY** / **IN_BETA_TESTING**. Il est affecté au groupe ci-dessous avec exactement un testeur. La demande d'envoi de l'invitation à `yannick.herrero@proton.me` a été acceptée par Apple. Aucun groupe externe ni lien public n'a été créé.
@@ -41,10 +47,11 @@ Le profil et le certificat doivent être installés sur le Mac. Le profil est af
 Installer `Scripts/requirements-deployment.txt` dans un environnement Python, puis :
 
 ```bash
-python Scripts/testflight.py --credentials /chemin/prive/release.json --upload --build 1 --invite
+python Scripts/testflight.py --credentials /chemin/prive/release.json --upload --build 2 \
+  --notes-file Deployment/build2-notes.fr.txt
 ```
 
-Le script vérifie la fiche app, crée ou retrouve le groupe interne, exige que son unique membre soit l'adresse prévue, envoie l'IPA, attend le traitement Apple, vérifie l'audience interne et affecte le build au groupe. `--invite` demande explicitement l'envoi de l'invitation au seul testeur. Les opérations ne soumettent rien à la revue App Store ou à une bêta externe.
+Le script vérifie la fiche app, crée ou retrouve le groupe interne, exige que son unique membre soit l'adresse prévue, envoie l'IPA, attend le traitement Apple, vérifie l'audience interne et affecte le build au groupe. `--notes-file` fournit les nouveautés en français. `--invite` demande explicitement l'envoi de l'invitation au seul testeur. Les opérations ne soumettent rien à la revue App Store ou à une bêta externe.
 
 Après un envoi déjà réussi, relancer **sans `--upload`** pour reprendre l'attente et l'affectation du même build. `--configure-only` prépare et vérifie le groupe sans envoyer de binaire.
 

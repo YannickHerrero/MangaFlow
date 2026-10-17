@@ -4,7 +4,7 @@ Prototype iPhone / iPad **iOS 27+** : importer un CBZ, détecter les cases sur l
 
 ## Installer la version privée TestFlight
 
-La version **MangaFlow reader 0.1.0 (1)** est disponible dans le groupe interne **Yannick — Personnel**, réservé à `yannick.herrero@proton.me`. Ouvrir l'invitation Apple sur l'iPhone et installer via TestFlight (iOS 27 minimum). Aucun lien public ni groupe externe. Détails de livraison et commandes : `Deployment/README.md`.
+La version **MangaFlow reader 0.1.0 (2)** est disponible dans le groupe interne **Yannick — Personnel**, réservé à `yannick.herrero@proton.me`. Ouvrir l'invitation Apple sur l'iPhone et installer via TestFlight (iOS 27 minimum). Aucun lien public ni groupe externe. Détails de livraison et commandes : `Deployment/README.md`.
 
 ## Essayer sur iPhone
 
