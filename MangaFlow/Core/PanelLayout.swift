@@ -11,8 +11,7 @@ enum PanelLayout {
             guard !kept.contains(where: {
                 let overlap = item.rect.intersection($0.rect)
                 let union = item.rect.area + $0.rect.area - overlap
-                return overlap / max(union, 0.000001) > 0.65 ||
-                    overlap / max(min(item.rect.area, $0.rect.area), 0.000001) > 0.94
+                return overlap / max(union, 0.000001) > 0.65
             }) else { continue }
             kept.append(item)
         }

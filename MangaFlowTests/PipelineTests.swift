@@ -24,6 +24,11 @@ final class PipelineTests: XCTestCase {
         let items = [valid, box(0.102, 0.1, 0.6, 0.6, score: 0.8), box(2, 2, 0.1, 0.1), box(0, 0, 0.001, 0.001), box(.nan, 0, 0.5, 0.5)]
         XCTAssertEqual(PanelLayout.normalized(items).count, 1)
     }
+    func testInsetPanelIsNotSuppressedAsDuplicate() {
+        let large = box(0.05, 0.05, 0.9, 0.9)
+        let inset = box(0.6, 0.6, 0.25, 0.25)
+        XCTAssertEqual(PanelLayout.normalized([large, inset]).count, 2)
+    }
     func testLetterboxPortraitAndLandscape() {
         let portrait = LocalPanelDetector.unletterbox(x1: 160, y1: 0, x2: 480, y2: 640, width: 1000, height: 2000)
         XCTAssertEqual(portrait.x, 0, accuracy: 0.00001)
@@ -87,6 +92,36 @@ final class PipelineTests: XCTestCase {
         let reloaded = try store.loadAll()[0]
         let resumed = try await engine.convert(reloaded) { _ in XCTFail("Completed pages must not be processed again") }
         XCTAssertEqual(resumed.pages[0].milliseconds, firstDuration)
+    }
+    func testCancellationPreservesCheckpointAndResumesRemainingPages() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = DocumentStore(root: root)
+        let pages = (0..<3).map { MangaPage(id: $0, filename: "\($0).png") }
+        let doc = MangaDocument(id: UUID(), title: "Cancellation", pages: pages)
+        try store.save(doc)
+        let data = syntheticPage().pngData()!
+        for page in pages { try data.write(to: store.pageURL(doc, page)) }
+        let engine = ConversionEngine(store: store)
+        let checkpoint = expectation(description: "First page checkpoint")
+        let task = Task {
+            try await engine.convert(doc) { value in
+                if value.processedCount == 1 {
+                    checkpoint.fulfill()
+                    try? await Task.sleep(for: .seconds(10))
+                }
+            }
+        }
+        await fulfillment(of: [checkpoint], timeout: 10)
+        task.cancel()
+        do { _ = try await task.value; XCTFail("Expected cancellation") }
+        catch is CancellationError {} catch { XCTFail("Unexpected error: \(error)") }
+        let partial = try store.loadAll()[0]
+        XCTAssertEqual(partial.processedCount, 1)
+        let milliseconds = partial.pages[0].milliseconds
+        let resumed = try await engine.convert(partial) { _ in }
+        XCTAssertTrue(resumed.complete)
+        XCTAssertEqual(resumed.pages[0].milliseconds, milliseconds)
     }
     private func syntheticPage() -> UIImage {
         let format = UIGraphicsImageRendererFormat(); format.scale = 1

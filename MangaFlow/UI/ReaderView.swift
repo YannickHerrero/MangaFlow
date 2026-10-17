@@ -7,7 +7,7 @@ struct ReaderView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var position: String?
     @State private var original: MangaPage?
-    @State private var leftToRight = false
+    @AppStorage("leftToRightReading") private var leftToRight = false
     @State private var restored = false
     private struct Row: Identifiable {
         let page: MangaPage
