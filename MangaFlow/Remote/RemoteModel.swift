@@ -99,7 +99,7 @@ final class RemoteModel {
             }
             let url = try await client.download(artifactID)
             defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
-            try await library.importRemoteCBZ(url, artifactID: identity)
+            try await library.importRemoteCBZ(url, artifactID: identity, origin: ChapterOrigin(job: job, serverID: connection?.serverID ?? "", sourceName: sources.first { $0.id == job.target.sourceID }?.name))
         } catch { report(error) }
     }
     func report(_ error: Error) { if !(error is CancellationError) { self.error = error.localizedDescription } }

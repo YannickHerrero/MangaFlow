@@ -22,7 +22,7 @@ final class LibraryModel {
         else { documents.insert(doc, at: 0) }
     }
     @discardableResult
-    func importCBZ(_ url: URL, remoteArtifactID: String? = nil) -> Task<Void, Never>? {
+    func importCBZ(_ url: URL, remoteArtifactID: String? = nil, origin: ChapterOrigin? = nil) -> Task<Void, Never>? {
         guard !isBusy else { return nil }
         isBusy = true; status = "Ouverture du CBZ…"; activeDocument = nil
         let store = store
@@ -34,6 +34,7 @@ final class LibraryModel {
             do {
                 var doc = try await importTask.value
                 doc.remoteArtifactID = remoteArtifactID
+                doc.origin = origin
                 try store.save(doc)
                 update(doc)
                 try Task.checkCancellation()
@@ -64,14 +65,14 @@ final class LibraryModel {
             } catch is CancellationError {} catch { self.error = error.localizedDescription }
         }
     }
-    func importRemoteCBZ(_ url: URL, artifactID: String) async throws {
+    func importRemoteCBZ(_ url: URL, artifactID: String, origin: ChapterOrigin? = nil) async throws {
         guard !isBusy else { throw RemoteFailure(code: "library_busy", message: "Termine ou mets en pause la conversion en cours avant d’importer un chapitre.") }
         if let existing = documents.first(where: { $0.remoteArtifactID == artifactID }) {
             if existing.complete { selected = existing.id } else { resume(existing) }
             return
         }
         error = nil
-        await importCBZ(url, remoteArtifactID: artifactID)?.value
+        await importCBZ(url, remoteArtifactID: artifactID, origin: origin)?.value
         if let error { throw RemoteFailure(code: "import_failed", message: error) }
     }
     func conversionProgress(_ doc: MangaDocument) {
@@ -87,6 +88,8 @@ final class LibraryModel {
     func remember(documentID: UUID, panelID: String) {
         guard let index = documents.firstIndex(where: { $0.id == documentID }) else { return }
         documents[index].lastPanelID = panelID
+        documents[index].lastReadAt = Date()
+        if documents[index].pages.last?.panels.last?.id == panelID { documents[index].readComplete = true }
         try? store.save(documents[index])
     }
     private func exportDiagnostics(_ document: MangaDocument) {

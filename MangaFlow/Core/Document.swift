@@ -76,6 +76,12 @@ struct MangaDocument: Codable, Identifiable, Sendable {
     var pages: [MangaPage]
     var lastPanelID: String?
     var remoteArtifactID: String? = nil
+    var origin: ChapterOrigin? = nil
+    var manualSeriesID: UUID? = nil
+    var manualSeriesTitle: String? = nil
+    var chapterOrder: Double? = nil
+    var lastReadAt: Date? = nil
+    var readComplete: Bool? = nil
     var complete: Bool { pages.allSatisfy(\.processed) }
     var panelCount: Int { pages.reduce(0) { $0 + $1.panels.count } }
     var processedCount: Int { pages.filter(\.processed).count }
