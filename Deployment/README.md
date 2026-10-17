@@ -1,5 +1,9 @@
 # TestFlight privé
 
+## Nouvelle icône — build 7
+
+Le 18 octobre 2026, **0.1.0 (7)** a été validé par Apple et affecté au même groupe privé à un seul testeur (**INTERNAL_ONLY**, **IN_BETA_TESTING**, lien public désactivé). Identifiant : `43603d48-38a4-4f45-bc51-2bdeedbe8118`. L’icône utilise l’image originale carrée LIRE fournie par l’utilisateur, redimensionnée de 1254 à 1024 pixels, sans transparence et sans recadrage. Archive signée, vérifiée et exportée avec succès.
+
 ## Trois thèmes et bibliothèque par série — build 6
 
 Le 18 octobre 2026, **0.1.0 (6)** a été validé par Apple et affecté au groupe interne **Yannick — Personnel**, avec exactement un testeur. États confirmés : **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING** ; lien public désactivé. Identifiant du build : `3d41b797-ad8b-4016-9c58-842225c6a196`.
