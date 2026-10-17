@@ -1,0 +1,12 @@
+.DS_Store
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+.venv/
+Artifacts/*
+!Artifacts/.gitkeep
+Fixtures/
+*.cbz
+*.pt
+__pycache__/

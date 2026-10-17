@@ -1,0 +1,62 @@
+name: MangaFlow
+options:
+  bundleIdPrefix: fr.local
+  deploymentTarget:
+    iOS: '27.0'
+packages:
+  ZIPFoundation:
+    url: https://github.com/weichsel/ZIPFoundation.git
+    exactVersion: 0.9.20
+settings:
+  base:
+    SWIFT_VERSION: '5.0'
+    TARGETED_DEVICE_FAMILY: '1,2'
+    CODE_SIGN_STYLE: Automatic
+targets:
+  MangaFlow:
+    type: application
+    platform: iOS
+    sources: [MangaFlow]
+    dependencies:
+      - package: ZIPFoundation
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fr.local.MangaFlow
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: MangaFlow
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
+        INFOPLIST_KEY_UIFileSharingEnabled: YES
+        MARKETING_VERSION: '0.1.0'
+        CURRENT_PROJECT_VERSION: '1'
+    info:
+      path: MangaFlow/Info.plist
+      properties:
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: Comic Book Archive
+            LSHandlerRank: Owner
+            LSItemContentTypes: [fr.local.mangaflow.cbz, public.zip-archive]
+        UTImportedTypeDeclarations:
+          - UTTypeIdentifier: fr.local.mangaflow.cbz
+            UTTypeDescription: Comic Book ZIP Archive
+            UTTypeConformsTo: [public.zip-archive]
+            UTTypeTagSpecification:
+              public.filename-extension: [cbz]
+  MangaFlowTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources: [MangaFlowTests]
+    dependencies:
+      - target: MangaFlow
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  MangaFlow:
+    build:
+      targets:
+        MangaFlow: all
+    test:
+      targets: [MangaFlowTests]
