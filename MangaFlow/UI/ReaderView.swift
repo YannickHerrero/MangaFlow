@@ -48,7 +48,10 @@ struct ReaderView: View {
                                     .background(.white)
                                     .contentShape(Rectangle())
                                     .onTapGesture { original = row.page }
+                                    .accessibilityElement(children: .ignore)
                                     .accessibilityLabel("Page \(row.page.id + 1), case \(row.panel.id). Toucher pour voir la page originale.")
+                                    .accessibilityAddTraits(.isButton)
+                                    .accessibilityIdentifier("panel-\(row.panel.id)")
                             }.id(row.id)
                         }
                         Label("Fin du chapitre", systemImage: "checkmark.circle")
@@ -58,6 +61,7 @@ struct ReaderView: View {
                     .padding(.vertical, 18)
                 }
                 .scrollPosition(id: $position, anchor: .top)
+                .accessibilityIdentifier("readerScroll")
                 .background(Color.black)
                 .onChange(of: position) { _, value in
                     if restored, let value { onPosition(value) }

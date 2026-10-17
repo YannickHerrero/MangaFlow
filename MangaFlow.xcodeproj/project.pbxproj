@@ -9,11 +9,14 @@
 /* Begin PBXBuildFile section */
 		1BEB4C13E538F68AAD84B204 /* LocalPanelDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19EC948B19E7526AE89E56CE /* LocalPanelDetector.swift */; };
 		30E10EA192ACDB62E452EF37 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B784E6D43EAB943220D31A85 /* ReaderView.swift */; };
+		43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98185ADBDC0AA67C5F17620A /* PipelineTests.swift */; };
 		48FED1788D3583B0EC0386B4 /* PageImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98F57F916FC0DCD29F3FCE6 /* PageImage.swift */; };
 		581C0CD86025FCE09471F35D /* LibraryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9514AF7AAE987A8555F972C5 /* LibraryModel.swift */; };
 		7416E7B4A8A81F17A01B4A7F /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCC5856AF88AAAB92018B97 /* Document.swift */; };
+		742FCC1B4510DB974618E3AC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB18DFA549CC3F7DABCF44F6 /* Assets.xcassets */; };
 		78FF987D20A640557B8A4065 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23646A9B7FB378F997A80B /* LibraryView.swift */; };
 		81E4C8BE6B2BE5D6FB85B690 /* ConversionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 856681329C79CB7670043370 /* ConversionEngine.swift */; };
+		BC53FD44435CAF2E9863FA0D /* ReaderWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */; };
 		C3284C61749BE0C9E6BB22BC /* PanelLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D08534A61B2F111598C24DB /* PanelLayout.swift */; };
 		C95F5324D2F14DAB9629C1F6 /* PanelDetector.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 6F81E3720D66783B3166CADA /* PanelDetector.mlpackage */; };
 		D19912CF1C8FAAF821232842 /* MangaFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */; };
@@ -22,6 +25,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		7FA01D697F41437567AC2064 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C4DEFC6F9721AE55AF67B84 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C144939AED9E0FD70B59ACC8;
+			remoteInfo = MangaFlow;
+		};
 		F841A2EF20B7D30B46865B02 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8C4DEFC6F9721AE55AF67B84 /* Project object */;
@@ -33,9 +43,11 @@
 
 /* Begin PBXFileReference section */
 		0CCC5856AF88AAAB92018B97 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWorkflowTests.swift; sourceTree = "<group>"; };
 		19EC948B19E7526AE89E56CE /* LocalPanelDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPanelDetector.swift; sourceTree = "<group>"; };
 		2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaFlowApp.swift; sourceTree = "<group>"; };
 		31958CBD7089BEA9A7BB676D /* MangaFlowTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MangaFlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		33A0FC65B3F2EFC5216FD754 /* MangaFlowUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MangaFlowUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D08534A61B2F111598C24DB /* PanelLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelLayout.swift; sourceTree = "<group>"; };
 		6F81E3720D66783B3166CADA /* PanelDetector.mlpackage */ = {isa = PBXFileReference; path = PanelDetector.mlpackage; sourceTree = "<group>"; };
 		7D2723F15CE916C44110AC21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -43,9 +55,11 @@
 		856681329C79CB7670043370 /* ConversionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionEngine.swift; sourceTree = "<group>"; };
 		933F3B1528F20796EAF18034 /* MangaFlow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MangaFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9514AF7AAE987A8555F972C5 /* LibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModel.swift; sourceTree = "<group>"; };
+		98185ADBDC0AA67C5F17620A /* PipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineTests.swift; sourceTree = "<group>"; };
 		B784E6D43EAB943220D31A85 /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
 		B98F57F916FC0DCD29F3FCE6 /* PageImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageImage.swift; sourceTree = "<group>"; };
 		DA23646A9B7FB378F997A80B /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		FB18DFA549CC3F7DABCF44F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +79,7 @@
 			children = (
 				2DAF99A433AACEBD79BF89AA /* MangaFlow */,
 				E673CA608AD4459C3A2F1722 /* MangaFlowTests */,
+				32EEA6B61ECAC4F36CE1F05A /* MangaFlowUITests */,
 				B616A565A183A7094C332AF5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -72,6 +87,7 @@
 		2DAF99A433AACEBD79BF89AA /* MangaFlow */ = {
 			isa = PBXGroup;
 			children = (
+				FB18DFA549CC3F7DABCF44F6 /* Assets.xcassets */,
 				7D2723F15CE916C44110AC21 /* Info.plist */,
 				2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */,
 				D335F55CCC81408B0113346A /* Core */,
@@ -79,6 +95,14 @@
 				4076A023F999D75F0EC4CCF2 /* UI */,
 			);
 			path = MangaFlow;
+			sourceTree = "<group>";
+		};
+		32EEA6B61ECAC4F36CE1F05A /* MangaFlowUITests */ = {
+			isa = PBXGroup;
+			children = (
+				1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */,
+			);
+			path = MangaFlowUITests;
 			sourceTree = "<group>";
 		};
 		4076A023F999D75F0EC4CCF2 /* UI */ = {
@@ -104,6 +128,7 @@
 			children = (
 				933F3B1528F20796EAF18034 /* MangaFlow.app */,
 				31958CBD7089BEA9A7BB676D /* MangaFlowTests.xctest */,
+				33A0FC65B3F2EFC5216FD754 /* MangaFlowUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -124,6 +149,7 @@
 		E673CA608AD4459C3A2F1722 /* MangaFlowTests */ = {
 			isa = PBXGroup;
 			children = (
+				98185ADBDC0AA67C5F17620A /* PipelineTests.swift */,
 			);
 			path = MangaFlowTests;
 			sourceTree = "<group>";
@@ -131,11 +157,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		B76929EB6BE4AEB2BF35DF28 /* MangaFlowUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5925DA33A540B3C4BE331970 /* Build configuration list for PBXNativeTarget "MangaFlowUITests" */;
+			buildPhases = (
+				104557673FC4C43710CBEAD3 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				5371A6607EBE120B526B1182 /* PBXTargetDependency */,
+			);
+			name = MangaFlowUITests;
+			packageProductDependencies = (
+			);
+			productName = MangaFlowUITests;
+			productReference = 33A0FC65B3F2EFC5216FD754 /* MangaFlowUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		C144939AED9E0FD70B59ACC8 /* MangaFlow */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BA5C5F40755B4F8DF575A229 /* Build configuration list for PBXNativeTarget "MangaFlow" */;
 			buildPhases = (
 				D89D7C0D1A2941194906BDBE /* Sources */,
+				B2B1FCB04197C830719C509A /* Resources */,
 				F51017A710147B6B072FCFF7 /* Frameworks */,
 			);
 			buildRules = (
@@ -177,6 +222,10 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					B76929EB6BE4AEB2BF35DF28 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = C144939AED9E0FD70B59ACC8;
+					};
 					C144939AED9E0FD70B59ACC8 = {
 						ProvisioningStyle = Automatic;
 					};
@@ -204,15 +253,36 @@
 			targets = (
 				C144939AED9E0FD70B59ACC8 /* MangaFlow */,
 				E97F010C9B7BF95C4FB5AAD5 /* MangaFlowTests */,
+				B76929EB6BE4AEB2BF35DF28 /* MangaFlowUITests */,
 			);
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		B2B1FCB04197C830719C509A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				742FCC1B4510DB974618E3AC /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		104557673FC4C43710CBEAD3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BC53FD44435CAF2E9863FA0D /* ReaderWorkflowTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		775ACB81121F310E0B151876 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,9 +312,31 @@
 			target = C144939AED9E0FD70B59ACC8 /* MangaFlow */;
 			targetProxy = F841A2EF20B7D30B46865B02 /* PBXContainerItemProxy */;
 		};
+		5371A6607EBE120B526B1182 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C144939AED9E0FD70B59ACC8 /* MangaFlow */;
+			targetProxy = 7FA01D697F41437567AC2064 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		02249846D9DE8827282D3C8F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.local.MangaFlowUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MangaFlow;
+			};
+			name = Debug;
+		};
 		71A091CCD238E0A6620A382A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -427,6 +519,23 @@
 			};
 			name = Debug;
 		};
+		E2619692ACC63047ECD7A5B5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.local.MangaFlowUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = MangaFlow;
+			};
+			name = Release;
+		};
 		F0C8988ADA0590E69D620C14 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -455,6 +564,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5925DA33A540B3C4BE331970 /* Build configuration list for PBXNativeTarget "MangaFlowUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				02249846D9DE8827282D3C8F /* Debug */,
+				E2619692ACC63047ECD7A5B5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		73FAC5E7DDEA997A8BBEB583 /* Build configuration list for PBXNativeTarget "MangaFlowTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -22,6 +22,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: fr.local.MangaFlow
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_CFBundleDisplayName: MangaFlow
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -53,10 +54,21 @@ targets:
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
+  MangaFlowUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [MangaFlowUITests]
+    dependencies:
+      - target: MangaFlow
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
 schemes:
   MangaFlow:
     build:
       targets:
         MangaFlow: all
     test:
-      targets: [MangaFlowTests]
+      targets: [MangaFlowTests, MangaFlowUITests]
+      environmentVariables:
+        MANGAFLOW_TEST_CBZ: $(SRCROOT)/Fixtures/Chapitre 1196.cbz
