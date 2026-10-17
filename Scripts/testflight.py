@@ -25,7 +25,9 @@ def main():
     parser.add_argument('--configure-only', action='store_true', help='Prepare and verify the private internal group without uploading')
     parser.add_argument('--invite', action='store_true', help='Ask Apple to send the TestFlight invitation to the sole configured tester')
     parser.add_argument('--build', default='1')
+    parser.add_argument('--notes-file', help='UTF-8 French TestFlight release notes')
     args = parser.parse_args()
+    notes = Path(args.notes_file).read_text().strip() if args.notes_file else 'Importer un CBZ et lire en défilement vertical. Toucher une case pour voir la page originale.'
     api = AppStoreConnect(args.credentials)
     artifacts = Path('Artifacts'); artifacts.mkdir(exist_ok=True)
 
@@ -101,7 +103,7 @@ def main():
     locales = get(f'/v1/builds/{build_id}/betaBuildLocalizations')
     if not any(x['attributes']['locale'] == 'fr-FR' for x in locales):
         api.request('POST', '/v1/betaBuildLocalizations', {'data': {'type': 'betaBuildLocalizations',
-            'attributes': {'locale': 'fr-FR', 'whatsNew': 'Importer un CBZ depuis Fichiers, puis lire en défilement vertical. Toucher une case pour voir la page originale. Les bordures inclinées sont masquées ; le menu permet de comparer avec le découpage rectangulaire.'},
+            'attributes': {'locale': 'fr-FR', 'whatsNew': notes},
             'relationships': {'build': {'data': {'type': 'builds', 'id': build_id}}}}})
     current_builds = get(f'/v1/betaGroups/{group_id}/builds')
     if not any(b['id'] == build_id for b in current_builds):

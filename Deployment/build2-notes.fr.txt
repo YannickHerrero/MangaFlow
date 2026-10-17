@@ -1,0 +1,1 @@
+Lecture immersive : suppression des compteurs de pages et des espacements ajoutés entre les cases. Le bouton œil masque les commandes ; un double toucher sur une case les réaffiche. Un simple toucher ouvre toujours la page originale avec zoom.
