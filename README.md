@@ -2,9 +2,29 @@
 
 Prototype iPhone / iPad **iOS 27+** : importer un CBZ, détecter les cases sur l'appareil et lire le manga dans un défilement vertical. Aucun serveur, compte ni clé API. Le détecteur est inclus dans l'application.
 
-## Installer la version privée TestFlight
+## Avant → après
 
-La version **MangaFlow reader 0.1.0 (2)** est disponible dans le groupe interne **Yannick — Personnel**, réservé à `yannick.herrero@proton.me`. Ouvrir l'invitation Apple sur l'iPhone et installer via TestFlight (iOS 27 minimum). Aucun lien public ni groupe externe. Détails de livraison et commandes : `Deployment/README.md`.
+Une page de manga devient une suite de cases à lire en faisant défiler l’écran. La détection, l’ordre des cases et le rendu sont calculés sur l’iPhone.
+
+<table>
+  <tr><th>Avant · page source</th><th>Après · début de lecture</th><th>Après · en faisant défiler</th></tr>
+  <tr>
+    <td width="34%" valign="top"><img src="Docs/demo/source-page.png" alt="Planche manga originale de démonstration : une coursière et un petit robot sous la pluie" width="300"></td>
+    <td width="33%" valign="top"><img src="Docs/demo/demo-reader-start.png" alt="Capture réelle du lecteur immersif après conversion, au début des cases" width="300"></td>
+    <td width="33%" valign="top"><img src="Docs/demo/demo-reader-scroll.png" alt="Capture réelle du lecteur après défilement vers les cases suivantes" width="300"></td>
+  </tr>
+</table>
+
+La planche est une illustration originale générée pour cette démonstration. Les deux images de droite sont des **captures réelles de l’application dans le simulateur iOS**, après import d’un CBZ contenant cette page et conversion par le modèle embarqué. Elles montrent deux positions dans la même lecture, sans retouche du résultat. Le chapitre personnel utilisé pour les autres essais n’est pas publié. [Détails et reproduction des captures](Docs/demo/README.md).
+
+## Lire sans distraction
+
+- Importer un `.cbz` depuis Fichiers ou iCloud Drive ; la lecture s’ouvre après conversion.
+- Faire défiler les cases, sans espacement ajouté ni compteur de pages.
+- Toucher le bouton **œil** pour masquer les commandes ; **double toucher** sur une case pour les réafficher.
+- **Simple toucher** sur une case pour ouvrir sa page originale et zoomer.
+
+Aucun serveur, LLM distant ou téléchargement de modèle au premier lancement. Le TestFlight de développement est privé ; pour essayer le projet, compiler les sources ci-dessous.
 
 ## Essayer sur iPhone
 
@@ -72,4 +92,4 @@ Les mesures de validation et les limites observées sont dans `Docs/VALIDATION.m
 
 Installer `Scripts/requirements-model.txt` dans un environnement Python 3.9 compatible, placer les poids officiels dans `/tmp/manga_panel_detector_fp32.pt`, puis exécuter `python Scripts/export_model.py`. Les coordonnées de sortie attendues sont `[1, 300, 6]` : x1, y1, x2, y2, score, classe.
 
-Provenance et licences : voir `THIRD_PARTY_NOTICES.md`. L'autorisation personnelle de l'auteur de Chika a été confirmée par l'utilisateur ; aucune publication de ce prototype n'a été effectuée.
+Provenance et licences : voir `THIRD_PARTY_NOTICES.md`. Le code et le modèle exporté sont publiés sous **AGPL-3.0** ; voir [LICENSE](LICENSE). ZIPFoundation conserve sa licence MIT. Chika est une référence fonctionnelle ; l’application Swift est une implémentation indépendante.

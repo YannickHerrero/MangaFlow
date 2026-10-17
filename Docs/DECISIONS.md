@@ -8,4 +8,4 @@
 - Une page dont la détection échoue reste consultable. Aucune promesse de détection parfaite.
 - Conversion au premier plan, checkpoint après chaque page, reprise après suspension.
 - Référence : https://github.com/batunii/chika (MPL-2.0). Implémentation Swift indépendante.
-- Poids : https://huggingface.co/leoxs22/manga-panel-detector-yolo26n, révision 40a2854663d537563cfb95c370288a84c6505b9a (AGPL-3.0 déclarée par l'auteur ; entraînement Manga109-s). Pas de redistribution publique prévue.
+- Poids : https://huggingface.co/leoxs22/manga-panel-detector-yolo26n, révision 40a2854663d537563cfb95c370288a84c6505b9a (AGPL-3.0 déclarée par l'auteur ; entraînement Manga109-s). Publication du code et des poids exportés sous AGPL-3.0.

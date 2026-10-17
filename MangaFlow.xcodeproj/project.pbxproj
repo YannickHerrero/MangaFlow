@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		17D0B1BF3E3DAE6075AFD69C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5DE401A570B20B11FAFB9005 /* PrivacyInfo.xcprivacy */; };
 		1BEB4C13E538F68AAD84B204 /* LocalPanelDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19EC948B19E7526AE89E56CE /* LocalPanelDetector.swift */; };
+		201B5112A28BA66CAF15B039 /* DemoScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135DEA2C652C344A2DBBE207 /* DemoScreenshotTests.swift */; };
 		30E10EA192ACDB62E452EF37 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B784E6D43EAB943220D31A85 /* ReaderView.swift */; };
 		3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C10539866E45547DF7B3668 /* ContourTests.swift */; };
 		43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98185ADBDC0AA67C5F17620A /* PipelineTests.swift */; };
@@ -46,6 +47,7 @@
 
 /* Begin PBXFileReference section */
 		0CCC5856AF88AAAB92018B97 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
+		135DEA2C652C344A2DBBE207 /* DemoScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoScreenshotTests.swift; sourceTree = "<group>"; };
 		1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWorkflowTests.swift; sourceTree = "<group>"; };
 		19EC948B19E7526AE89E56CE /* LocalPanelDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPanelDetector.swift; sourceTree = "<group>"; };
 		2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaFlowApp.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 		32EEA6B61ECAC4F36CE1F05A /* MangaFlowUITests */ = {
 			isa = PBXGroup;
 			children = (
+				135DEA2C652C344A2DBBE207 /* DemoScreenshotTests.swift */,
 				1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */,
 			);
 			path = MangaFlowUITests;
@@ -284,6 +287,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				201B5112A28BA66CAF15B039 /* DemoScreenshotTests.swift in Sources */,
 				BC53FD44435CAF2E9863FA0D /* ReaderWorkflowTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
