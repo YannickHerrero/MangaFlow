@@ -63,7 +63,7 @@ export class Service {
     return {id:s.id,name:s.name,languages:s.languages,tags:s.tags,capabilities:{catalog:s.catalog,chapters:true,download:true},
       availability:catalog?.syncedAt?'available':catalog?.lastError?'unavailable':'unverified',
       explanation:s.catalog?null:'This connector has no complete catalog; URL-based discovery is outside this MVP.',
-      catalog:{syncedAt:catalog?.syncedAt||null,state:syncing?'syncing':catalog?.lastError?'failed':catalog?.syncedAt?'ready':'not_synced',lastError:catalog?.lastError||null}};
+      catalog:{count:catalog?.items?.length||0,syncedAt:catalog?.syncedAt||null,state:syncing?'syncing':catalog?.lastError?'failed':catalog?.syncedAt?'ready':'not_synced',lastError:catalog?.lastError||null}};
     });}
   source(id){const s=this.sources().find(s=>s.id===id);if(!s)throw new APIError('source_unavailable','Source is not enabled.',404);return s;}
   close(){clearInterval(this.updateTimer);clearInterval(this.cleanupTimer);this.engine?.close();}

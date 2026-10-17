@@ -80,6 +80,7 @@ struct MangaDocument: Codable, Identifiable, Sendable {
     var manualGroupKey: String? = nil
     var manualSeriesID: UUID? = nil
     var manualSeriesTitle: String? = nil
+    var chapterTitleOverride: String? = nil
     var chapterOrder: Double? = nil
     var lastReadAt: Date? = nil
     var readComplete: Bool? = nil

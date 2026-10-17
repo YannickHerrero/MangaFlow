@@ -50,4 +50,34 @@ final class SeriesMetadataTests:XCTestCase {
         library.documents=[doc];library.reconcile(jobs:[job()],serverID:"mac",sources:[])
         XCTAssertNil(library.documents[0].origin)
     }
+    @MainActor func testSourceChaptersGroupWithoutMergingOtherSourcesAndSortNaturally() {
+        let library=LibraryModel();library.documents=[]
+        var a=MangaDocument(id:UUID(),title:"Naruto — 10",pages:[])
+        a.origin=ChapterOrigin(job:job(chapterID:"/10",order:0),serverID:"mac",sourceName:nil)
+        var b=MangaDocument(id:UUID(),title:"Naruto — 2",pages:[])
+        b.origin=ChapterOrigin(job:job(chapterID:"/2",order:8),serverID:"mac",sourceName:nil)
+        // Model the actual source titles rather than the import filenames.
+        a.chapterTitleOverride="Chapitre 10";b.chapterTitleOverride="Chapitre 2"
+        var other=MangaDocument(id:UUID(),title:"Naruto",pages:[])
+        other.origin=ChapterOrigin(job:job(source:"other"),serverID:"mac",sourceName:nil)
+        library.documents=[a,b,other]
+        XCTAssertEqual(library.series.count,2)
+        XCTAssertEqual(library.series.first {$0.documents.count == 2}?.documents.map(\.id),[b.id,a.id])
+    }
+
+    @MainActor func testArtifactMigrationPersistsOriginAndKeepsReadingPosition() throws {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer {try? FileManager.default.removeItem(at:root)}
+        let store=DocumentStore(root:root)
+        var doc=MangaDocument(id:UUID(),title:"A renamed chapter",pages:[])
+        doc.remoteArtifactID="mac:cbz";doc.lastPanelID="3-2"
+        try store.save(doc)
+        let library=LibraryModel(store:store)
+        library.reconcile(jobs:[job()],serverID:"mac",sources:[])
+        let restored=try XCTUnwrap(try store.loadAll().first)
+        XCTAssertEqual(restored.origin?.mangaID,"/naruto")
+        XCTAssertEqual(restored.lastPanelID,"3-2")
+        XCTAssertEqual(restored.title,"A renamed chapter")
+    }
+
 }

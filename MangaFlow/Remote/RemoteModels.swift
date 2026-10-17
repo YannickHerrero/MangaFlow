@@ -59,7 +59,7 @@ struct RemoteFailure: Error, LocalizedError, Codable {
 }
 struct RemoteSource: Codable, Identifiable, Hashable {
     struct Capabilities: Codable, Hashable { let catalog: Bool; let chapters: Bool; let download: Bool }
-    struct Catalog: Codable, Hashable { let syncedAt: String?; let state: String; let lastError: RemoteFailure? }
+    struct Catalog: Codable, Hashable { let syncedAt: String?; let state: String; let lastError: RemoteFailure?; var count: Int? = nil }
     let id: String
     let name: String
     let languages: [String]
@@ -111,7 +111,7 @@ struct RemoteArtifact: Codable {
 }
 struct ServerHealth: Codable { let apiVersion: Int; let serverID: String }
 struct RemoteStatus: Codable {
-    struct Update: Codable { let state: String?; let lastError: RemoteFailure? }
+    struct Update: Codable { let state: String?; let lastError: RemoteFailure?; var count: Int? = nil }
     let engineVersion: String
     let update: Update
 }

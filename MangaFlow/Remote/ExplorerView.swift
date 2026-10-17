@@ -35,7 +35,7 @@ struct ExplorerView: View {
                             }
                         }
                     }
-                    if sources.contains(where:saved) {Text("Sources favorites").font(p.font(20,title:true));ForEach(sources.filter(saved)) {source in sourceRow(source)}}
+                    if sources.contains(where:saved) {Text("Sources favorites").font(p.font(20,title:true));ForEach(sources.filter(saved)) {source in sourceRow(source, featured: true)}}
                     Text("Toutes les sources").font(p.font(20,title:true))
                     ForEach(sources) {source in sourceRow(source)}
                     if sources.isEmpty && remote.connection != nil {Text("Aucune source à afficher.");Button("Actualiser") {Task {await remote.refresh()}}}
@@ -50,7 +50,7 @@ struct ExplorerView: View {
             Text(fav.manga.title).font(p.font(14,title:true)).lineLimit(1);Text(fav.sourceName).font(p.font(11))
         }.frame(width:110,alignment:.leading)
     }
-    private func sourceRow(_ source:RemoteSource)->some View {
+    private func sourceRow(_ source:RemoteSource, featured: Bool = false)->some View {
         HStack {
             NavigationLink {SourceCatalogView(remote:remote,source:source,library:library)} label: {
                 HStack(spacing:12) {
@@ -58,7 +58,7 @@ struct ExplorerView: View {
                     VStack(alignment:.leading,spacing:4) {Text(source.name).font(p.font(16,title:true));Text(status(source)).font(p.font(11));if let explanation=source.explanation {Text(explanation).font(p.font(10)).lineLimit(2)}}
                     Spacer()
                 }
-            }.buttonStyle(.plain).accessibilityIdentifier("source-\(source.id)")
+            }.buttonStyle(.plain).accessibilityIdentifier("\(featured ? "featured-source" : "source")-\(source.id)")
             Button {var updated=keys;let id=key(source);if let index=updated.firstIndex(of:id) {updated.remove(at:index)} else {updated.append(id)};if let data=try? JSONEncoder().encode(updated) {favoriteSources=String(decoding:data,as:UTF8.self)}} label: {Image(systemName:saved(source) ? "star.fill" : "star").padding(10)}.accessibilityLabel(saved(source) ? "Retirer la source des favoris" : "Ajouter la source aux favoris")
         }.themeCard()
     }
@@ -66,7 +66,7 @@ struct ExplorerView: View {
         if !source.capabilities.catalog {return "Sans catalogue complet"}
         if source.catalog.state == "syncing" {return "Synchronisation…"}
         if source.catalog.lastError != nil {return "Dernière synchronisation échouée"}
-        if let date=source.catalog.syncedAt {return "Synchronisé · \(date.prefix(10))"}
+        if let date=source.catalog.syncedAt {return "\(source.catalog.count ?? 0) mangas · \(date.prefix(10))"}
         return "À charger"
     }
 }

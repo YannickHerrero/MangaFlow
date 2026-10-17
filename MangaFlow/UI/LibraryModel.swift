@@ -10,10 +10,11 @@ final class LibraryModel {
     var activeDocument: MangaDocument?
     private var work: Task<Void, Never>?
     private var importer: Task<MangaDocument, Error>?
-    let store = DocumentStore()
+    let store: DocumentStore
     @ObservationIgnored private lazy var engine = ConversionEngine(store: store)
 
-    init() {
+    init(store: DocumentStore = DocumentStore()) {
+        self.store = store
         do { documents = try store.loadAll() }
         catch { self.error = error.localizedDescription }
     }
@@ -74,6 +75,7 @@ final class LibraryModel {
         error = nil
         await importCBZ(url, remoteArtifactID: artifactID, origin: origin)?.value
         if let error { throw RemoteFailure(code: "import_failed", message: error) }
+        guard documents.contains(where: { $0.remoteArtifactID == artifactID && $0.complete }) else { throw CancellationError() }
     }
     func conversionProgress(_ doc: MangaDocument) {
         update(doc); activeDocument = doc
@@ -89,7 +91,6 @@ final class LibraryModel {
         guard let index = documents.firstIndex(where: { $0.id == documentID }) else { return }
         documents[index].lastPanelID = panelID
         documents[index].lastReadAt = Date()
-        if documents[index].pages.last?.panels.last?.id == panelID { documents[index].readComplete = true }
         try? store.save(documents[index])
     }
     private func exportDiagnostics(_ document: MangaDocument) {

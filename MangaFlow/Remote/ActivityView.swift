@@ -50,7 +50,8 @@ struct ActivityView:View {
             } else if job.state == "completed" {
                 let imported=library.documents.contains {$0.remoteArtifactID == (remote.connection?.serverID ?? "")+":"+(job.artifactID ?? "")}
                 Text(imported ? "Prêt à lire hors ligne" : "CBZ prêt sur le Mac").font(p.font(12))
-                Button(imported ? "Lire" : "Importer et lire") {remote.startImport(job,library:library)}.buttonStyle(ThemeButtonStyle()).disabled(remote.importing || library.isBusy)
+                Button(imported ? "Lire" : "Importer et lire") {remote.startImport(job,library:library)}.buttonStyle(ThemeButtonStyle()).disabled(remote.importing || library.isBusy).accessibilityIdentifier("importRemote-\(job.id)")
+                if !imported { Button("Télécharger à nouveau si le CBZ a expiré") { if let manga=job.target.manga,let chapter=job.target.chapter { Task { await remote.download(manga,chapter:chapter) } } }.font(p.font(11)) }
             } else {
                 Text(job.error?.localizedDescription ?? job.stateLabel).font(p.font(12)).foregroundStyle(p.accent)
                 Button("Réessayer") {if let manga=job.target.manga,let chapter=job.target.chapter {Task {await remote.download(manga,chapter:chapter)}}}

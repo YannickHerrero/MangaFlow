@@ -70,8 +70,12 @@ struct SourceCatalogView: View {
     @State private var loading = false
     private var current: RemoteSource { remote.sources.first { $0.id == source.id } ?? source }
     var body: some View {
-        List {
-            Section("Catalogue local du Mac") {
+        ScrollView {
+          LazyVStack(alignment: .leading, spacing: 14) {
+            TextField("Rechercher dans le catalogue local", text: $search)
+                .textFieldStyle(.plain).padding(14).background(p.surface).accessibilityIdentifier("catalogSearch")
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Catalogue local du Mac").font(p.font(18, title: true))
                 Text("La recherche porte sur le dernier catalogue synchronisé, pas sur le site en direct.").font(.caption)
                 if let date = current.catalog.syncedAt { Text("Dernière synchronisation : \(date.prefix(19))").font(.caption) }
                 if let error = current.catalog.lastError { Text(error.localizedDescription).font(.caption).foregroundStyle(.orange) }
@@ -83,17 +87,18 @@ struct SourceCatalogView: View {
                 }
             }
             ForEach(mangas) { manga in
-                NavigationLink(manga.title) { MangaChaptersView(remote: remote, manga: manga, library: library) }
-                    .accessibilityIdentifier("manga-\(manga.id)")
+                NavigationLink { MangaChaptersView(remote: remote, manga: manga, library: library) } label: {
+                    HStack { Text(manga.title); Spacer(); Image(systemName: "chevron.right") }.themeCard()
+                }.buttonStyle(.plain).accessibilityIdentifier("manga-\(manga.id)")
             }
             if loading { ProgressView() }
             if mangas.count < total {
                 Button("Charger la suite (\(mangas.count) / \(total))") { Task { await load(more: true) } }
             }
+          }.padding(18).frame(maxWidth: 800).frame(maxWidth: .infinity)
         }
         .scrollContentBackground(.hidden).background { ThemeBackground() }
-        .listRowBackground(p.surface)
-        .navigationTitle(source.name).searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always), prompt: "Rechercher dans le catalogue local")
+        .themedNavigation(source.name)
         .task(id: search) { do { try await Task.sleep(for: .milliseconds(350)); await load() } catch {} }
         .onChange(of: current.catalog.syncedAt) { _, _ in Task { await load() } }
     }
@@ -116,18 +121,32 @@ struct MangaChaptersView: View {
     @State private var starting = false
     private var job: RemoteJob? { remote.jobs.first { $0.id == jobID } }
     var body: some View {
-        List {
+        ScrollView {
+          LazyVStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text(manga.title).font(p.font(28, title: true))
+                Spacer()
+                favoriteButton
+            }
             if starting || (job != nil && job?.finished == false) { ProgressView("Chargement des chapitres sur le Mac…") }
             if let error = job?.error { Text(error.localizedDescription).foregroundStyle(.orange) }
             ForEach(job?.result?.chapters ?? []) { chapter in
-                ChapterDownloadRow(remote: remote, library: library, manga: manga, chapter: chapter)
+                ChapterDownloadRow(remote: remote, library: library, manga: manga, chapter: chapter).themeCard()
             }
-
+          }.padding(18).frame(maxWidth: 800).frame(maxWidth: .infinity)
         }
-        .scrollContentBackground(.hidden).background { ThemeBackground() }
-        .navigationTitle(manga.title)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+        .background { ThemeBackground() }.themedNavigation(manga.title)
+        .task {
+            guard let client = remote.client else { return }
+            starting = true; defer { starting = false }
+            do {
+                let created = try await client.create("chapters", target: .init(sourceID: manga.sourceID, manga: manga, chapter: nil))
+                jobID = created.id; await remote.refresh()
+            } catch { remote.report(error) }
+        }
+    }
+    @ViewBuilder private var favoriteButton: some View {
+        Group {
                 if let serverID = remote.connection?.serverID {
                     let saved = favorites.contains(manga, serverID: serverID)
                     Button {
@@ -138,15 +157,7 @@ struct MangaChaptersView: View {
                     .accessibilityLabel(saved ? "Retirer des favoris" : "Ajouter aux favoris")
                     .accessibilityIdentifier("toggleFavorite")
                 }
-            }
         }
-        .task {
-            guard let client = remote.client else { return }
-            starting = true; defer { starting = false }
-            do {
-                let created = try await client.create("chapters", target: .init(sourceID: manga.sourceID, manga: manga, chapter: nil))
-                jobID = created.id; await remote.refresh()
-            } catch { remote.report(error) }
-        }
+        .buttonStyle(.plain)
     }
 }

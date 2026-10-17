@@ -90,3 +90,16 @@ test('candidate activation pauses new work and failed candidate keeps the active
  service.store.data.update.pending={version:'broken',directory:'broken'};service.probe=async()=>{throw new Error('fixture load failure');};await assert.rejects(service.activatePending());assert.equal(service.active.version,'candidate');assert.equal(service.queue.paused,false);
  await fs.rm(root,{recursive:true});
 });
+test('queue positions reflect the global FIFO without leaking other device jobs',async()=>{
+ const root=await temporary(),store=new Store(root),auth=new Auth(store);
+ const device=auth.exchange({...auth.createPairing('http://mac.local:9120'),deviceName:'fixture'});
+ const queue=new Queue(store,async()=>({}));queue.paused=true;
+ const first=queue.create('download',{sourceID:'x',manga:{id:'a'},chapter:{id:'1'}},'another-device');
+ const second=queue.create('download',{sourceID:'x',manga:{id:'a'},chapter:{id:'2'}},device.deviceID);
+ const server=createServer({store,auth,queue});await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ const response=await fetch('http://127.0.0.1:'+server.address().port+'/api/v1/jobs',{headers:{Authorization:'Bearer '+device.token}});
+ const {jobs}=await response.json();assert.equal(jobs.length,1);assert.equal(jobs[0].id,second.id);assert.equal(jobs[0].queuePosition,2);
+ queue.cancel(first.id);
+ const updated=await (await fetch('http://127.0.0.1:'+server.address().port+'/api/v1/jobs',{headers:{Authorization:'Bearer '+device.token}})).json();assert.equal(updated.jobs[0].queuePosition,1);
+ server.closeAllConnections();await new Promise(r=>server.close(r));await fs.rm(root,{recursive:true});
+});

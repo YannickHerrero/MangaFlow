@@ -26,7 +26,7 @@ struct LibrarySeries: Identifiable {
     let id: String
     let title: String
     let documents: [MangaDocument]
-    var sourceName: String { documents.first?.origin?.sourceName ?? "Import local" }
+    var sourceName: String { documents.compactMap(\.origin).first?.sourceName ?? "Import local" }
     var unread: Int { documents.filter { $0.readComplete != true }.count }
     var lastRead: Date { documents.compactMap(\.lastReadAt).max() ?? .distantPast }
     var added: Date { documents.map(\.created).max() ?? .distantPast }
@@ -35,6 +35,7 @@ struct LibrarySeries: Identifiable {
 }
 extension MangaDocument {
     var seriesID: String { origin?.seriesID ?? manualGroupKey ?? manualSeriesID.map { "manual:\($0)" } ?? "local:\(id)" }
+    var displayChapterTitle: String { chapterTitleOverride ?? origin?.chapterTitle ?? title }
     var seriesTitle: String { origin?.mangaTitle ?? manualSeriesTitle ?? title }
     var readingProgress: Double {
         if readComplete == true { return 1 }
@@ -47,8 +48,12 @@ extension LibraryModel {
     var series: [LibrarySeries] {
         Dictionary(grouping: documents, by: \.seriesID).map { key, docs in
             LibrarySeries(id: key, title: docs[0].seriesTitle, documents: docs.sorted {
-                let a = $0.chapterOrder ?? Double($0.origin?.order ?? 0), b = $1.chapterOrder ?? Double($1.origin?.order ?? 0)
-                return a == b ? DocumentStore.naturalOrder($0.title, $1.title) : a < b
+                if $0.chapterOrder != nil || $1.chapterOrder != nil {
+                    return ($0.chapterOrder ?? Double($0.origin?.order ?? 0)) < ($1.chapterOrder ?? Double($1.origin?.order ?? 0))
+                }
+                let a = $0.displayChapterTitle, b = $1.displayChapterTitle
+                if a.contains(where: \.isNumber), b.contains(where: \.isNumber), a != b { return DocumentStore.naturalOrder(a,b) }
+                return ($0.origin?.order ?? 0) < ($1.origin?.order ?? 0)
             })
         }.sorted { $0.added > $1.added }
     }

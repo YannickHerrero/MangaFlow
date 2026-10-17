@@ -35,7 +35,7 @@ final class RemoteModel {
     init() {
         do { connection = try ConnectionVault.load() }
         catch { self.error = error.localizedDescription }
-        if let connection { client = RemoteAPI(connection: connection) }
+        if let connection { client = RemoteAPI(connection: connection); restoreSnapshot(connection.serverID) }
     }
     init(connection: ServerConnection?, session: URLSession) {
         self.connection = connection
@@ -61,6 +61,7 @@ final class RemoteModel {
             sources = try await client.sources()
             status = try await client.status()
             connected = true
+            saveSnapshot()
         } catch is CancellationError {} catch { connected = false; if !silent { report(error) } }
     }
     func forget() {
@@ -99,6 +100,8 @@ final class RemoteModel {
             let created = try await client.create("download", target: .init(sourceID: manga.sourceID, manga: manga, chapter: chapter))
             // Reflect acceptance immediately, without waiting for the next polling cycle.
             acceptedDownloads[created.id] = created
+            hiddenJobs.remove(created.id)
+            UserDefaults.standard.set(Array(hiddenJobs), forKey: "hiddenJobs")
             jobs.removeAll { $0.id == created.id }; jobs.insert(created, at: 0)
         } catch is CancellationError {} catch {
             downloadErrors[key] = error.localizedDescription
@@ -125,6 +128,24 @@ final class RemoteModel {
             try await library.importRemoteCBZ(url, artifactID: identity, origin: ChapterOrigin(job: job, serverID: connection?.serverID ?? "", sourceName: sources.first { $0.id == job.target.sourceID }?.name))
             importedJobs.insert(job.id); UserDefaults.standard.set(Array(importedJobs), forKey: "importedJobs")
         } catch { report(error) }
+    }
+    private struct Snapshot: Codable { let sources: [RemoteSource]; let jobs: [RemoteJob] }
+    private func snapshotURL(_ serverID: String) -> URL {
+        // Server IDs are validated UUIDs by pairing; encode anyway to keep paths opaque.
+        let name = Data(serverID.utf8).base64EncodedString().replacingOccurrences(of: "/", with: "_")
+        return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("MangaFlowRemote/" + name + ".json")
+    }
+    private func saveSnapshot() {
+        guard let id = connection?.serverID else { return }
+        let file = snapshotURL(id)
+        do {
+            try FileManager.default.createDirectory(at: file.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try JSONEncoder().encode(Snapshot(sources: sources, jobs: jobs)).write(to: file, options: .atomic)
+        } catch { /* Optional offline snapshot never blocks authenticated operations. */ }
+    }
+    private func restoreSnapshot(_ serverID: String) {
+        guard let data = try? Data(contentsOf: snapshotURL(serverID)), let saved = try? JSONDecoder().decode(Snapshot.self, from: data) else { return }
+        sources = saved.sources; jobs = saved.jobs
     }
     func report(_ error: Error) { if !(error is CancellationError) { self.error = error.localizedDescription } }
 }

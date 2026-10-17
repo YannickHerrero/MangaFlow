@@ -5,6 +5,7 @@ struct ReaderView: View {
     let document: MangaDocument
     let store: DocumentStore
     var onPosition: (String) -> Void
+    var onComplete: (() -> Void)? = nil
     var nextChapter: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var position: String?
@@ -68,6 +69,9 @@ struct ReaderView: View {
                     .scrollTargetLayout()
                 }
                 .scrollPosition(id: $position, anchor: .top)
+                .onScrollGeometryChange(for: Bool.self) { geometry in
+                    geometry.contentSize.height > 0 && geometry.contentOffset.y + geometry.containerSize.height >= geometry.contentSize.height - 24
+                } action: { _, atEnd in if atEnd { onComplete?() } }
                 .accessibilityIdentifier("readerScroll")
                 .accessibilityLabel("Lecture du manga")
                 .accessibilityValue("Page \(currentPage + 1), case \(currentPanelNumber)")
