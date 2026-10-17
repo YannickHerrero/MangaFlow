@@ -7,20 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0CF078B1274CE42BBA4D914F /* PairingScanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67C74956BC4970C2D99E17E9 /* PairingScanner.swift */; };
+		0DA5796D55973BBD4E43C8A7 /* OnlineWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816EC226408A0BC1E7D688FF /* OnlineWorkflowTests.swift */; };
 		17D0B1BF3E3DAE6075AFD69C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5DE401A570B20B11FAFB9005 /* PrivacyInfo.xcprivacy */; };
+		1A31FBEBFEFD2B102D8FCF1F /* RemoteModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BB5C197C0E4A04A45407615 /* RemoteModels.swift */; };
 		1BEB4C13E538F68AAD84B204 /* LocalPanelDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19EC948B19E7526AE89E56CE /* LocalPanelDetector.swift */; };
 		201B5112A28BA66CAF15B039 /* DemoScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 135DEA2C652C344A2DBBE207 /* DemoScreenshotTests.swift */; };
+		2711920A1E4C4EA6116C03CD /* RemoteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC8AC22A72D5F674847E33B /* RemoteTests.swift */; };
+		2E4D4AFE27D734D3386FE49D /* SourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917EA8608BE0D98D6EE0FCE0 /* SourcesView.swift */; };
 		30E10EA192ACDB62E452EF37 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B784E6D43EAB943220D31A85 /* ReaderView.swift */; };
 		3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C10539866E45547DF7B3668 /* ContourTests.swift */; };
 		43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98185ADBDC0AA67C5F17620A /* PipelineTests.swift */; };
+		4658517CAF94B0D0C1B12F4C /* RemoteAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB95DFDD728CF426DEDD7AC /* RemoteAPI.swift */; };
 		48FED1788D3583B0EC0386B4 /* PageImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98F57F916FC0DCD29F3FCE6 /* PageImage.swift */; };
 		581C0CD86025FCE09471F35D /* LibraryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9514AF7AAE987A8555F972C5 /* LibraryModel.swift */; };
 		7416E7B4A8A81F17A01B4A7F /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCC5856AF88AAAB92018B97 /* Document.swift */; };
 		742FCC1B4510DB974618E3AC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB18DFA549CC3F7DABCF44F6 /* Assets.xcassets */; };
 		78FF987D20A640557B8A4065 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23646A9B7FB378F997A80B /* LibraryView.swift */; };
 		81E4C8BE6B2BE5D6FB85B690 /* ConversionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 856681329C79CB7670043370 /* ConversionEngine.swift */; };
+		8E67E5D8817BAE93A726A1DE /* OfflineRemoteReadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBE9F7380B7FC7953B1FEB /* OfflineRemoteReadTests.swift */; };
+		9805465137DD124E0AFC1C48 /* ConnectionVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E149430519E8A896568481F /* ConnectionVault.swift */; };
 		BC53FD44435CAF2E9863FA0D /* ReaderWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */; };
 		C3284C61749BE0C9E6BB22BC /* PanelLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D08534A61B2F111598C24DB /* PanelLayout.swift */; };
+		C378D1AB3352F28C5FD25EF8 /* RemoteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6697429CF8A157068E5342 /* RemoteModel.swift */; };
 		C95F5324D2F14DAB9629C1F6 /* PanelDetector.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 6F81E3720D66783B3166CADA /* PanelDetector.mlpackage */; };
 		D19912CF1C8FAAF821232842 /* MangaFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */; };
 		DF3A55EE066F1A01872A812C /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 230FEC6233A2AAF3AD2D8531 /* ZIPFoundation */; };
@@ -46,27 +55,37 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0ABBE9F7380B7FC7953B1FEB /* OfflineRemoteReadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineRemoteReadTests.swift; sourceTree = "<group>"; };
+		0BB5C197C0E4A04A45407615 /* RemoteModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteModels.swift; sourceTree = "<group>"; };
 		0CCC5856AF88AAAB92018B97 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		135DEA2C652C344A2DBBE207 /* DemoScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoScreenshotTests.swift; sourceTree = "<group>"; };
 		1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWorkflowTests.swift; sourceTree = "<group>"; };
 		19EC948B19E7526AE89E56CE /* LocalPanelDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalPanelDetector.swift; sourceTree = "<group>"; };
+		1FC8AC22A72D5F674847E33B /* RemoteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteTests.swift; sourceTree = "<group>"; };
 		2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MangaFlowApp.swift; sourceTree = "<group>"; };
 		31958CBD7089BEA9A7BB676D /* MangaFlowTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MangaFlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		33A0FC65B3F2EFC5216FD754 /* MangaFlowUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MangaFlowUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D08534A61B2F111598C24DB /* PanelLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelLayout.swift; sourceTree = "<group>"; };
 		5DE401A570B20B11FAFB9005 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		67C74956BC4970C2D99E17E9 /* PairingScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingScanner.swift; sourceTree = "<group>"; };
+		6DB95DFDD728CF426DEDD7AC /* RemoteAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAPI.swift; sourceTree = "<group>"; };
+		6E149430519E8A896568481F /* ConnectionVault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionVault.swift; sourceTree = "<group>"; };
 		6F81E3720D66783B3166CADA /* PanelDetector.mlpackage */ = {isa = PBXFileReference; path = PanelDetector.mlpackage; sourceTree = "<group>"; };
 		7D2723F15CE916C44110AC21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7DA2ADCEF5A36D0461BBF5F7 /* DocumentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStore.swift; sourceTree = "<group>"; };
+		816EC226408A0BC1E7D688FF /* OnlineWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineWorkflowTests.swift; sourceTree = "<group>"; };
 		856681329C79CB7670043370 /* ConversionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionEngine.swift; sourceTree = "<group>"; };
 		8C10539866E45547DF7B3668 /* ContourTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContourTests.swift; sourceTree = "<group>"; };
 		8FAD8E2D019DC4B43251F28D /* ContourRefiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContourRefiner.swift; sourceTree = "<group>"; };
+		917EA8608BE0D98D6EE0FCE0 /* SourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesView.swift; sourceTree = "<group>"; };
 		933F3B1528F20796EAF18034 /* MangaFlow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MangaFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9514AF7AAE987A8555F972C5 /* LibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModel.swift; sourceTree = "<group>"; };
 		98185ADBDC0AA67C5F17620A /* PipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineTests.swift; sourceTree = "<group>"; };
 		B784E6D43EAB943220D31A85 /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
 		B98F57F916FC0DCD29F3FCE6 /* PageImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageImage.swift; sourceTree = "<group>"; };
+		CB6697429CF8A157068E5342 /* RemoteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteModel.swift; sourceTree = "<group>"; };
 		DA23646A9B7FB378F997A80B /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		E45DE83544C164DA23D2D3F2 /* Simulator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Simulator.entitlements; sourceTree = "<group>"; };
 		FB18DFA549CC3F7DABCF44F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -99,8 +118,10 @@
 				7D2723F15CE916C44110AC21 /* Info.plist */,
 				2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */,
 				5DE401A570B20B11FAFB9005 /* PrivacyInfo.xcprivacy */,
+				E45DE83544C164DA23D2D3F2 /* Simulator.entitlements */,
 				D335F55CCC81408B0113346A /* Core */,
 				4F5890AC24A81C9B8C12D760 /* Models */,
+				7FEC36296D19D4F36D3CE6BA /* Remote */,
 				4076A023F999D75F0EC4CCF2 /* UI */,
 			);
 			path = MangaFlow;
@@ -110,6 +131,8 @@
 			isa = PBXGroup;
 			children = (
 				135DEA2C652C344A2DBBE207 /* DemoScreenshotTests.swift */,
+				0ABBE9F7380B7FC7953B1FEB /* OfflineRemoteReadTests.swift */,
+				816EC226408A0BC1E7D688FF /* OnlineWorkflowTests.swift */,
 				1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */,
 			);
 			path = MangaFlowUITests;
@@ -131,6 +154,19 @@
 				6F81E3720D66783B3166CADA /* PanelDetector.mlpackage */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		7FEC36296D19D4F36D3CE6BA /* Remote */ = {
+			isa = PBXGroup;
+			children = (
+				6E149430519E8A896568481F /* ConnectionVault.swift */,
+				67C74956BC4970C2D99E17E9 /* PairingScanner.swift */,
+				6DB95DFDD728CF426DEDD7AC /* RemoteAPI.swift */,
+				CB6697429CF8A157068E5342 /* RemoteModel.swift */,
+				0BB5C197C0E4A04A45407615 /* RemoteModels.swift */,
+				917EA8608BE0D98D6EE0FCE0 /* SourcesView.swift */,
+			);
+			path = Remote;
 			sourceTree = "<group>";
 		};
 		B616A565A183A7094C332AF5 /* Products */ = {
@@ -162,6 +198,7 @@
 			children = (
 				8C10539866E45547DF7B3668 /* ContourTests.swift */,
 				98185ADBDC0AA67C5F17620A /* PipelineTests.swift */,
+				1FC8AC22A72D5F674847E33B /* RemoteTests.swift */,
 			);
 			path = MangaFlowTests;
 			sourceTree = "<group>";
@@ -288,6 +325,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				201B5112A28BA66CAF15B039 /* DemoScreenshotTests.swift in Sources */,
+				8E67E5D8817BAE93A726A1DE /* OfflineRemoteReadTests.swift in Sources */,
+				0DA5796D55973BBD4E43C8A7 /* OnlineWorkflowTests.swift in Sources */,
 				BC53FD44435CAF2E9863FA0D /* ReaderWorkflowTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -298,6 +337,7 @@
 			files = (
 				3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */,
 				43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */,
+				2711920A1E4C4EA6116C03CD /* RemoteTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -305,6 +345,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9805465137DD124E0AFC1C48 /* ConnectionVault.swift in Sources */,
 				F256BCC1BD746D8E46DD5764 /* ContourRefiner.swift in Sources */,
 				81E4C8BE6B2BE5D6FB85B690 /* ConversionEngine.swift in Sources */,
 				7416E7B4A8A81F17A01B4A7F /* Document.swift in Sources */,
@@ -314,9 +355,14 @@
 				1BEB4C13E538F68AAD84B204 /* LocalPanelDetector.swift in Sources */,
 				D19912CF1C8FAAF821232842 /* MangaFlowApp.swift in Sources */,
 				48FED1788D3583B0EC0386B4 /* PageImage.swift in Sources */,
+				0CF078B1274CE42BBA4D914F /* PairingScanner.swift in Sources */,
 				C95F5324D2F14DAB9629C1F6 /* PanelDetector.mlpackage in Sources */,
 				C3284C61749BE0C9E6BB22BC /* PanelLayout.swift in Sources */,
 				30E10EA192ACDB62E452EF37 /* ReaderView.swift in Sources */,
+				4658517CAF94B0D0C1B12F4C /* RemoteAPI.swift in Sources */,
+				C378D1AB3352F28C5FD25EF8 /* RemoteModel.swift in Sources */,
+				1A31FBEBFEFD2B102D8FCF1F /* RemoteModels.swift in Sources */,
+				2E4D4AFE27D734D3386FE49D /* SourcesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,8 +485,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = MangaFlow/Simulator.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MangaFlow/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MangaFlow;
@@ -556,10 +603,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = MangaFlow/Simulator.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				"CODE_SIGN_STYLE[sdk=iphoneos*]" = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = KY6RHJR4LZ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MangaFlow/Info.plist;

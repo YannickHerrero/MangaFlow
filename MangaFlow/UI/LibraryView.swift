@@ -63,13 +63,6 @@ struct LibraryView: View {
                 case .failure(let error): library.error = error.localizedDescription
                 }
             }
-            .fullScreenCover(item: Binding(get: {
-                library.documents.first { $0.id == library.selected }
-            }, set: { if $0 == nil { library.selected = nil } })) { document in
-                ReaderView(document: document, store: library.store) { panel in
-                    library.remember(documentID: document.id, panelID: panel)
-                }
-            }
             .alert("Impossible de continuer", isPresented: Binding(get: { library.error != nil }, set: { if !$0 { library.error = nil } })) {
                 Button("Compris", role: .cancel) { library.error = nil }
             } message: { Text(library.error ?? "") }

@@ -75,6 +75,7 @@ struct MangaDocument: Codable, Identifiable, Sendable {
     var rightToLeft = true
     var pages: [MangaPage]
     var lastPanelID: String?
+    var remoteArtifactID: String? = nil
     var complete: Bool { pages.allSatisfy(\.processed) }
     var panelCount: Int { pages.reduce(0) { $0 + $1.panels.count } }
     var processedCount: Int { pages.filter(\.processed).count }

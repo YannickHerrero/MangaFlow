@@ -1,0 +1,1 @@
+Sources en ligne via HakuNeko sur ton Mac : appairage QR sur le même réseau local, catalogue local, recherche, chapitres et téléchargements persistants. Récupère les CBZ terminés dans Sources pour les importer et les lire avec le lecteur existant. Les mangas déjà importés restent accessibles lorsque le Mac est arrêté.

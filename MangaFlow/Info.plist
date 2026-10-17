@@ -34,6 +34,15 @@
 	<string>1</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Scanner le QR code du serveur MangaFlow sur ton Mac.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Accéder au serveur MangaFlow sur ton Mac pour parcourir les sources et importer les chapitres.</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
