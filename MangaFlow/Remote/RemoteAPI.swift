@@ -68,12 +68,12 @@ actor RemoteAPI {
         struct Response: Decodable { let revoked: Bool }
         let _: Response = try await send("DELETE", "device")
     }
-    func download(_ artifactID: String) async throws -> URL {
+    func download(_ artifactID: String, progress: @escaping @Sendable (Double) -> Void = { _ in }) async throws -> URL {
         let artifact: RemoteArtifact = try await send("GET", "artifacts/" + artifactID)
         var request = URLRequest(url: connection.serverURL.appending(path: "api/v1/artifacts/" + artifactID + "/file"))
         request.setValue("Bearer " + connection.token, forHTTPHeaderField: "Authorization"); request.timeoutInterval = 300
         do {
-            let (temporary, response) = try await session.download(for: request)
+            let (temporary, response) = try await TransferSession(progress: progress).download(request)
             defer { try? FileManager.default.removeItem(at: temporary) }
             guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
                 try Self.check(response, data: (try? Data(contentsOf: temporary)) ?? Data())
@@ -90,6 +90,7 @@ actor RemoteAPI {
             return destination
         } catch let error as RemoteFailure { throw error }
         catch is CancellationError { throw CancellationError() }
+        catch let error as URLError where error.code == .cancelled { throw CancellationError() }
         catch { throw RemoteFailure(code: "server_unreachable", message: "Transfert interrompu. Le CBZ reste disponible sur le Mac.") }
     }
 }

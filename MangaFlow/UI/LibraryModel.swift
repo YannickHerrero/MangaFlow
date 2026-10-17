@@ -68,7 +68,7 @@ final class LibraryModel {
     func importRemoteCBZ(_ url: URL, artifactID: String, origin: ChapterOrigin? = nil) async throws {
         guard !isBusy else { throw RemoteFailure(code: "library_busy", message: "Termine ou mets en pause la conversion en cours avant d’importer un chapitre.") }
         if let existing = documents.first(where: { $0.remoteArtifactID == artifactID }) {
-            if existing.complete { selected = existing.id } else { resume(existing) }
+            open(existing)
             return
         }
         error = nil

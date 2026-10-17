@@ -45,7 +45,7 @@ export function createServer(service){
         }
         return json(res,202,queue.create(kind,target,device.id,req.headers['idempotency-key']));
       }
-      if(req.method==='GET'&&route==='/api/v1/jobs')return json(res,200,{jobs:store.data.jobs.filter(j=>j.deviceID===device.id).slice(-200).reverse()});
+      if(req.method==='GET'&&route==='/api/v1/jobs')return json(res,200,{jobs:store.data.jobs.filter(j=>j.deviceID===device.id).slice(-200).reverse().map(j=>({...j,queuePosition:j.state==='queued'?store.data.jobs.filter(x=>x.state==='queued').findIndex(x=>x.id===j.id)+1:null}))});
       if(route.startsWith('/api/v1/jobs/')){
         const suffix=route.slice('/api/v1/jobs/'.length);const id=suffix.replace(/\/cancel$/,'');const job=queue.get(id);
         if(job.deviceID!==device.id)throw new APIError('not_found','Job not found.',404);

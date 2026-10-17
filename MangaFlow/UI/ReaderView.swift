@@ -1,9 +1,11 @@
 import SwiftUI
 
 struct ReaderView: View {
+    @Environment(\.palette) private var p
     let document: MangaDocument
     let store: DocumentStore
     var onPosition: (String) -> Void
+    var nextChapter: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
     @State private var position: String?
     @State private var original: MangaPage?
@@ -61,6 +63,7 @@ struct ReaderView: View {
                                 .accessibilityAction(named: controlsVisible ? "Masquer les commandes" : "Afficher les commandes") { toggleControls() }
                                 .id(row.id)
                         }
+                        if let nextChapter { Button("Chapitre suivant", action: nextChapter).buttonStyle(ThemeButtonStyle()).padding(24).accessibilityIdentifier("nextChapter") }
                     }
                     .scrollTargetLayout()
                 }
@@ -74,14 +77,16 @@ struct ReaderView: View {
                 }
                 .task {
                     guard !restored else { return }
-                    position = document.lastPanelID ?? rows.first?.id
+                    if let saved = document.lastPanelID, rows.contains(where: { $0.id == saved }) { position = saved }
+                    else if let page = document.lastPanelID?.split(separator: "-").first { position = rows.first { String($0.page.id) == page }?.id ?? rows.first?.id }
+                    else { position = rows.first?.id }
                     restored = true
                 }
             }
             .ignoresSafeArea(.container, edges: .vertical)
             .navigationTitle(document.title)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(FlowStyle.background, for: .navigationBar)
+            .toolbarBackground(p.paper, for: .navigationBar)
             .toolbar(controlsVisible ? .visible : .hidden, for: .navigationBar)
             .statusBarHidden(!controlsVisible)
             .persistentSystemOverlays(controlsVisible ? .automatic : .hidden)
@@ -124,6 +129,7 @@ struct ReaderView: View {
 }
 
 struct OriginalPageView: View {
+    @Environment(\.palette) private var p
     let url: URL
     @State private var image: UIImage?
     @State private var failed = false

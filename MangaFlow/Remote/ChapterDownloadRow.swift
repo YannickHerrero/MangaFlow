@@ -44,7 +44,7 @@ struct ChapterDownloadRow: View {
                 } else if completed {
                     Text("Téléchargé sur le Mac").font(.caption).foregroundStyle(.secondary)
                     Button(remote.importing ? "Import en cours…" : "Importer et lire") {
-                        Task { await remote.importArtifact(job, library: library) }
+                        remote.startImport(job, library: library)
                     }
                     .disabled(remote.importing || library.isBusy)
                     .accessibilityIdentifier("readChapter-\(chapter.id)")

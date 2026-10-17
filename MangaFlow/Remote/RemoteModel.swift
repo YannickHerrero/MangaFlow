@@ -11,6 +11,23 @@ final class RemoteModel {
     var busy = false
     var importing = false
     var sourceSearch = ""
+    var transferProgress: Double = 0
+    var transferJobID: String?
+    var transferPhase = ""
+    var transferTask: Task<Void, Never>?
+    var transferStarted: Date?
+    var hiddenJobs: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "hiddenJobs") ?? [])
+    var importedJobs: Set<String> = Set(UserDefaults.standard.stringArray(forKey: "importedJobs") ?? [])
+    func clearFinishedHistory() {
+        hiddenJobs.formUnion(jobs.filter(\.finished).map(\.id))
+        UserDefaults.standard.set(Array(hiddenJobs), forKey: "hiddenJobs")
+    }
+    func startImport(_ job: RemoteJob, library: LibraryModel) {
+        guard !importing else { return }
+        transferTask = Task { await importArtifact(job, library: library) }
+    }
+    func cancelTransfer(library: LibraryModel) { transferTask?.cancel(); if transferPhase == "Découpage sur cet appareil" { library.cancel() } }
+
     private(set) var requestingDownloads: Set<ChapterDownloadKey> = []
     private(set) var downloadErrors: [ChapterDownloadKey: String] = [:]
     private var acceptedDownloads: [String: RemoteJob] = [:]
@@ -90,16 +107,23 @@ final class RemoteModel {
     }
     func importArtifact(_ job: RemoteJob, library: LibraryModel) async {
         guard !importing, let client, let artifactID = job.artifactID else { return }
-        importing = true; defer { importing = false }
+        importing = true; transferJobID = job.id; transferPhase = "Transfert vers cet appareil"; transferProgress = 0; transferStarted = Date()
+        defer { importing = false; transferJobID = nil; transferPhase = ""; UserDefaults.standard.removeObject(forKey: "interruptedTransfer") }
+        UserDefaults.standard.set(job.id, forKey: "interruptedTransfer")
         do {
             let identity = (connection?.serverID ?? "") + ":" + artifactID
             if let document = library.documents.first(where: { $0.remoteArtifactID == identity }) {
-                if document.complete { library.selected = document.id } else { library.resume(document) }
+                library.open(document)
                 return
             }
-            let url = try await client.download(artifactID)
+            let url = try await client.download(artifactID) { [weak self] value in
+                Task { @MainActor in self?.transferProgress = value }
+            }
+            try Task.checkCancellation()
+            transferPhase = "Découpage sur cet appareil"
             defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
             try await library.importRemoteCBZ(url, artifactID: identity, origin: ChapterOrigin(job: job, serverID: connection?.serverID ?? "", sourceName: sources.first { $0.id == job.target.sourceID }?.name))
+            importedJobs.insert(job.id); UserDefaults.standard.set(Array(importedJobs), forKey: "importedJobs")
         } catch { report(error) }
     }
     func report(_ error: Error) { if !(error is CancellationError) { self.error = error.localizedDescription } }

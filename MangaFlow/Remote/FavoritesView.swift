@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct FavoritesView: View {
+    @Environment(\.palette) private var p
     @Bindable var remote: RemoteModel
     let library: LibraryModel
     @Environment(FavoriteStore.self) private var favorites
@@ -26,7 +27,7 @@ struct FavoritesView: View {
                     }
                 }
             }
-            .scrollContentBackground(.hidden).background(FlowStyle.background)
+            .scrollContentBackground(.hidden).background(p.paper)
             .navigationTitle("Favoris")
         }
     }

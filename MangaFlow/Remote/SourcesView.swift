@@ -1,7 +1,8 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct SourcesView: View {
+struct ConnectionView: View {
+    @Environment(\.palette) private var p
     @Bindable var remote: RemoteModel
     let library: LibraryModel
     @State private var pairingText = ""
@@ -39,45 +40,10 @@ struct SourcesView: View {
                     }
                 }
                 if remote.connection != nil {
-                    Section("Sources") {
-                        TextField("Rechercher une source ou un tag", text: $remote.sourceSearch)
-                        ForEach(remote.sources.filter { remote.sourceSearch.isEmpty || ($0.name + " " + $0.tags.joined(separator: " ") + " " + $0.languages.joined(separator: " ")).localizedCaseInsensitiveContains(remote.sourceSearch) }) { source in
-                            NavigationLink {
-                                SourceCatalogView(remote: remote, source: source, library: library)
-                            } label: {
-                                VStack(alignment: .leading, spacing: 5) {
-                                    Text(source.name)
-                                    Text(source.languages.joined(separator: ", ") + " · " + source.catalog.state).font(.caption).foregroundStyle(.secondary)
-                                    if let explanation = source.explanation { Text(explanation).font(.caption).foregroundStyle(.secondary) }
-                                }
-                            }.accessibilityIdentifier("source-\(source.id)")
-                        }
-                    }
-                    Section("Téléchargements sur le Mac") {
-                        if remote.jobs.isEmpty { Text("Aucune tâche pour cet appareil.").foregroundStyle(.secondary) }
-                        ForEach(remote.jobs.filter { $0.kind == "download" }) { job in
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(job.target.manga?.title ?? "Chapitre").font(.headline)
-                                Text((job.target.chapter?.title ?? "") + " · " + job.stateLabel).font(.subheadline)
-                                if job.progress.total > 0 {
-                                    ProgressView(value: Double(job.progress.completed), total: Double(job.progress.total))
-                                    Text("\(job.progress.completed) / \(job.progress.total) images").font(.caption)
-                                }
-                                if let error = job.error { Text(error.localizedDescription).font(.caption).foregroundStyle(.orange) }
-                                if job.state == "completed", job.artifactID != nil {
-                                    Button(remote.importing ? "Transfert et conversion…" : "Importer et lire") { Task { await remote.importArtifact(job, library: library) } }
-                                        .disabled(remote.importing || library.isBusy).accessibilityIdentifier("importRemote-\(job.id)")
-                                } else if !job.finished {
-                                    Button("Annuler", role: .destructive) { Task { await remote.cancel(job) } }
-                                }
-                            }.padding(.vertical, 6)
-                        }
-                        Text("Les tâches continuent sur le Mac lorsque tu quittes l’app. Les CBZ terminés sont conservés 7 jours sur le serveur.").font(.caption).foregroundStyle(.secondary)
-                    }
                 }
             }
-            .scrollContentBackground(.hidden).background(FlowStyle.background)
-            .navigationTitle("Sources")
+            .scrollContentBackground(.hidden).background(p.paper)
+            .navigationTitle("Connexion au Mac")
             .refreshable { await remote.refresh() }
             .sheet(isPresented: $scanner) { PairingScanner { value in Task { await remote.pair(value) } } }
             .fileImporter(isPresented: $filePicker, allowedContentTypes: [.json, .plainText]) { result in
@@ -93,7 +59,8 @@ struct SourcesView: View {
         }
     }
 }
-private struct SourceCatalogView: View {
+struct SourceCatalogView: View {
+    @Environment(\.palette) private var p
     @Bindable var remote: RemoteModel
     let source: RemoteSource
     let library: LibraryModel
@@ -124,6 +91,8 @@ private struct SourceCatalogView: View {
                 Button("Charger la suite (\(mangas.count) / \(total))") { Task { await load(more: true) } }
             }
         }
+        .scrollContentBackground(.hidden).background { ThemeBackground() }
+        .listRowBackground(p.surface)
         .navigationTitle(source.name).searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always), prompt: "Rechercher dans le catalogue local")
         .task(id: search) { do { try await Task.sleep(for: .milliseconds(350)); await load() } catch {} }
         .onChange(of: current.catalog.syncedAt) { _, _ in Task { await load() } }
@@ -138,6 +107,7 @@ private struct SourceCatalogView: View {
     }
 }
 struct MangaChaptersView: View {
+    @Environment(\.palette) private var p
     @Bindable var remote: RemoteModel
     let manga: RemoteManga
     let library: LibraryModel
@@ -154,6 +124,7 @@ struct MangaChaptersView: View {
             }
 
         }
+        .scrollContentBackground(.hidden).background { ThemeBackground() }
         .navigationTitle(manga.title)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

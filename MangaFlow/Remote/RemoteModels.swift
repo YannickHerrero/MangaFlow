@@ -94,6 +94,10 @@ struct RemoteJob: Codable, Identifiable {
     let error: RemoteFailure?
     let artifactID: String?
     let result: Result?
+    var queuePosition: Int? = nil
+    var createdAt: String? = nil
+    var startedAt: String? = nil
+    var updatedAt: String? = nil
     var finished: Bool { ["completed", "failed", "cancelled"].contains(state) }
     var stateLabel: String {
         ["queued": "En attente", "running": "En cours", "completed": "Terminé", "failed": "Échec", "cancelled": "Annulé"][state] ?? state
