@@ -1,5 +1,12 @@
 # TestFlight privé
 
+## Sources en ligne — build 4
+
+Le 17 octobre 2026, **0.1.0 (4)** a été validé par Apple et affecté au groupe interne existant, limité à un testeur. États confirmés : **INTERNAL_ONLY** et **IN_BETA_TESTING**. L’archive a été signée et sa signature vérifiée. Cette version ajoute l’onglet Sources, l’appairage QR sur le réseau local et l’import de chapitres téléchargés par le serveur Mac HakuNeko. Aucun App Store public ni nouveau groupe n’a été créé.
+
+Le serveur Mac doit fonctionner sur le même réseau que l’iPhone/iPad. Démarrage et appairage : [Server/README.md](../Server/README.md). Validation réelle et limites : [Docs/ONLINE_SOURCES.md](../Docs/ONLINE_SOURCES.md).
+
+
 ## Mise à jour immersive — build 2
 
 Le 17 octobre 2026, **0.1.0 (2)** a été validé par Apple et affecté au même groupe interne, avec exactement un testeur. États confirmés : **INTERNAL_ONLY** et **IN_BETA_TESTING**. Les 17 tests passent, dont le parcours de lecture immersive sur le chapitre 1196. La signature de l’archive a été vérifiée. Aucun nouvel envoi d’invitation n’était nécessaire.
