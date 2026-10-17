@@ -1,5 +1,22 @@
 # Validation du prototype — 17 octobre 2026
 
+## Mise à jour : contours inclinés (v2)
+
+- Détecteur inchangé ; ajout d'un affinage géométrique local, sans dépendance ni serveur supplémentaire.
+- Polygones dans les coordonnées de la page, masque alpha transparent, aucune rotation ou déformation du dessin.
+- Conservation par union des rectangles de texte attribués à la case. Les textes non détectés ne bénéficient pas de cette protection.
+- Repli rectangulaire si aucun bord incliné assez fiable n'est trouvé ou si la coupe retirerait plus de 40 % de l'aire du rectangle.
+- Le moteur recherche des traits sombres avec une gouttière claire ; les gouttières noires et contours courbes restent hors périmètre.
+- Mise à jour des anciens manifests au prochain lancement de leur conversion ; décodage des manifests v1 conservé.
+- Sur le chapitre 1196 : **101 régions conservées, 24 avec un contour polygonal**, une couverture entière. Environ **6,42 secondes** de traitement des pages dans le simulateur en Debug (cette mesure v2 remplace la durée v1 ci-dessous pour la version actuelle).
+- Comparatifs avant / après inspectés, notamment les cases des pages 4, 5 et 6 où les bandes de cases voisines sont retirées. Les comparatifs sont générés à partir du manifeste de l'application ; les tests de pixels vérifient aussi le rendu alpha natif UIKit.
+- **16 tests unitaires + 1 test UI, zéro échec**, compilation Release pour iPhone réussie sans signature. Les nouveaux tests couvrent l'orientation du bitmap d'analyse, les bordures inclinées, le repli sur image sans cadre / cadre droit, la transparence et les textes protégés, la compatibilité du manifeste et la migration d'une ancienne conversion.
+- Le test de charge 200 pages ci-dessous correspond à la v1 ; il n'a pas été remesuré pour la v2. Aucune mesure sur iPhone physique.
+
+Comparatifs privés : `Artifacts/contours/5-0.jpg` et `Artifacts/contours/5-2.jpg`. Planche des contours : `Artifacts/native-layouts-v2/contact-sheet.jpg`. Les masques peuvent être désactivés dans le menu du lecteur pour comparer avec les rectangles.
+
+Les sections suivantes décrivent la validation initiale de la v1.
+
 ## Résultat
 
 - Build Debug pour simulateur iOS 27 : réussi.

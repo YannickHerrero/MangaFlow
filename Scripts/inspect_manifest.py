@@ -8,7 +8,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 archive, manifest = sys.argv[1:3]
 doc = json.loads(Path(manifest).read_text())
-target = Path('Artifacts/native-layouts')
+target = Path(sys.argv[3]) if len(sys.argv) > 3 else Path('Artifacts/native-layouts')
 target.mkdir(parents=True, exist_ok=True)
 font = ImageFont.truetype('/System/Library/Fonts/Menlo.ttc', 32)
 sheet = Image.new('RGB', (4*320, 4*490), '#202428')
@@ -22,7 +22,12 @@ with ZipFile(archive) as z:
         for i, panel in enumerate(page['panels']):
             b = panel['rect']
             box = (b['x']*w, b['y']*h, (b['x']+b['width'])*w, (b['y']+b['height'])*h)
-            draw.rectangle(box, outline='#fa2056', width=5)
+            contour = panel.get('contour')
+            if contour:
+                polygon = [(p['x']*w,p['y']*h) for p in contour['points']]
+                draw.line(polygon + [polygon[0]], fill='#20c070', width=6)
+            else:
+                draw.rectangle(box, outline='#fa2056', width=5)
             draw.rectangle((box[0], box[1], box[0]+62, box[1]+46), fill='#c4f575')
             draw.text((box[0]+5,box[1]+3), str(i+1), fill='black', font=font)
         image.thumbnail((320, 460))

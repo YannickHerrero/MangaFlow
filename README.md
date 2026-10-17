@@ -22,6 +22,9 @@ Le chapitre privé de test n'est ni intégré à l'app ni versionné. Le modèle
 - Consultation de la page originale avec zoom.
 - Position mémorisée à la case près, réouverture et suppression des documents locaux.
 - Couverture / page sans détection conservée entière.
+- Contours inclinés : masquage transparent des fragments voisins quand une bordure fiable est trouvée ; les zones de texte détectées sont préservées.
+
+Les documents déjà convertis sont mis à jour au prochain appui sur **Lire / Continuer**, sans réimporter le CBZ. Le menu du lecteur propose **Suivre les bords des cases** pour activer ou désactiver le masque.
 
 La conversion doit rester au premier plan. Après suspension, revenir à la bibliothèque et reprendre si nécessaire. Ne pas compter sur une exécution prolongée en arrière-plan.
 
@@ -46,6 +49,7 @@ bash Scripts/test.sh '/chemin/vers/Chapitre 1196.cbz'
 - `Core/DocumentStore.swift` : import ZIP et persistance atomique.
 - `Core/LocalPanelDetector.swift` : prétraitement 640×640, Core ML, retour aux coordonnées source.
 - `Core/PanelLayout.swift` : dédoublonnage, ordre par séparations de mise en page, marges et préservation des zones de texte détectées.
+- `Core/ContourRefiner.swift` : recherche locale des bordures obliques et construction des polygones, avec repli rectangulaire.
 - `Core/ConversionEngine.swift` : orchestration et checkpoints.
 - `Core/PageImage.swift` : décodage borné et cache mémoire des recadrages.
 - `UI/` : bibliothèque, progression et lecteur.
@@ -53,7 +57,7 @@ bash Scripts/test.sh '/chemin/vers/Chapitre 1196.cbz'
 
 ## Modèle et limites
 
-YOLO26n spécialisé manga, export Core ML FP32, environ 9,3 Mo. Les sorties sont des rectangles, pas des masques de segmentation. Les cases diagonales, dessins qui débordent, bulles partagées et mises en page imbriquées peuvent donner des recadrages ou un ordre imparfaits. Le traitement des doubles pages utilise les cases détectées et les séparations de mise en page ; il ne coupe pas systématiquement l'image en deux.
+YOLO26n spécialisé manga, export Core ML FP32, environ 9,3 Mo. Ses rectangles sont affinés par une recherche géométrique des bordures inclinées. Les polygones masquent les pixels extérieurs sans redresser ni déformer le dessin. Une bordure trop ambiguë conserve le rectangle initial. Les bords ouverts, dessins qui débordent, bulles partagées et mises en page imbriquées peuvent encore donner des recadrages ou un ordre imparfaits. Les gouttières noires ne sont pas prises en charge par cet affinage : il recherche un trait sombre bordé d'une gouttière claire. Le traitement des doubles pages utilise les cases détectées et les séparations de mise en page ; il ne coupe pas systématiquement l'image en deux.
 
 Pas d'éditeur manuel, OCR, traduction, CBR/PDF, export webtoon ni synchronisation. La position est conservée à la case près, sans décalage précis à l'intérieur d'une grande case. Les recadrages sont calculés à la demande et gardés en cache mémoire, sans copie disque supplémentaire.
 

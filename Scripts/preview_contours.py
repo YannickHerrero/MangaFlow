@@ -14,9 +14,12 @@ with ZipFile(sys.argv[1]) as archive:
     for page in doc['pages']:
         image = Image.open(BytesIO(archive.read(names[page['id']]))).convert('RGB')
         w, h = image.size
-        for panel in page['panels']:
+        for ordinal, panel in enumerate(page['panels']):
             contour = panel.get('contour')
+            destination = out / (panel['id'] + '.jpg')
             if not contour:
+                if destination.exists():
+                    destination.unlink()
                 continue
             r = panel['rect']
             box = (int(r['x']*w), int(r['y']*h), int((r['x']+r['width'])*w), int((r['y']+r['height'])*h))
@@ -31,9 +34,9 @@ with ZipFile(sys.argv[1]) as archive:
             before.thumbnail((470, 650)); after.thumbnail((470,650))
             board = Image.new('RGB', (980, max(before.height,after.height)+40), '#202428')
             board.paste(before, (10,30)); board.paste(after, (500,30))
-            ImageDraw.Draw(board).text((10,8), f'Page {page["id"]+1}, case {panel["id"]}: RECTANGLE', fill='white')
-            ImageDraw.Draw(board).text((500,8), 'CONTOUR', fill='#c4f575')
-            board.save(out / (panel['id'] + '.jpg'))
+            ImageDraw.Draw(board).text((10,8), f'Page {page["id"]+1}, case {ordinal+1} : AVANT (rectangle)', fill='white')
+            ImageDraw.Draw(board).text((500,8), 'APRES (contour)', fill='#c4f575')
+            board.save(destination)
             if page['id'] in [4,5]:
                 examples.append(board)
 if examples:
