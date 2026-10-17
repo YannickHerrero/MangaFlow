@@ -34,6 +34,7 @@
 		581C0CD86025FCE09471F35D /* LibraryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9514AF7AAE987A8555F972C5 /* LibraryModel.swift */; };
 		5A5D636CECD937D805B64383 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F3870AA92B3B1AEC2A65ECD /* Theme.swift */; };
 		6315AA84943732FC66CFE9CA /* ZenKakuGothicNew-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 487CDABDC2D5B3DE79A70D25 /* ZenKakuGothicNew-Regular.ttf */; };
+		6B1D39026B9ABC8BF41328A0 /* AutomaticImportWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14460C067E7E17D0B9BBE0B5 /* AutomaticImportWorkflowTests.swift */; };
 		7416E7B4A8A81F17A01B4A7F /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCC5856AF88AAAB92018B97 /* Document.swift */; };
 		742FCC1B4510DB974618E3AC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB18DFA549CC3F7DABCF44F6 /* Assets.xcassets */; };
 		750D32442D3BC122376E45C6 /* spacemono-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6F69D112924E150735E7E41D /* spacemono-OFL.txt */; };
@@ -50,11 +51,13 @@
 		A751E7128D6DC738A0B6337C /* AppShell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0359CBC6F320493F664A5F2E /* AppShell.swift */; };
 		AB447550C34B6CAF7A68DDBA /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155FA78E0AD3903530C1D280 /* ActivityView.swift */; };
 		AD4A02562AF5AA1589A1DF1C /* ThemeWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7FB526D475054734B85248F /* ThemeWorkflowTests.swift */; };
+		AED151F7FA8E70D8BDC0459F /* AutomaticImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B06ECBEC18ACEA9B32622E /* AutomaticImportTests.swift */; };
 		B56D0BE8A4222325CF9FF9A4 /* archivoblack-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = B26AB8A0CC154D8D4EFB9867 /* archivoblack-OFL.txt */; };
 		B7768C076EE5E78D76680521 /* SpaceGrotesk-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 42421FC1DCB33B69B791FB3B /* SpaceGrotesk-Regular.ttf */; };
 		BC53FD44435CAF2E9863FA0D /* ReaderWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */; };
 		C3284C61749BE0C9E6BB22BC /* PanelLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D08534A61B2F111598C24DB /* PanelLayout.swift */; };
 		C378D1AB3352F28C5FD25EF8 /* RemoteModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB6697429CF8A157068E5342 /* RemoteModel.swift */; };
+		C37C3E8C214CED0836E75577 /* AutomaticImportQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95F1292148065FEFE3DF02D8 /* AutomaticImportQueue.swift */; };
 		C95F5324D2F14DAB9629C1F6 /* PanelDetector.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 6F81E3720D66783B3166CADA /* PanelDetector.mlpackage */; };
 		CF30F8C8640437E6F412692C /* Series.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81D13DFC82D6BAFDBD7E18A5 /* Series.swift */; };
 		D19912CF1C8FAAF821232842 /* MangaFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */; };
@@ -92,6 +95,7 @@
 		0CCC5856AF88AAAB92018B97 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
 		12E040EFDB7188AAF78A157A /* ArchivoBlack-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ArchivoBlack-Regular.ttf"; sourceTree = "<group>"; };
 		135DEA2C652C344A2DBBE207 /* DemoScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoScreenshotTests.swift; sourceTree = "<group>"; };
+		14460C067E7E17D0B9BBE0B5 /* AutomaticImportWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticImportWorkflowTests.swift; sourceTree = "<group>"; };
 		1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderWorkflowTests.swift; sourceTree = "<group>"; };
 		155FA78E0AD3903530C1D280 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		19B34CE5A238DEB7480182CD /* Anton-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Anton-Regular.ttf"; sourceTree = "<group>"; };
@@ -125,8 +129,10 @@
 		917EA8608BE0D98D6EE0FCE0 /* SourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesView.swift; sourceTree = "<group>"; };
 		933F3B1528F20796EAF18034 /* MangaFlow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MangaFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9514AF7AAE987A8555F972C5 /* LibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModel.swift; sourceTree = "<group>"; };
+		95F1292148065FEFE3DF02D8 /* AutomaticImportQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticImportQueue.swift; sourceTree = "<group>"; };
 		98185ADBDC0AA67C5F17620A /* PipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineTests.swift; sourceTree = "<group>"; };
 		9FAFCC1CB06020BAF8370C91 /* ChapterDownloadRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterDownloadRow.swift; sourceTree = "<group>"; };
+		A3B06ECBEC18ACEA9B32622E /* AutomaticImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticImportTests.swift; sourceTree = "<group>"; };
 		A599305923960D6C90EAECF9 /* ZenKakuGothicNew-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ZenKakuGothicNew-Bold.ttf"; sourceTree = "<group>"; };
 		A6370679D2058B1B691E80EA /* ExplorerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorerView.swift; sourceTree = "<group>"; };
 		B26AB8A0CC154D8D4EFB9867 /* archivoblack-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "archivoblack-OFL.txt"; sourceTree = "<group>"; };
@@ -191,6 +197,7 @@
 		32EEA6B61ECAC4F36CE1F05A /* MangaFlowUITests */ = {
 			isa = PBXGroup;
 			children = (
+				14460C067E7E17D0B9BBE0B5 /* AutomaticImportWorkflowTests.swift */,
 				135DEA2C652C344A2DBBE207 /* DemoScreenshotTests.swift */,
 				F9D1F97D3FBDDF569116B662 /* FavoritesWorkflowTests.swift */,
 				0ABBE9F7380B7FC7953B1FEB /* OfflineRemoteReadTests.swift */,
@@ -244,6 +251,7 @@
 			isa = PBXGroup;
 			children = (
 				155FA78E0AD3903530C1D280 /* ActivityView.swift */,
+				95F1292148065FEFE3DF02D8 /* AutomaticImportQueue.swift */,
 				9FAFCC1CB06020BAF8370C91 /* ChapterDownloadRow.swift */,
 				6E149430519E8A896568481F /* ConnectionVault.swift */,
 				A6370679D2058B1B691E80EA /* ExplorerView.swift */,
@@ -305,6 +313,7 @@
 			isa = PBXGroup;
 			children = (
 				F3D413019B04994E90A86259 /* AniListClientTests.swift */,
+				A3B06ECBEC18ACEA9B32622E /* AutomaticImportTests.swift */,
 				8C10539866E45547DF7B3668 /* ContourTests.swift */,
 				F104D92F12C9568B671BCF89 /* FavoritesDownloadTests.swift */,
 				98185ADBDC0AA67C5F17620A /* PipelineTests.swift */,
@@ -456,6 +465,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B1D39026B9ABC8BF41328A0 /* AutomaticImportWorkflowTests.swift in Sources */,
 				201B5112A28BA66CAF15B039 /* DemoScreenshotTests.swift in Sources */,
 				F626E47981186277C6616566 /* FavoritesWorkflowTests.swift in Sources */,
 				8E67E5D8817BAE93A726A1DE /* OfflineRemoteReadTests.swift in Sources */,
@@ -470,6 +480,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2E78BCE0DBBEAD0BF79C9025 /* AniListClientTests.swift in Sources */,
+				AED151F7FA8E70D8BDC0459F /* AutomaticImportTests.swift in Sources */,
 				3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */,
 				372694D336AC315B04B67EC1 /* FavoritesDownloadTests.swift in Sources */,
 				43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */,
@@ -484,6 +495,7 @@
 			files = (
 				AB447550C34B6CAF7A68DDBA /* ActivityView.swift in Sources */,
 				A751E7128D6DC738A0B6337C /* AppShell.swift in Sources */,
+				C37C3E8C214CED0836E75577 /* AutomaticImportQueue.swift in Sources */,
 				500905AD86D73423B48B0F92 /* ChapterDownloadRow.swift in Sources */,
 				9805465137DD124E0AFC1C48 /* ConnectionVault.swift in Sources */,
 				F256BCC1BD746D8E46DD5764 /* ContourRefiner.swift in Sources */,
@@ -635,7 +647,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = MangaFlow/Simulator.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MangaFlow/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MangaFlow;
@@ -755,7 +767,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				"CODE_SIGN_STYLE[sdk=iphoneos*]" = Manual;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = KY6RHJR4LZ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MangaFlow/Info.plist;

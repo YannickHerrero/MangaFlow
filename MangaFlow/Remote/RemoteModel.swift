@@ -11,6 +11,7 @@ final class RemoteModel {
     var busy = false
     var importing = false
     var sourceSearch = ""
+    let automaticImports: AutomaticImportQueue
     var transferFailures: [String: String] = (UserDefaults.standard.dictionary(forKey: "transferFailures") as? [String: String]) ?? [:]
     private func setTransferFailure(_ jobID: String, _ message: String?) {
         transferFailures[jobID] = message
@@ -29,20 +30,24 @@ final class RemoteModel {
     }
     func startImport(_ job: RemoteJob, library: LibraryModel) {
         guard !importing else { return }
-        transferTask = Task { await importArtifact(job, library: library) }
+        transferTask = Task { defer { transferTask = nil }; await importArtifact(job, library: library) }
     }
-    func cancelTransfer(library: LibraryModel) { transferTask?.cancel(); if transferPhase == "Découpage sur cet appareil" { library.cancel() } }
+    func cancelTransfer(library: LibraryModel) {
+        if let job = jobs.first(where: { $0.id == transferJobID }) { clearAutomaticImport(job) }
+        transferTask?.cancel(); if transferPhase == "Découpage sur cet appareil" { library.cancel() } }
 
     private(set) var requestingDownloads: Set<ChapterDownloadKey> = []
     private(set) var downloadErrors: [ChapterDownloadKey: String] = [:]
     private var acceptedDownloads: [String: RemoteJob] = [:]
     private(set) var client: RemoteAPI?
     init() {
+        automaticImports = AutomaticImportQueue()
         do { connection = try ConnectionVault.load() }
         catch { self.error = error.localizedDescription }
         if let connection { client = RemoteAPI(connection: connection); restoreSnapshot(connection.serverID) }
     }
-    init(connection: ServerConnection?, session: URLSession) {
+    init(connection: ServerConnection?, session: URLSession, automaticImports: AutomaticImportQueue? = nil) {
+        self.automaticImports = automaticImports ?? AutomaticImportQueue()
         self.connection = connection
         if let connection { client = RemoteAPI(connection: connection, session: session) }
     }
@@ -83,6 +88,7 @@ final class RemoteModel {
         catch { report(error) }
     }
     func cancel(_ job: RemoteJob) async {
+        clearAutomaticImport(job)
         do { _ = try await client?.cancel(job.id); await refresh() } catch { report(error) }
     }
     func downloadJob(for manga: RemoteManga, chapter: RemoteChapter) -> RemoteJob? {
@@ -94,15 +100,21 @@ final class RemoteModel {
     func download(_ manga: RemoteManga, chapter: RemoteChapter) async {
         let key = ChapterDownloadKey(manga: manga, chapter: chapter)
         guard !requestingDownloads.contains(key) else { return }
-        if let current = downloadJob(for: manga, chapter: chapter), !current.finished { return }
+        if let current = downloadJob(for: manga, chapter: chapter), !current.finished {
+            requestAutomaticImport(current); return
+        }
         requestingDownloads.insert(key); downloadErrors[key] = nil
         defer { requestingDownloads.remove(key) }
         guard let client else {
             let failure = RemoteFailure(code: "authentication_invalid", message: "Relie cet appareil au Mac avant de télécharger.")
             downloadErrors[key] = failure.localizedDescription; report(failure); return
         }
+        if let serverID = connection?.serverID {
+            automaticImports.add(serverID: serverID, jobID: Self.importTarget(manga: manga, chapter: chapter))
+        }
         do {
             let created = try await client.create("download", target: .init(sourceID: manga.sourceID, manga: manga, chapter: chapter))
+            requestAutomaticImport(created)
             // Reflect acceptance immediately, without waiting for the next polling cycle.
             acceptedDownloads[created.id] = created
             hiddenJobs.remove(created.id)
@@ -113,7 +125,7 @@ final class RemoteModel {
             report(error)
         }
     }
-    func importArtifact(_ job: RemoteJob, library: LibraryModel) async {
+    func importArtifact(_ job: RemoteJob, library: LibraryModel, openWhenComplete: Bool = true) async {
         guard !importing, let client, let artifactID = job.artifactID else { return }
         importing = true; transferJobID = job.id; transferPhase = "Transfert vers cet appareil"; transferProgress = 0; transferStarted = Date()
         defer { importing = false; transferJobID = nil; transferPhase = ""; UserDefaults.standard.removeObject(forKey: "interruptedTransfer") }
@@ -125,7 +137,16 @@ final class RemoteModel {
             if let document = library.documents.first(where: {
                 $0.remoteArtifactID == identity || (provenance != nil && $0.origin?.seriesID == provenance?.seriesID && $0.origin?.chapterID == provenance?.chapterID)
             }) {
-                library.open(document)
+                if document.complete && document.engineVersion == MangaDocument.engine {
+                    if openWhenComplete { library.selected = document.id }
+                } else {
+                    transferPhase = "Découpage sur cet appareil"
+                    library.error = nil
+                    await library.resume(document, openWhenComplete: openWhenComplete)?.value
+                    if let error = library.error { throw RemoteFailure(code: "import_failed", message: error) }
+                    guard library.documents.contains(where: { $0.id == document.id && $0.complete }) else { throw CancellationError() }
+                }
+                clearAutomaticImport(job)
                 return
             }
             let url = try await client.download(artifactID) { [weak self] value in
@@ -134,12 +155,67 @@ final class RemoteModel {
             defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
             try Task.checkCancellation()
             transferPhase = "Découpage sur cet appareil"
-            try await library.importRemoteCBZ(url, artifactID: identity, origin: ChapterOrigin(job: job, serverID: connection?.serverID ?? "", sourceName: sources.first { $0.id == job.target.sourceID }?.name))
+            try await library.importRemoteCBZ(url, artifactID: identity, origin: ChapterOrigin(job: job, serverID: connection?.serverID ?? "", sourceName: sources.first { $0.id == job.target.sourceID }?.name), openWhenComplete: openWhenComplete)
+            clearAutomaticImport(job)
             importedJobs.insert(job.id); UserDefaults.standard.set(Array(importedJobs), forKey: "importedJobs")
         } catch is CancellationError {
             setTransferFailure(job.id, "Import interrompu. Tu peux le reprendre.")
         } catch {
             setTransferFailure(job.id, error.localizedDescription); report(error)
+        }
+    }
+    func requestAutomaticImport(_ job: RemoteJob) {
+        guard let serverID = connection?.serverID else { return }
+        setTransferFailure(job.id, nil)
+        automaticImports.add(serverID: serverID, jobID: job.id)
+    }
+    func isAwaitingImport(_ job: RemoteJob) -> Bool {
+        guard let serverID = connection?.serverID else { return false }
+        if automaticImports.contains(serverID: serverID, jobID: job.id) { return true }
+        guard let target = Self.importTarget(job) else { return false }
+        return automaticImports.contains(serverID: serverID, jobID: target) && jobs.first(where: { Self.importTarget($0) == target })?.id == job.id
+    }
+    static func importTarget(manga: RemoteManga, chapter: RemoteChapter) -> String {
+        "target:" + ChapterOrigin.key(manga.sourceID, manga.id, chapter.id)
+    }
+    private static func importTarget(_ job: RemoteJob) -> String? {
+        guard job.kind == "download", let manga = job.target.manga, let chapter = job.target.chapter else { return nil }
+        return importTarget(manga: manga, chapter: chapter)
+    }
+    private func clearAutomaticImport(_ job: RemoteJob) {
+        guard let serverID = connection?.serverID else { return }
+        automaticImports.remove(serverID: serverID, jobID: job.id)
+        if let target = Self.importTarget(job), jobs.first(where: { Self.importTarget($0) == target })?.id == job.id {
+            automaticImports.remove(serverID: serverID, jobID: target)
+        }
+    }
+    func localDocument(for job: RemoteJob, library: LibraryModel) -> MangaDocument? {
+        guard let serverID = connection?.serverID else { return nil }
+        let origin = ChapterOrigin(job: job, serverID: serverID, sourceName: nil)
+        return library.documents.first {
+            $0.remoteArtifactID == serverID + ":" + (job.artifactID ?? "") ||
+            (origin != nil && $0.origin?.seriesID == origin?.seriesID && $0.origin?.chapterID == origin?.chapterID)
+        }
+    }
+    var activeDownloadCount: Int {
+        var active = Set(jobs.filter {
+            $0.kind == "download" && (!$0.finished || (isAwaitingImport($0) && transferFailures[$0.id] == nil))
+        }.map(\.id))
+        if let transferJobID { active.insert(transferJobID) }
+        return active.count
+    }
+    func processAutomaticImports(library: LibraryModel) {
+        guard connected, connection != nil, !importing, !library.isBusy, transferTask == nil else { return }
+        for job in jobs where isAwaitingImport(job) && ["failed", "cancelled"].contains(job.state) {
+            clearAutomaticImport(job)
+        }
+        guard let job = jobs.reversed().first(where: {
+            $0.kind == "download" && $0.state == "completed" && $0.artifactID != nil &&
+            isAwaitingImport($0) && transferFailures[$0.id] == nil
+        }) else { return }
+        transferTask = Task {
+            defer { transferTask = nil }
+            await importArtifact(job, library: library, openWhenComplete: false)
         }
     }
     private struct Snapshot: Codable { let sources: [RemoteSource]; let jobs: [RemoteJob] }

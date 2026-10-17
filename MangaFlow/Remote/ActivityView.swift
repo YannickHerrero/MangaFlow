@@ -25,7 +25,7 @@ struct ActivityView: View {
             library: library)
           Text(
             p.theme == .brutal
-              ? String(format: "%02d.", jobs.filter { !$0.finished }.count)
+              ? String(format: "%02d.", remote.activeDownloadCount)
               : "\(jobs.filter {!$0.finished}.count) chapitre(s)\nen route."
           ).font(p.font(p.theme == .brutal ? 80 : 40, title: true))
           if !remote.connected {
@@ -95,16 +95,17 @@ struct ActivityView: View {
         ).font(p.font(12))
         Button("Annuler", role: .destructive) { Task { await remote.cancel(job) } }
       } else if job.state == "completed" {
-        let imported = library.documents.contains {
-          $0.remoteArtifactID == (remote.connection?.serverID ?? "") + ":" + (job.artifactID ?? "")
-        }
+        let imported = remote.localDocument(for: job, library: library)?.complete == true
         Text(imported ? "Prêt à lire hors ligne" : "CBZ prêt sur le Mac").font(p.font(12))
         if let date = RemoteJob.timestamp(job.updatedAt) { Text(date.formatted(date: .abbreviated, time: .shortened)).font(p.font(11)).foregroundStyle(.secondary) }
         if let failure = remote.transferFailures[job.id] {
           Text(failure).font(p.font(12)).foregroundStyle(p.accent)
         }
-        Button(imported ? "Lire" : "Importer et lire") { remote.startImport(job, library: library) }
-          .buttonStyle(ThemeButtonStyle()).disabled(remote.importing || library.isBusy)
+        Button(imported ? "Lire" : remote.transferFailures[job.id] != nil ? "Réessayer l’import" : remote.isAwaitingImport(job) ? "Ajout en attente…" : "Ajouter à la bibliothèque") {
+          if imported { remote.startImport(job, library: library) }
+          else { remote.requestAutomaticImport(job); remote.processAutomaticImports(library: library) }
+        }
+          .buttonStyle(ThemeButtonStyle()).disabled(remote.importing || library.isBusy || (remote.isAwaitingImport(job) && remote.transferFailures[job.id] == nil))
           .accessibilityIdentifier("importRemote-\(job.id)")
         if !imported {
           Button("Télécharger à nouveau si le CBZ a expiré") {

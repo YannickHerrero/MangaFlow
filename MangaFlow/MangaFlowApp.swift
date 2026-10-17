@@ -25,6 +25,8 @@ struct MangaFlowApp: App {
                     guard scenePhase == .active else { return }
                     while !Task.isCancelled {
                         await remote.refresh(silent: true)
+                        guard !Task.isCancelled else { return }
+                        remote.processAutomaticImports(library: library)
                         do { try await Task.sleep(for: .seconds(4)) } catch { return }
                     }
                 }

@@ -1,0 +1,1 @@
+Télécharger un chapitre suffit désormais pour l’ajouter automatiquement à la bibliothèque : téléchargement sur le Mac, transfert et découpage sur l’appareil. Les demandes sont conservées après relancement. Le lecteur ne s’ouvre que lorsque tu touches Lire. Nouvelle icône LIRE incluse.

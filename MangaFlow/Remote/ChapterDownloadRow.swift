@@ -42,12 +42,19 @@ struct ChapterDownloadRow: View {
                         Text("\(job.progress.completed) / \(job.progress.total) images").font(.caption).foregroundStyle(.secondary)
                     }
                 } else if completed {
-                    Text("Téléchargé sur le Mac").font(.caption).foregroundStyle(.secondary)
-                    Button(remote.importing ? "Import en cours…" : "Importer et lire") {
-                        remote.startImport(job, library: library)
+                    if remote.transferJobID == job.id {
+                        ProgressView(remote.transferPhase).font(.caption)
+                    } else if let local = remote.localDocument(for: job, library: library), local.complete {
+                        Text("Dans la bibliothèque · disponible hors ligne").font(.caption).foregroundStyle(.secondary)
+                        Button("Lire") { library.open(local) }.accessibilityIdentifier("readChapter-\(chapter.id)")
+                    } else if let error = remote.transferFailures[job.id] {
+                        Text(error).font(.caption).foregroundStyle(.orange)
+                        Button("Réessayer l’import") { remote.requestAutomaticImport(job); remote.processAutomaticImports(library: library) }
+                    } else if remote.isAwaitingImport(job) {
+                        Text("Ajout à la bibliothèque en attente…").font(.caption).foregroundStyle(.secondary)
+                    } else {
+                        Button("Ajouter à la bibliothèque") { remote.requestAutomaticImport(job); remote.processAutomaticImports(library: library) }
                     }
-                    .disabled(remote.importing || library.isBusy)
-                    .accessibilityIdentifier("readChapter-\(chapter.id)")
                 } else if job.state == "cancelled" {
                     Text("Téléchargement annulé").font(.caption).foregroundStyle(.secondary)
                 }

@@ -20,7 +20,7 @@ struct AppShell: View {
       .onChange(of: remote.connected) { _, _ in reconcile() }
   }
   private var activeCount: Int {
-    remote.jobs.filter { $0.kind == "download" && !$0.finished }.count + (remote.importing ? 1 : 0)
+    remote.activeDownloadCount
       + (library.isBusy && !remote.importing ? 1 : 0)
   }
   private func reconcile() {

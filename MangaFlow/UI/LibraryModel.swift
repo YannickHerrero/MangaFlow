@@ -23,7 +23,7 @@ final class LibraryModel {
         else { documents.insert(doc, at: 0) }
     }
     @discardableResult
-    func importCBZ(_ url: URL, remoteArtifactID: String? = nil, origin: ChapterOrigin? = nil) -> Task<Void, Never>? {
+    func importCBZ(_ url: URL, remoteArtifactID: String? = nil, origin: ChapterOrigin? = nil, openWhenComplete: Bool = true) -> Task<Void, Never>? {
         guard !isBusy else { return nil }
         isBusy = true; status = "Ouverture du CBZ…"; activeDocument = nil
         let store = store
@@ -43,7 +43,7 @@ final class LibraryModel {
                 let converted = try await engine.convert(doc) { [self] doc in
                     await self.conversionProgress(doc)
                 }
-                update(converted); selected = converted.id
+                update(converted); if openWhenComplete { selected = converted.id }
                 exportDiagnostics(converted)
             } catch is CancellationError {
                 status = "Conversion mise en pause"
@@ -51,8 +51,9 @@ final class LibraryModel {
         }
         return work
     }
-    func resume(_ document: MangaDocument) {
-        guard !isBusy else { return }
+    @discardableResult
+    func resume(_ document: MangaDocument, openWhenComplete: Bool = true) -> Task<Void, Never>? {
+        guard !isBusy else { return nil }
         isBusy = true; activeDocument = document; status = "Préparation du détecteur…"
         work = Task {
             UIApplication.shared.isIdleTimerDisabled = true
@@ -61,19 +62,22 @@ final class LibraryModel {
                 let converted = try await engine.convert(document) { [self] doc in
                     await self.conversionProgress(doc)
                 }
-                update(converted); selected = converted.id
+                update(converted); if openWhenComplete { selected = converted.id }
                 exportDiagnostics(converted)
             } catch is CancellationError {} catch { self.error = error.localizedDescription }
         }
+        return work
     }
-    func importRemoteCBZ(_ url: URL, artifactID: String, origin: ChapterOrigin? = nil) async throws {
+    func importRemoteCBZ(_ url: URL, artifactID: String, origin: ChapterOrigin? = nil, openWhenComplete: Bool = true) async throws {
         guard !isBusy else { throw RemoteFailure(code: "library_busy", message: "Termine ou mets en pause la conversion en cours avant d’importer un chapitre.") }
         if let existing = documents.first(where: { $0.remoteArtifactID == artifactID }) {
-            open(existing)
+            if existing.complete && existing.engineVersion == MangaDocument.engine {
+                if openWhenComplete { selected = existing.id }
+            } else { await resume(existing, openWhenComplete: openWhenComplete)?.value }
             return
         }
         error = nil
-        await importCBZ(url, remoteArtifactID: artifactID, origin: origin)?.value
+        await importCBZ(url, remoteArtifactID: artifactID, origin: origin, openWhenComplete: openWhenComplete)?.value
         if let error { throw RemoteFailure(code: "import_failed", message: error) }
         guard documents.contains(where: { $0.remoteArtifactID == artifactID && $0.complete }) else { throw CancellationError() }
     }
