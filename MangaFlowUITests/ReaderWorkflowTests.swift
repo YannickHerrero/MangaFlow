@@ -18,9 +18,8 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertTrue(scroll.exists)
         scroll.swipeUp()
         scroll.swipeUp()
-        let visiblePanel = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "panel-"))
-            .allElementsBoundByIndex.first(where: \.isHittable)?.identifier
-        XCTAssertNotNil(visiblePanel, "At least one reading region should be visible after scrolling")
+        let savedPosition = app.staticTexts["readingPosition"].value as? String
+        XCTAssertNotNil(savedPosition, "Reader should expose its current page and panel")
         let reading = XCTAttachment(screenshot: app.screenshot()); reading.name = "Converted chapter"; reading.lifetime = .keepAlways
         add(reading)
         app.buttons["Options de lecture"].tap()
@@ -37,6 +36,7 @@ final class ReaderWorkflowTests: XCTestCase {
         reopen.tap()
         XCTAssertTrue(closeReader.waitForExistence(timeout: 5))
         XCTAssertTrue(app.scrollViews["readerScroll"].exists)
-        if let visiblePanel { XCTAssertTrue(app.buttons[visiblePanel].isHittable, "Reopening should restore the visible region") }
+        XCTAssertEqual(app.staticTexts["readingPosition"].value as? String, savedPosition,
+                       "Reopening should restore the current page and panel")
     }
 }

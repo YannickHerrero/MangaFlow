@@ -27,6 +27,10 @@ struct ReaderView: View {
     private var currentPage: Int {
         rows.first(where: { $0.id == position })?.page.id ?? 0
     }
+    private var currentPanelNumber: Int {
+        guard let row = rows.first(where: { $0.id == position }) else { return 1 }
+        return (row.page.panels.firstIndex(where: { $0.id == row.id }) ?? 0) + 1
+    }
     var body: some View {
         NavigationStack {
             GeometryReader { geometry in
@@ -89,6 +93,8 @@ struct ReaderView: View {
                 ToolbarItem(placement: .bottomBar) {
                     Text("\(min(currentPage + 1, document.pages.count)) / \(document.pages.count) · Toucher une case pour voir la page")
                         .font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("readingPosition")
+                        .accessibilityValue("Page \(currentPage + 1), case \(currentPanelNumber)")
                 }
             }
             .sheet(item: $original) { page in
