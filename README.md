@@ -10,7 +10,7 @@ Une page de manga devient une suite de cases à lire en faisant défiler l’éc
   <tr><th>Avant · page complète</th><th>Après · toutes les cases à la suite</th></tr>
   <tr>
     <td width="50%" valign="top"><a href="Docs/demo/source-page.png"><img src="Docs/demo/source-page.png" alt="ONE PIECE — Eiichiro Oda : page 12 complète du fichier de test Chapitre 1196.cbz" width="420"></a></td>
-    <td width="50%" valign="top"><a href="Docs/demo/vertical-page.png"><img src="Docs/demo/vertical-page.png" alt="Les sept cases de la même page assemblées verticalement dans l’ordre de lecture" width="420"></a></td>
+    <td width="50%" valign="top"><a href="Docs/demo/vertical-page.png"><img src="Docs/demo/vertical-page.png" alt="Les sept cases de la même page assemblées verticalement dans l’ordre de lecture" height="600"></a></td>
   </tr>
 </table>
 
