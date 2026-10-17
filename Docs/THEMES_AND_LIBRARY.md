@@ -46,3 +46,5 @@ npm --prefix Server test
 ```
 
 Server launch/pairing remains unchanged; see ../Server/README.md. Existing pairing credentials remain in Keychain.
+
+Validated on 18 October 2026: live AniList Naruto lookup returned media 36444 and a cover URL; live LELScan Blue Lock 364.1 download/import completed with nine images; favorite persisted across relaunch; the existing private chapter 1196 reader workflow passed. Screenshot attachments stay in ignored Artifacts/ThemeUI rather than publishing private library content.

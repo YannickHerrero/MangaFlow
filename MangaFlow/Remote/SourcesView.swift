@@ -101,9 +101,11 @@ struct SourceCatalogView: View {
     }
     private func load(more: Bool = false) async {
         guard current.catalog.syncedAt != nil, let client = remote.client else { return }
+        let requestedSearch = search
         loading = true; defer { loading = false }
         do {
             let (items, count) = try await client.catalog(source.id, query: search, offset: more ? mangas.count : 0)
+            guard requestedSearch == search, !Task.isCancelled else { return }
             if more { mangas += items } else { mangas = items }; total = count
         } catch { remote.report(error) }
     }

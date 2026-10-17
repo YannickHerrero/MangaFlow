@@ -99,6 +99,12 @@ struct RemoteJob: Codable, Identifiable {
     var startedAt: String? = nil
     var updatedAt: String? = nil
     var finished: Bool { ["completed", "failed", "cancelled"].contains(state) }
+    static func timestamp(_ value: String?) -> Date? {
+        guard let value else { return nil }
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter.date(from: value) ?? ISO8601DateFormatter().date(from: value)
+    }
     var stateLabel: String {
         ["queued": "En attente", "running": "En cours", "completed": "Terminé", "failed": "Échec", "cancelled": "Annulé"][state] ?? state
     }

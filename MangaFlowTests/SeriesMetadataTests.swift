@@ -125,4 +125,10 @@ final class SeriesMetadataTests: XCTestCase {
     XCTAssertEqual(restored.title, "A renamed chapter")
   }
 
+  func testServerTimestampsSupportJavaScriptMillisecondsAndLegacySeconds() {
+    XCTAssertNotNil(RemoteJob.timestamp("2026-10-18T01:02:03.456Z"))
+    XCTAssertNotNil(RemoteJob.timestamp("2026-10-18T01:02:03Z"))
+    XCTAssertNil(RemoteJob.timestamp("invalid"))
+  }
+
 }

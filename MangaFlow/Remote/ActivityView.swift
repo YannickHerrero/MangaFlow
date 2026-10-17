@@ -99,6 +99,7 @@ struct ActivityView: View {
           $0.remoteArtifactID == (remote.connection?.serverID ?? "") + ":" + (job.artifactID ?? "")
         }
         Text(imported ? "Prêt à lire hors ligne" : "CBZ prêt sur le Mac").font(p.font(12))
+        if let date = RemoteJob.timestamp(job.updatedAt) { Text(date.formatted(date: .abbreviated, time: .shortened)).font(p.font(11)).foregroundStyle(.secondary) }
         if let failure = remote.transferFailures[job.id] {
           Text(failure).font(p.font(12)).foregroundStyle(p.accent)
         }
@@ -125,7 +126,7 @@ struct ActivityView: View {
   }
   private func estimate(_ job: RemoteJob) -> String {
     guard job.progress.completed >= 3, job.progress.total > job.progress.completed,
-      let date = job.startedAt.flatMap({ ISO8601DateFormatter().date(from: $0) })
+      let date = RemoteJob.timestamp(job.startedAt)
     else { return "" }
     let elapsed = Date().timeIntervalSince(date)
     guard elapsed > 3 else { return "" }
