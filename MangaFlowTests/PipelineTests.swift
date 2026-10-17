@@ -53,7 +53,40 @@ final class PipelineTests: XCTestCase {
         let narrow = [box(0.2, 0.05, 0.6, 0.4), box(0.2, 0.55, 0.6, 0.4)]
         XCTAssertEqual(PanelLayout.readingPanels(narrow, pageID: 0, rtl: true).count, 2)
         XCTAssertTrue(PanelLayout.readingPanels([], pageID: 0, rtl: true).isEmpty)
+        XCTAssertTrue(PanelLayout.readingPanels([box(0.1, 0.1, 0.8, 0.04, kind: 1)], pageID: 0, rtl: true).isEmpty)
         XCTAssertEqual(PanelLayout.readingPanels([box(0.04, 0.05, 0.92, 0.9)], pageID: 0, rtl: true).first?.rect, .full)
+    }
+    func testSlantedFullWidthBandsCanOverlapWithoutRepeatingArtwork() {
+        let rows = [box(0.02, 0, 0.98, 0.69), box(0.04, 0.42, 0.95, 0.30),
+                    box(0.045, 0.56, 0.94, 0.44)]
+        XCTAssertEqual(PanelLayout.readingPanels(rows, pageID: 9, rtl: true).map(\.rect), [.full])
+    }
+    func testMixedPageKeepsTopColumnsAndGroupsFollowingFullWidthBands() {
+        let rows = [box(0, 0, 0.42, 0.26), box(0.38, 0, 0.58, 0.25),
+                    box(0, 0.13, 0.95, 0.26), box(0, 0.31, 0.96, 0.29),
+                    box(0, 0.49, 0.97, 0.26), box(0, 0.65, 0.96, 0.35)]
+        for rtl in [true, false] {
+            let result = PanelLayout.readingPanels(rows, pageID: 12, rtl: rtl)
+            XCTAssertEqual(result.count, 3)
+            XCTAssertGreaterThan(result[2].rect.width, 0.97)
+            XCTAssertLessThan(result[2].rect.y, 0.14)
+            XCTAssertEqual(result[2].rect.maxY, 1, accuracy: 0.001)
+            XCTAssertEqual(result[0].rect.x > 0.3, rtl)
+        }
+    }
+    func testInsetPanelPreventsMergingItsSurroundingBand() {
+        let rows = [box(0.02, 0, 0.96, 0.30), box(0.02, 0.25, 0.96, 0.75),
+                    box(0.02, 0.75, 0.25, 0.25)]
+        XCTAssertEqual(PanelLayout.readingPanels(rows, pageID: 0, rtl: true).count, 3)
+    }
+    func testWideNarrationOutsideFramesIsPreservedWithoutDuplicatingInsideText() {
+        let rows = [box(0.1, 0.10, 0.8, 0.35), box(0.1, 0.55, 0.35, 0.35),
+                    box(0.55, 0.55, 0.35, 0.35), box(0.2, 0.02, 0.6, 0.03, kind: 1),
+                    box(0.2, 0.20, 0.6, 0.03, kind: 1)]
+        let result = PanelLayout.readingPanels(rows, pageID: 0, rtl: true)
+        XCTAssertEqual(result.count, 4)
+        XCTAssertEqual(result[0].rect.width, 1)
+        XCTAssertLessThan(result[0].rect.y, 0.02)
     }
     func testLetterboxPortraitAndLandscape() {
         let portrait = LocalPanelDetector.unletterbox(x1: 160, y1: 0, x2: 480, y2: 640, width: 1000, height: 2000)

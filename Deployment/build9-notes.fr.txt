@@ -1,0 +1,5 @@
+Découpage amélioré : les pages composées de bandes pleine largeur sont conservées entières, même avec des séparations inclinées. Dans une page mixte, les bandes consécutives pleine largeur restent regroupées après les cases côte à côte.
+
+Les masques suivent mieux les diagonales et les jonctions en pointe pour cacher les fragments des cases voisines. Les bandeaux de narration détectés hors des cadres sont conservés.
+
+Validation visuelle sur les 19 pages de Blue Lock 309 et tests de non-régression. Certaines compositions très imbriquées restent imparfaites.

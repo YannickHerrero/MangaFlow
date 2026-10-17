@@ -62,31 +62,64 @@ enum PanelLayout {
         guard (leftEdges.max()! - leftEdges.min()!) <= 0.04,
               (rightEdges.max()! - rightEdges.min()!) <= 0.04 else { return false }
         let rows = panels.sorted { $0.rect.y < $1.rect.y }
-        // Slight overlap is allowed for detector noise / slanted borders, never nested rows.
+        // Slanted full-width bands have overlapping bounding boxes. What matters is
+        // that both their top and bottom advance down the page; a nested panel
+        // still fails this test. Keeping the original also avoids duplicating a
+        // spurious full-width detection along a diagonal gutter.
         return zip(rows, rows.dropFirst()).allSatisfy { upper, lower in
-            let overlap = upper.rect.maxY - lower.rect.y
-            return lower.rect.y > upper.rect.y &&
-                overlap <= min(0.02, min(upper.rect.height, lower.rect.height) * 0.10)
+            lower.rect.y - upper.rect.y > 0.02 &&
+                lower.rect.maxY - upper.rect.maxY > 0.02
         }
     }
 
     static func readingPanels(_ detections: [Detection], pageID: Int, rtl: Bool) -> [ReadingPanel] {
         let panels = ordered(normalized(detections), rtl: rtl)
+        guard !panels.isEmpty else { return [] }
         // Already a vertical reading flow: preserve artwork, gutters and page margins.
         if isFullWidthStack(panels) {
             return [ReadingPanel(id: "\(pageID)-0", rect: .full,
                                  confidence: panels.map(\.confidence).min() ?? 0)]
         }
+        // Preserve consecutive full-width bands inside a mixed page as one strip.
+        // Narrow panels (including inset panels) always break a run.
+        var groups: [[Detection]] = []
+        let containsInset: (Detection) -> Bool = { wide in
+            panels.contains { other in
+                other.rect.width < 0.80 && other.rect.area < wide.rect.area &&
+                    wide.rect.intersection(other.rect) > other.rect.area * 0.65
+            }
+        }
+        for panel in panels {
+            if let previous = groups.last?.last,
+               !containsInset(previous), !containsInset(panel),
+               isFullWidthStack([previous, panel]) {
+                groups[groups.count - 1].append(panel)
+            } else {
+                groups.append([panel])
+            }
+        }
+        var grouped = groups.map { group -> Detection in
+            let rect = group.dropFirst().reduce(group[0].rect.cgRect) { $0.union($1.rect.cgRect) }
+            return Detection(rect: UnitRect(rect), confidence: group.map(\.confidence).min() ?? 0, kind: 0)
+        }
+        // Wide narration outside any detected frame is part of the page too.
+        // Keep it as a strip rather than silently dropping headers or footnotes.
+        for text in detections where text.kind == 1 && text.confidence >= 0.30 && text.rect.width >= 0.45 && text.rect.area > 0 {
+            guard grouped.allSatisfy({ $0.rect.intersection(text.rect) / max(text.rect.area, 0.000001) < 0.10 }) else { continue }
+            let r = text.rect.padded(0.006)
+            grouped.append(Detection(rect: UnitRect(x: 0, y: r.y, width: 1, height: r.height), confidence: text.confidence, kind: 0))
+        }
+        grouped = ordered(grouped, rtl: rtl)
         let texts = detections.filter { $0.kind == 1 && $0.confidence >= 0.35 && $0.rect.area > 0 }
-        var crops = panels.map { $0.rect.padded(0.008) }
+        var crops = grouped.map { $0.rect.padded(0.008) }
         // Assign each text to its strongest overlapping panel, then preserve its full box.
         for text in texts {
-            let candidates = panels.enumerated().map { ($0.offset, $0.element.rect.intersection(text.rect) / text.rect.area) }
+            let candidates = grouped.enumerated().map { ($0.offset, $0.element.rect.intersection(text.rect) / text.rect.area) }
             if let best = candidates.max(by: { $0.1 < $1.1 }), best.1 > 0.25 {
                 crops[best.0] = UnitRect(crops[best.0].cgRect.union(text.rect.padded(0.005).cgRect)).clamped()
             }
         }
-        return panels.enumerated().map { index, panel in
+        return grouped.enumerated().map { index, panel in
             ReadingPanel(id: "\(pageID)-\(index)", rect: crops[index], confidence: panel.confidence)
         }
     }

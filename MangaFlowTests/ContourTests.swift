@@ -36,6 +36,26 @@ final class ContourTests: XCTestCase {
         let topLeft = result.points.filter { $0.x < 0.11 }.map(\.y).min()!
         XCTAssertEqual(topRight - topLeft, 0.1, accuracy: 0.02)
     }
+    func testSteepGutterAndConvexCornerRemoveNeighbouringInk() throws {
+        let image = render { _ in
+            let path = UIBezierPath()
+            path.move(to: CGPoint(x: 20, y: 210))
+            path.addLine(to: CGPoint(x: 200, y: 80))
+            path.addLine(to: CGPoint(x: 480, y: 180))
+            path.addLine(to: CGPoint(x: 480, y: 560))
+            path.addLine(to: CGPoint(x: 20, y: 560)); path.close()
+            UIColor.lightGray.setFill(); path.fill()
+            UIColor.black.setStroke(); path.lineWidth = 4; path.stroke()
+        }
+        let rect = UnitRect(x: 0.04, y: 0.12, width: 0.92, height: 0.82)
+        let contour = try XCTUnwrap(ContourRefiner.contour(in: XCTUnwrap(ContourRefiner.GrayPage(image: image)), rect: rect))
+        XCTAssertGreaterThanOrEqual(contour.points.count, 5)
+        XCTAssertGreaterThan(ContourRefiner.area(contour.points), rect.area * 0.65)
+        XCTAssertLessThan(ContourRefiner.area(contour.points), rect.area * 0.95)
+        let top = try XCTUnwrap(contour.points.min(by: { $0.y < $1.y }))
+        XCTAssertEqual(top.x, 0.4, accuracy: 0.04)
+        XCTAssertEqual(top.y, 80.0 / 600, accuracy: 0.02)
+    }
     func testUnframedAndAxisAlignedImagesKeepRectangle() throws {
         let plain = try XCTUnwrap(ContourRefiner.GrayPage(image: render { _ in }))
         let rect = UnitRect(x: 0.1, y: 0.1, width: 0.8, height: 0.7)

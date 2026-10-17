@@ -1,7 +1,7 @@
 import Foundation
 import CoreGraphics
 
-/// Conservative straight-border fitting around existing detections. No model or network dependency.
+/// Image-supported polygon masks around existing detections. No model or network dependency.
 enum ContourRefiner {
     struct GrayPage {
         let width: Int
@@ -63,16 +63,46 @@ enum ContourRefiner {
                        PagePoint(x: rect.maxX, y: rect.maxY), PagePoint(x: rect.x, y: rect.maxY)]
         var accepted = 0
         for (horizontal, inward) in [(true, 1.0), (true, -1.0), (false, 1.0), (false, -1.0)] {
-            guard let border = fit(in: page, rect: rect, horizontal: horizontal, inward: inward) else { continue }
-            let clipped = clip(polygon, border: border, width: page.width, height: page.height)
+            // After fitting top/bottom, only sample the surviving side edge.
+            // Otherwise the neighbour below a triangular corner can dominate it.
+            var fittingRect = rect
+            if !horizontal {
+                let edge = inward > 0 ? rect.x : rect.maxX
+                let points = polygon.filter { abs($0.x - edge) < 0.00001 }
+                if let first = points.map(\.y).min(), let last = points.map(\.y).max(), last > first {
+                    fittingRect = UnitRect(x: rect.x, y: first, width: rect.width, height: last - first)
+                }
+            }
+            var borders: [Border] = []
+            if let border = fit(in: page, rect: fittingRect, horizontal: horizontal, inward: inward) {
+                borders = [border]
+            } else if horizontal, let pair = cornerBorders(in: page, rect: rect, inward: inward) {
+                borders = pair
+            }
+            guard !borders.isEmpty else { continue }
+            let clipped = borders.reduce(polygon) { clip($0, border: $1, width: page.width, height: page.height) }
             let retained = area(clipped) / rect.area
             // Reject aggressive cuts and crossings; uncertain edges leave the rectangle untouched.
-            guard clipped.count >= 3, retained >= 0.60 else { continue }
+            guard clipped.count >= 3, retained >= 0.50 else { continue }
             polygon = clipped
             accepted += 1
         }
         guard accepted > 0, area(polygon) < rect.area * 0.985 else { return nil }
         return PanelContour(points: polygon, protectedRects: protectedRects.map { UnitRect($0.cgRect.intersection(rect.cgRect)) }.filter { $0.area > 0 })
+    }
+
+    /// Two supported edges can meet at a convex corner (e.g. a triangular panel).
+    private static func cornerBorders(in page: GrayPage, rect: UnitRect, inward: Double) -> [Border]? {
+        let left = UnitRect(x: rect.x, y: rect.y, width: rect.width * 0.48, height: rect.height)
+        let right = UnitRect(x: rect.x + rect.width * 0.52, y: rect.y, width: rect.width * 0.48, height: rect.height)
+        guard let a = fit(in: page, rect: left, horizontal: true, inward: inward),
+              let b = fit(in: page, rect: right, horizontal: true, inward: inward),
+              a.support >= 0.72, b.support >= 0.72,
+              (b.slope - a.slope) * inward > 0.15 else { return nil }
+        let crossing = (a.intercept - b.intercept) / (b.slope - a.slope) / Double(page.width)
+        guard crossing > rect.x + rect.width * 0.20,
+              crossing < rect.x + rect.width * 0.80 else { return nil }
+        return [a, b]
     }
 
     static func fit(in page: GrayPage, rect: UnitRect, horizontal: Bool, inward: Double) -> Border? {
@@ -82,8 +112,8 @@ enum ContourRefiner {
         let depth = horizontal ? rect.height * h : rect.width * w
         let target = horizontal ? (inward > 0 ? rect.y : rect.maxY) * h : (inward > 0 ? rect.x : rect.maxX) * w
         let limit = horizontal ? h : w
-        guard length > 45, depth > 25, target > 2, target < limit - 2 else { return nil }
-        let reach = min(70, min(depth * 0.40, length * 0.22))
+        guard length > 45, depth > 25, target >= 0, target <= limit else { return nil }
+        let reach = min(180, min(depth * 0.60, length * 0.45))
         let center = start + length / 2
         let samples = 64
         let trim = max(3, length * 0.045)
@@ -106,29 +136,62 @@ enum ContourRefiner {
             return (sum / Double(samples) * 0.6 + support * 0.4, support)
         }
         var best: (score: Double, support: Double, slope: Double, mid: Double)?
-        let slopeLimit = min(0.28, 2 * reach / length)
-        for step in -14...14 {
-            let slope = Double(step) * slopeLimit / 14
-            for offset in stride(from: -reach, through: reach, by: 2.0) {
-                let mid = target + offset
-                let measured = score(slope, mid)
-                // Prefer the closest border when image content yields similarly strong candidates.
-                let value = measured.0 - abs(offset) / max(reach, 1) * 0.035
-                if best == nil || value > best!.score { best = (value, measured.1, slope, mid) }
+        let slopeLimit = min(0.75, 2 * reach / length)
+        // Vote from observed ink/white transitions instead of a sparse grid of
+        // slopes: a one-pixel gutter edge is easily missed by a coarse grid.
+        var edgePoints: [(Double, Double)] = []
+        for a in positions {
+            var previousHit = false
+            for b in stride(from: max(1, target - reach), through: min(limit - 2, target + reach), by: 1.0) {
+                let hit = brightness(a, b) < 0.40 &&
+                    (brightness(a, b - inward * 3) + brightness(a, b - inward * 5)) / 2 > 0.78
+                if hit && !previousHit { edgePoints.append((a, b)) }
+                previousHit = hit
+            }
+        }
+        let steps = max(14, Int(ceil(slopeLimit * length / 2)))
+        var hypotheses: [(votes: Int, slope: Double, mid: Double)] = []
+        for step in -steps...steps {
+            let slope = Double(step) * slopeLimit / Double(steps)
+            var votes: [Int: Int] = [:]
+            for (a, b) in edgePoints {
+                let mid = b - slope * (a - center)
+                guard abs(mid - target) <= reach else { continue }
+                votes[Int((mid / 2).rounded()), default: 0] += 1
+            }
+            if let bin = votes.max(by: { $0.value == $1.value ? $0.key > $1.key : $0.value < $1.value }) {
+                hypotheses.append((bin.value, slope, Double(bin.key) * 2))
+            }
+        }
+        let ranked = hypotheses.sorted {
+            if $0.votes != $1.votes { return $0.votes > $1.votes }
+            if abs($0.slope) != abs($1.slope) { return abs($0.slope) < abs($1.slope) }
+            return $0.mid < $1.mid
+        }
+        for candidate in ranked.prefix(32) {
+            for offset in stride(from: -1.5, through: 1.5, by: 0.5) {
+                let mid = candidate.mid + offset
+                let measured = score(candidate.slope, mid)
+                let extreme = mid - inward * abs(candidate.slope) * length / 2
+                guard abs(extreme - target) <= max(14, depth * 0.18) else { continue }
+                let value = measured.0 - abs(extreme - target) / max(depth, 1) * 0.20
+                if best == nil || value > best!.score { best = (value, measured.1, candidate.slope, mid) }
             }
         }
         guard var best else { return nil }
         let coarseSlope = best.slope, coarseMid = best.mid
         for slopeStep in -3...3 {
-            let slope = coarseSlope + Double(slopeStep) * slopeLimit / 56
+            let slope = coarseSlope + Double(slopeStep) / max(length, 1)
             for offset in stride(from: -2.0, through: 2.0, by: 0.5) {
                 let mid = coarseMid + offset
                 let measured = score(slope, mid)
-                let value = measured.0 - abs(mid - target) / max(reach, 1) * 0.035
+                let extreme = mid - inward * abs(slope) * length / 2
+                guard abs(extreme - target) <= max(14, depth * 0.18) else { continue }
+                let value = measured.0 - abs(extreme - target) / max(depth, 1) * 0.20
                 if value > best.score { best = (value, measured.1, slope, mid) }
             }
         }
-        guard best.support >= 0.72, best.score >= 0.73, abs(best.slope) * length >= 5 else { return nil }
+        guard best.support >= 0.60, best.score >= 0.62, abs(best.slope) * length >= 5 else { return nil }
         // The detected bounding box should enclose this edge. Don't follow a line far inside artwork.
         let edgeExtreme = best.mid - inward * abs(best.slope) * length / 2
         guard abs(edgeExtreme - target) <= max(7, reach * 0.9) else { return nil }

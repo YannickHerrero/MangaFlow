@@ -21,6 +21,7 @@
 		35269E7F38DF03C4BCD6D9C0 /* Anton-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 19B34CE5A238DEB7480182CD /* Anton-Regular.ttf */; };
 		372694D336AC315B04B67EC1 /* FavoritesDownloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F104D92F12C9568B671BCF89 /* FavoritesDownloadTests.swift */; };
 		3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C10539866E45547DF7B3668 /* ContourTests.swift */; };
+		3FF2F53627C0FCFC4F03183E /* PanelReviewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F720442B7A9D5235435795F /* PanelReviewTests.swift */; };
 		43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98185ADBDC0AA67C5F17620A /* PipelineTests.swift */; };
 		443ADEDB6436F1807E051197 /* FavoriteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C6DC4026536AD2E46B8975 /* FavoriteStore.swift */; };
 		451E9F29B87F45755A361FD1 /* spacegrotesk-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 000895D5C7E6A1DE72EBC6E1 /* spacegrotesk-OFL.txt */; };
@@ -125,6 +126,7 @@
 		856681329C79CB7670043370 /* ConversionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionEngine.swift; sourceTree = "<group>"; };
 		87EA02C4137C88783D703355 /* TransferSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferSession.swift; sourceTree = "<group>"; };
 		8C10539866E45547DF7B3668 /* ContourTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContourTests.swift; sourceTree = "<group>"; };
+		8F720442B7A9D5235435795F /* PanelReviewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelReviewTests.swift; sourceTree = "<group>"; };
 		8FAD8E2D019DC4B43251F28D /* ContourRefiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContourRefiner.swift; sourceTree = "<group>"; };
 		917EA8608BE0D98D6EE0FCE0 /* SourcesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SourcesView.swift; sourceTree = "<group>"; };
 		933F3B1528F20796EAF18034 /* MangaFlow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MangaFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -316,6 +318,7 @@
 				A3B06ECBEC18ACEA9B32622E /* AutomaticImportTests.swift */,
 				8C10539866E45547DF7B3668 /* ContourTests.swift */,
 				F104D92F12C9568B671BCF89 /* FavoritesDownloadTests.swift */,
+				8F720442B7A9D5235435795F /* PanelReviewTests.swift */,
 				98185ADBDC0AA67C5F17620A /* PipelineTests.swift */,
 				1FC8AC22A72D5F674847E33B /* RemoteTests.swift */,
 				05E06AE2F207BD401C05AABD /* SeriesMetadataTests.swift */,
@@ -483,6 +486,7 @@
 				AED151F7FA8E70D8BDC0459F /* AutomaticImportTests.swift in Sources */,
 				3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */,
 				372694D336AC315B04B67EC1 /* FavoritesDownloadTests.swift in Sources */,
+				3FF2F53627C0FCFC4F03183E /* PanelReviewTests.swift in Sources */,
 				43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */,
 				2711920A1E4C4EA6116C03CD /* RemoteTests.swift in Sources */,
 				4AFAED7BE711EA6105E0E158 /* SeriesMetadataTests.swift in Sources */,
@@ -647,7 +651,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = MangaFlow/Simulator.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MangaFlow/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MangaFlow;
@@ -767,7 +771,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				"CODE_SIGN_STYLE[sdk=iphoneos*]" = Manual;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = KY6RHJR4LZ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MangaFlow/Info.plist;
