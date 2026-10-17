@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1BEB4C13E538F68AAD84B204 /* LocalPanelDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19EC948B19E7526AE89E56CE /* LocalPanelDetector.swift */; };
 		30E10EA192ACDB62E452EF37 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B784E6D43EAB943220D31A85 /* ReaderView.swift */; };
+		3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C10539866E45547DF7B3668 /* ContourTests.swift */; };
 		43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98185ADBDC0AA67C5F17620A /* PipelineTests.swift */; };
 		48FED1788D3583B0EC0386B4 /* PageImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98F57F916FC0DCD29F3FCE6 /* PageImage.swift */; };
 		581C0CD86025FCE09471F35D /* LibraryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9514AF7AAE987A8555F972C5 /* LibraryModel.swift */; };
@@ -22,6 +23,7 @@
 		D19912CF1C8FAAF821232842 /* MangaFlowApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */; };
 		DF3A55EE066F1A01872A812C /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 230FEC6233A2AAF3AD2D8531 /* ZIPFoundation */; };
 		E0DA161B55C868F3D93ED2CB /* DocumentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DA2ADCEF5A36D0461BBF5F7 /* DocumentStore.swift */; };
+		F256BCC1BD746D8E46DD5764 /* ContourRefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FAD8E2D019DC4B43251F28D /* ContourRefiner.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +55,8 @@
 		7D2723F15CE916C44110AC21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7DA2ADCEF5A36D0461BBF5F7 /* DocumentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStore.swift; sourceTree = "<group>"; };
 		856681329C79CB7670043370 /* ConversionEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionEngine.swift; sourceTree = "<group>"; };
+		8C10539866E45547DF7B3668 /* ContourTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContourTests.swift; sourceTree = "<group>"; };
+		8FAD8E2D019DC4B43251F28D /* ContourRefiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContourRefiner.swift; sourceTree = "<group>"; };
 		933F3B1528F20796EAF18034 /* MangaFlow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MangaFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9514AF7AAE987A8555F972C5 /* LibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModel.swift; sourceTree = "<group>"; };
 		98185ADBDC0AA67C5F17620A /* PipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineTests.swift; sourceTree = "<group>"; };
@@ -136,6 +140,7 @@
 		D335F55CCC81408B0113346A /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				8FAD8E2D019DC4B43251F28D /* ContourRefiner.swift */,
 				856681329C79CB7670043370 /* ConversionEngine.swift */,
 				0CCC5856AF88AAAB92018B97 /* Document.swift */,
 				7DA2ADCEF5A36D0461BBF5F7 /* DocumentStore.swift */,
@@ -149,6 +154,7 @@
 		E673CA608AD4459C3A2F1722 /* MangaFlowTests */ = {
 			isa = PBXGroup;
 			children = (
+				8C10539866E45547DF7B3668 /* ContourTests.swift */,
 				98185ADBDC0AA67C5F17620A /* PipelineTests.swift */,
 			);
 			path = MangaFlowTests;
@@ -282,6 +288,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */,
 				43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -290,6 +297,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F256BCC1BD746D8E46DD5764 /* ContourRefiner.swift in Sources */,
 				81E4C8BE6B2BE5D6FB85B690 /* ConversionEngine.swift in Sources */,
 				7416E7B4A8A81F17A01B4A7F /* Document.swift in Sources */,
 				E0DA161B55C868F3D93ED2CB /* DocumentStore.swift in Sources */,
