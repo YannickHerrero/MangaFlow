@@ -1,0 +1,6 @@
+ultralytics==8.4.180
+coremltools==9.0
+torch==2.8.0
+torchvision==0.23.0
+numpy==1.26.4
+opencv-python==4.11.0.86
