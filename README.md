@@ -9,13 +9,13 @@ Une page de manga devient une suite de cases à lire en faisant défiler l’éc
 <table>
   <tr><th>Avant · page source</th><th>Après · début de lecture</th><th>Après · en faisant défiler</th></tr>
   <tr>
-    <td width="34%" valign="top"><img src="Docs/demo/source-page.png" alt="ONE PIECE — Eiichiro Oda : sixième page du fichier de test Chapitre 1196.cbz" width="300"></td>
+    <td width="34%" valign="top"><img src="Docs/demo/source-page.png" alt="ONE PIECE — Eiichiro Oda : douzième page du fichier de test Chapitre 1196.cbz" width="300"></td>
     <td width="33%" valign="top"><img src="Docs/demo/demo-reader-start.png" alt="Capture réelle du lecteur immersif après conversion, au début des cases" width="300"></td>
     <td width="33%" valign="top"><img src="Docs/demo/demo-reader-scroll.png" alt="Capture réelle du lecteur après défilement vers les cases suivantes" width="300"></td>
   </tr>
 </table>
 
-Exemple sur **ONE PIECE — Eiichiro Oda**, à partir d’une seule page du fichier de test `Chapitre 1196.cbz`. Les deux images de droite sont des **captures réelles de l’application dans le simulateur iOS**, après conversion de cette même page par le modèle embarqué. Elles montrent deux positions dans la lecture, sans retouche du résultat. Les bordures inclinées illustrent aussi le masquage des fragments de cases voisines.
+Exemple sur **ONE PIECE — Eiichiro Oda**, à partir de la **page 12** du fichier de test `Chapitre 1196.cbz`. Les deux images de droite sont des **captures réelles de l’application dans le simulateur iOS**, après conversion de cette même page par le modèle embarqué. Elles montrent deux positions dans la lecture, sans retouche du résultat. Cette page permet de comparer la mise en page d’origine avec l’enchaînement vertical des cases et de leurs bulles de dialogue.
 
 La page et ses adaptations visuelles restent la propriété de leurs ayants droit et ne sont pas couvertes par la licence AGPL du code. Le CBZ complet n’est pas publié. [Source, crédits et reproduction des captures](Docs/demo/README.md).
 

@@ -5,7 +5,7 @@ Le README compare une page de manga avec son affichage après conversion dans Ma
 ## Source et crédits
 
 - Œuvre : **ONE PIECE**, par **Eiichiro Oda**, publiée au Japon par **Shueisha**.
-- Source matérielle : fichier local fourni par l’utilisateur, `Chapitre 1196.cbz`, sixième image dans l’ordre de lecture (`page-00005.webp` dans les fichiers de travail).
+- Source matérielle : fichier local fourni par l’utilisateur, `Chapitre 1196.cbz`, douzième image dans l’ordre de lecture (`page-00011.webp` dans les fichiers de travail).
 - Le nom du CBZ est le repère utilisé pour les tests. L’en-tête de sa page d’ouverture indique le chapitre **1186** : le nom de l’archive et le numéro imprimé diffèrent.
 - Version française telle qu’elle figure dans le fichier fourni ; traducteur et provenance éditoriale de cette version non identifiés.
 - Une seule page est publiée pour illustrer le fonctionnement du convertisseur. Le chapitre complet reste local et n’est pas intégré à l’application.
@@ -14,11 +14,11 @@ Les dessins, personnages et textes appartiennent à leurs ayants droit. La page 
 
 ## Images et protocole
 
-- `source-page.png` : la sixième page du CBZ, convertie de WebP en PNG sans modification du dessin.
+- `source-page.png` : la douzième page du CBZ, convertie de WebP en PNG sans modification du dessin.
 - `demo-reader-start.png` : capture réelle du début de la lecture immersive de cette page.
 - `demo-reader-scroll.png` : capture réelle après défilement dans le même document.
 
-Les captures sont produites par l’application SwiftUI dans le simulateur iOS 27, après import d’un CBZ contenant uniquement cette page, détection Core ML et ordonnancement des cases. Quatre cases sont détectées automatiquement sur cette page. Aucune région n’est saisie à la main. Les captures ne sont pas des maquettes et les recadrages affichés ne sont pas retouchés. Le modèle s’exécute localement.
+Les captures sont produites par l’application SwiftUI dans le simulateur iOS 27, après import d’un CBZ contenant uniquement cette page, détection Core ML et ordonnancement des cases. Aucune région n’est saisie à la main. Les captures ne sont pas des maquettes et les recadrages affichés ne sont pas retouchés. Le modèle s’exécute localement.
 
 ## Reproduire les captures
 
