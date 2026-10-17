@@ -8,6 +8,7 @@ struct ReaderView: View {
     @State private var position: String?
     @State private var original: MangaPage?
     @AppStorage("leftToRightReading") private var leftToRight = false
+    @AppStorage("followPanelBorders") private var followPanelBorders = true
     @State private var restored = false
     private struct Row: Identifiable {
         let page: MangaPage
@@ -47,9 +48,10 @@ struct ReaderView: View {
                                 }
                                 let ratio = max(0.1, Double(max(row.page.width, 1)) * row.panel.rect.width / (Double(max(row.page.height, 1)) * row.panel.rect.height))
                                 CropImage(url: store.pageURL(document, row.page), rect: row.panel.rect,
+                                          contour: followPanelBorders ? row.panel.contour : nil,
                                           targetWidth: min(1600, Int(geometry.size.width * 3)))
                                     .frame(width: geometry.size.width, height: geometry.size.width / ratio)
-                                    .background(.white)
+                                    .background(followPanelBorders && row.panel.contour != nil ? Color.clear : Color.white)
                                     .contentShape(Rectangle())
                                     .onTapGesture { original = row.page }
                                     .accessibilityElement(children: .ignore)
@@ -87,6 +89,7 @@ struct ReaderView: View {
                     Menu {
                         Button("Voir la page originale") { original = document.pages.first { $0.id == currentPage } }
                         Toggle("Lecture de gauche à droite", isOn: $leftToRight)
+                        Toggle("Suivre les bords des cases", isOn: $followPanelBorders)
                         Button("Revenir au début") { position = rows.first?.id }
                     } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("Options de lecture")
                 }
