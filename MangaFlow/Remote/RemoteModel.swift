@@ -131,9 +131,9 @@ final class RemoteModel {
             let url = try await client.download(artifactID) { [weak self] value in
                 Task { @MainActor in self?.transferProgress = value }
             }
+            defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
             try Task.checkCancellation()
             transferPhase = "Découpage sur cet appareil"
-            defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
             try await library.importRemoteCBZ(url, artifactID: identity, origin: ChapterOrigin(job: job, serverID: connection?.serverID ?? "", sourceName: sources.first { $0.id == job.target.sourceID }?.name))
             importedJobs.insert(job.id); UserDefaults.standard.set(Array(importedJobs), forKey: "importedJobs")
         } catch is CancellationError {

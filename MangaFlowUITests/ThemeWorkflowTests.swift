@@ -2,6 +2,7 @@ import XCTest
 
 final class ThemeWorkflowTests: XCTestCase {
   func testAllThemeAndAppearanceScreensAndPersistence() throws {
+    continueAfterFailure = false
     let app = XCUIApplication()
     for theme in ["holo", "brutal", "manga"] {
       for appearance in ["light", "dark"] {

@@ -219,7 +219,7 @@ struct ThemeTabBar: View {
                 p.theme == .manga ? p.paper : p.accent, in: Capsule()
               ).foregroundStyle(p.theme == .manga ? p.ink : Color.white)
             }
-          }.frame(maxWidth: .infinity, minHeight: p.theme == .holo ? 50 : 48)
+          }.frame(maxWidth: .infinity, minHeight: p.theme == .holo ? 50 : 48).contentShape(Rectangle())
             .foregroundStyle(
               i == selection
                 ? (p.theme == .holo || p.theme == .manga ? Color.white : p.paper)
