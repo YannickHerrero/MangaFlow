@@ -1,12 +1,24 @@
-# Démonstration publique
+# Démonstration sur une page de ONE PIECE
 
-Cette planche a été créée spécialement pour illustrer MangaFlow. Elle ne provient ni d’un manga commercial ni du chapitre privé utilisé pendant le développement.
+Le README compare une page de manga avec son affichage après conversion dans MangaFlow. La page est extraite du même CBZ que celui utilisé pour les essais du prototype.
 
-- `source-page.png` : image source originale, générée avec l’outil intégré `imagegen`.
-- `demo-reader-start.png` : capture réelle du début de la lecture immersive.
+## Source et crédits
+
+- Œuvre : **ONE PIECE**, par **Eiichiro Oda**, publiée au Japon par **Shueisha**.
+- Source matérielle : fichier local fourni par l’utilisateur, `Chapitre 1196.cbz`, sixième image dans l’ordre de lecture (`page-00005.webp` dans les fichiers de travail).
+- Le nom du CBZ est le repère utilisé pour les tests. L’en-tête de sa page d’ouverture indique le chapitre **1186** : le nom de l’archive et le numéro imprimé diffèrent.
+- Version française telle qu’elle figure dans le fichier fourni ; traducteur et provenance éditoriale de cette version non identifiés.
+- Une seule page est publiée pour illustrer le fonctionnement du convertisseur. Le chapitre complet reste local et n’est pas intégré à l’application.
+
+Les dessins, personnages et textes appartiennent à leurs ayants droit. La page source et les captures qui la reproduisent **ne sont pas placées sous AGPL-3.0** ; cette licence concerne le logiciel, pas les droits sur le manga. MangaFlow n’est pas affilié à l’auteur ou à l’éditeur.
+
+## Images et protocole
+
+- `source-page.png` : la sixième page du CBZ, convertie de WebP en PNG sans modification du dessin.
+- `demo-reader-start.png` : capture réelle du début de la lecture immersive de cette page.
 - `demo-reader-scroll.png` : capture réelle après défilement dans le même document.
 
-Les captures sont produites par l’application SwiftUI dans le simulateur iOS 27, après import d’un CBZ d’une page, détection Core ML et ordonnancement des cases. Les images du lecteur ne sont pas des maquettes. Sur cette planche, le modèle a détecté quatre cases, lues de droite à gauche puis de haut en bas. Aucune région n’est saisie à la main. Le modèle s’exécute localement ; la génération de l’illustration est uniquement une étape de préparation de cette documentation.
+Les captures sont produites par l’application SwiftUI dans le simulateur iOS 27, après import d’un CBZ contenant uniquement cette page, détection Core ML et ordonnancement des cases. Quatre cases sont détectées automatiquement sur cette page. Aucune région n’est saisie à la main. Les captures ne sont pas des maquettes et les recadrages affichés ne sont pas retouchés. Le modèle s’exécute localement.
 
 ## Reproduire les captures
 
@@ -29,9 +41,3 @@ PY
 ```
 
 Transférer ce CBZ vers l’iPhone puis l’ouvrir dans MangaFlow.
-
-## Prompt de l’illustration
-
-Outil utilisé : génération d’image intégrée `imagegen`, sans image de référence.
-
-> Create one original black and white manga comic page for an open source iPhone reader demo. Portrait page 1024x1536. Exactly FOUR distinct large comic panels arranged two rows of two panels, wide white gutters and crisp black rectangular borders, simple Japanese manga reading order right to left. Wholesome original story: a young courier wearing a scarf and round goggles discovers a tiny friendly robot in a rain-soaked rooftop garden and shelters it under an umbrella. Top right establishing panel rooftop futuristic city with courier approaching; top left closeup of the small robot beside a plant; bottom right courier opening umbrella toward robot; bottom left both sitting beneath umbrella with distant city lights. Consistent original characters, refined ink linework, halftone shading, visually rich manga artwork, no franchise characters, no lettering, no text, no speech bubbles, no watermarks, no captions. Each drawing entirely confined to its own rectangular panel. No additional inset panels, no title strip. Clean white page margin.

@@ -28,6 +28,8 @@ Le code de l'application Swift est une implémentation indépendante ; aucun nom
 
 Le CBZ de l'utilisateur reste local dans le dossier ignoré `Fixtures/`. Les captures et rapports de diagnostic sont dans `Artifacts/`, également ignoré. Ils ne sont ni intégrés à l'app ni envoyés à un service de traitement.
 
-## Illustration publique de démonstration
+## Extrait de manga utilisé pour la démonstration
 
-`Docs/demo/source-page.png` est une illustration originale générée pour ce projet avec l’outil intégré `imagegen`. Les captures `demo-reader-*.png` montrent son traitement réel par MangaFlow. Le prompt et le protocole de capture sont documentés dans [Docs/demo/README.md](Docs/demo/README.md). Ces images sont incluses dans la publication du projet ; aucun extrait du chapitre privé n’est publié.
+`Docs/demo/source-page.png` reproduit une seule page de **ONE PIECE**, par **Eiichiro Oda**, publié au Japon par **Shueisha**. Elle provient du fichier local `Chapitre 1196.cbz` fourni par l’utilisateur, dont la page d’ouverture indique le chapitre 1186. Les captures `demo-reader-*.png` montrent le traitement réel de cette même page par MangaFlow. La source et le protocole sont documentés dans [Docs/demo/README.md](Docs/demo/README.md).
+
+Les dessins, personnages et textes restent la propriété de leurs ayants droit. L’extrait et les captures qui le reproduisent sont exclus de la licence AGPL-3.0 du logiciel. Le CBZ complet n’est pas publié. Aucune affiliation à l’auteur ou à l’éditeur n’est revendiquée.

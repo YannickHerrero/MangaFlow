@@ -1,6 +1,6 @@
 import XCTest
 
-/// Optional documentation capture, using only the original public demonstration artwork.
+/// Optional documentation capture, using only the single page selected for the public demonstration.
 final class DemoScreenshotTests: XCTestCase {
     func testCapturePublicDemo() throws {
         let archive = "/private/tmp/mangaflow-public-demo.cbz"

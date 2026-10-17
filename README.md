@@ -9,13 +9,15 @@ Une page de manga devient une suite de cases à lire en faisant défiler l’éc
 <table>
   <tr><th>Avant · page source</th><th>Après · début de lecture</th><th>Après · en faisant défiler</th></tr>
   <tr>
-    <td width="34%" valign="top"><img src="Docs/demo/source-page.png" alt="Planche manga originale de démonstration : une coursière et un petit robot sous la pluie" width="300"></td>
+    <td width="34%" valign="top"><img src="Docs/demo/source-page.png" alt="ONE PIECE — Eiichiro Oda : sixième page du fichier de test Chapitre 1196.cbz" width="300"></td>
     <td width="33%" valign="top"><img src="Docs/demo/demo-reader-start.png" alt="Capture réelle du lecteur immersif après conversion, au début des cases" width="300"></td>
     <td width="33%" valign="top"><img src="Docs/demo/demo-reader-scroll.png" alt="Capture réelle du lecteur après défilement vers les cases suivantes" width="300"></td>
   </tr>
 </table>
 
-La planche est une illustration originale générée pour cette démonstration. Les deux images de droite sont des **captures réelles de l’application dans le simulateur iOS**, après import d’un CBZ contenant cette page et conversion par le modèle embarqué. Elles montrent deux positions dans la même lecture, sans retouche du résultat. Le chapitre personnel utilisé pour les autres essais n’est pas publié. [Détails et reproduction des captures](Docs/demo/README.md).
+Exemple sur **ONE PIECE — Eiichiro Oda**, à partir d’une seule page du fichier de test `Chapitre 1196.cbz`. Les deux images de droite sont des **captures réelles de l’application dans le simulateur iOS**, après conversion de cette même page par le modèle embarqué. Elles montrent deux positions dans la lecture, sans retouche du résultat. Les bordures inclinées illustrent aussi le masquage des fragments de cases voisines.
+
+La page et ses adaptations visuelles restent la propriété de leurs ayants droit et ne sont pas couvertes par la licence AGPL du code. Le CBZ complet n’est pas publié. [Source, crédits et reproduction des captures](Docs/demo/README.md).
 
 ## Lire sans distraction
 
@@ -34,7 +36,7 @@ Aucun serveur, LLM distant ou téléchargement de modèle au premier lancement. 
 4. Dans l'app, toucher **Importer un manga** puis choisir le `.cbz` dans Fichiers / iCloud Drive.
 5. La lecture s'ouvre à la fin de la conversion. Faire défiler ; toucher une case pour consulter et zoomer sa page originale.
 
-Le chapitre privé de test n'est ni intégré à l'app ni versionné. Le modèle est déjà fourni : Python et l'export ne sont pas nécessaires pour lancer l'app. La première résolution de ZIPFoundation dans Xcode nécessite Internet ; ensuite l'app fonctionne hors ligne.
+Le CBZ de test complet n’est ni intégré à l’app ni versionné ; seule la page illustrant le README est publiée. Le modèle est déjà fourni : Python et l'export ne sont pas nécessaires pour lancer l'app. La première résolution de ZIPFoundation dans Xcode nécessite Internet ; ensuite l'app fonctionne hors ligne.
 
 ## Fonctions
 

@@ -15,18 +15,21 @@ xcodebuild -project MangaFlow.xcodeproj -scheme MangaFlow -configuration Debug \
   -destination "platform=iOS Simulator,id=$device" -derivedDataPath DerivedData \
   CODE_SIGNING_ALLOWED=NO -only-testing:MangaFlowUITests/DemoScreenshotTests \
   -resultBundlePath "$result" test
-xcrun xcresulttool export attachments --path "$result" --output-path Artifacts/DemoCapture
-python3 - <<'PY'
+attachments="${result%.xcresult}-attachments"
+xcrun xcresulttool export attachments --path "$result" --output-path "$attachments"
+python3 - "$attachments" <<'PY'
 import json
 from pathlib import Path
 import shutil
-entries = json.loads(Path('Artifacts/DemoCapture/manifest.json').read_text())
+import sys
+attachment_dir = Path(sys.argv[1])
+entries = json.loads((attachment_dir / 'manifest.json').read_text())
 for entry in entries:
     for attachment in entry.get('attachments', []):
         name = attachment.get('suggestedHumanReadableName', '')
         for target in ('demo-reader-start', 'demo-reader-scroll'):
             if name.startswith(target):
-                shutil.copyfile(Path('Artifacts/DemoCapture') / attachment['exportedFileName'],
+                shutil.copyfile(attachment_dir / attachment['exportedFileName'],
                                 Path('Docs/demo') / (target + '.png'))
 for target in ('demo-reader-start', 'demo-reader-scroll'):
     if not (Path('Docs/demo') / (target + '.png')).exists():
