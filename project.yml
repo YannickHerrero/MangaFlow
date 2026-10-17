@@ -71,4 +71,4 @@ schemes:
     test:
       targets: [MangaFlowTests, MangaFlowUITests]
       environmentVariables:
-        MANGAFLOW_TEST_CBZ: $(SRCROOT)/Fixtures/Chapitre 1196.cbz
+        MANGAFLOW_TEST_CBZ: /private/tmp/mangaflow-ui-fixture.cbz

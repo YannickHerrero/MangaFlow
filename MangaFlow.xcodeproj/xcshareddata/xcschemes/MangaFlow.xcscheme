@@ -67,7 +67,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "MANGAFLOW_TEST_CBZ"
-            value = "$(SRCROOT)/Fixtures/Chapitre 1196.cbz"
+            value = "/private/tmp/mangaflow-ui-fixture.cbz"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

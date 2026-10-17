@@ -6,8 +6,11 @@ final class ReaderWorkflowTests: XCTestCase {
         guard !path.isEmpty, FileManager.default.fileExists(atPath: path) else {
             throw XCTSkip("Private chapter fixture is not available on this machine")
         }
+        let fixture = FileManager.default.temporaryDirectory.appendingPathComponent("Chapitre 1196.cbz")
+        if FileManager.default.fileExists(atPath: fixture.path) { try FileManager.default.removeItem(at: fixture) }
+        try FileManager.default.copyItem(at: URL(fileURLWithPath: path), to: fixture)
         let app = XCUIApplication()
-        app.launchArguments = ["-import", path]
+        app.launchArguments = ["-import", fixture.path]
         app.launch()
         let closeReader = app.buttons["Fermer la lecture"]
         XCTAssertTrue(closeReader.waitForExistence(timeout: 60), "Conversion should open the reader")
@@ -15,6 +18,9 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertTrue(scroll.exists)
         scroll.swipeUp()
         scroll.swipeUp()
+        let visiblePanel = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "panel-"))
+            .allElementsBoundByIndex.first(where: \.isHittable)?.identifier
+        XCTAssertNotNil(visiblePanel, "At least one reading region should be visible after scrolling")
         let reading = XCTAttachment(screenshot: app.screenshot()); reading.name = "Converted chapter"; reading.lifetime = .keepAlways
         add(reading)
         app.buttons["Options de lecture"].tap()
@@ -31,5 +37,6 @@ final class ReaderWorkflowTests: XCTestCase {
         reopen.tap()
         XCTAssertTrue(closeReader.waitForExistence(timeout: 5))
         XCTAssertTrue(app.scrollViews["readerScroll"].exists)
+        if let visiblePanel { XCTAssertTrue(app.buttons[visiblePanel].isHittable, "Reopening should restore the visible region") }
     }
 }
