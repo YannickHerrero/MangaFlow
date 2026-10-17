@@ -23,6 +23,7 @@ One page, seven automatically extracted panels. Click either image to view it fu
 - Hide the controls for immersive reading; double-tap a panel to bring them back.
 - Tap a panel to open and zoom into the original page.
 - Resume conversions and pick up where you left off reading.
+- Save manga favorites with their original source and track chapter downloads in place.
 
 Manga reading order is right-to-left by default, with a left-to-right option.
 

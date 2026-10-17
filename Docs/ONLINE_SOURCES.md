@@ -66,3 +66,11 @@ The LELScan live UI workflow paired with a one-use QR payload over the Mac’s `
 - Future HakuNeko changes may require adapter work. Official signature validation establishes package origin, not website compatibility. The last working release is retained on failed installation/probe.
 
 Runbook: [Server/README.md](../Server/README.md). API contract: [Server/API.md](../Server/API.md).
+
+## Favorites and chapter download feedback
+
+The mobile app now shows request submission, queued/running progress, completion and failures directly on each chapter. The download control disables while submission or download is in progress; failed requests can be retried. Accepted jobs are reflected immediately and reconciled with server polling. Completed rows offer the existing transfer/import/reader flow. Source errors are presented at the shared app root so they remain visible from both Sources and Favorites.
+
+Favorites are stored atomically on the device in `Application Support/MangaFlowFavorites/favorites.json`. Identity includes the server UUID, source ID and opaque manga ID. Same-title mangas from different sources stay distinct. Favorites survive relaunch, and those belonging to another server are not silently redirected. Tap the heart in a manga’s chapter list to add/remove it; the Favorites tab reuses that same chapter view with the exact saved manga identity.
+
+Validation: **25 Swift unit tests** pass, including favorite persistence/source identity, unreadable-file preservation, pending submission, matching job states, request errors and successful retry. A live simulator workflow added **Blue Lock / LELScan**, downloaded chapter **364.1** (nine images), verified disabled download/completion feedback, relaunched, opened the persisted favorite on its original source, then imported and read the CBZ. This explicit live test is `FavoritesWorkflowTests`; prepare a fresh one-use test pairing before running it.

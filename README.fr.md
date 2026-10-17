@@ -23,6 +23,7 @@ Une page, sept cases extraites automatiquement. Cliquez sur une image pour l’a
 - Commandes masquables pour une lecture immersive ; double toucher pour les réafficher.
 - Simple toucher pour ouvrir la page originale et zoomer.
 - Reprise des conversions et mémorisation de la position de lecture.
+- Favoris liés à leur source et suivi des téléchargements directement dans les chapitres.
 
 L’ordre manga va de droite à gauche par défaut, avec une option gauche à droite.
 
