@@ -1,5 +1,5 @@
 #!/bin/bash
-# Capture real simulator screenshots from the public demonstration page.
+# Convert the public demonstration page in iOS and render its full vertical strip.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 device="${MANGAFLOW_SIMULATOR:-D8D98A16-82FA-4B77-BD30-F8D9B1B6E180}"
@@ -17,21 +17,19 @@ xcodebuild -project MangaFlow.xcodeproj -scheme MangaFlow -configuration Debug \
   -resultBundlePath "$result" test
 attachments="${result%.xcresult}-attachments"
 xcrun xcresulttool export attachments --path "$result" --output-path "$attachments"
-python3 - "$attachments" <<'PY'
+python3 - "$device" <<'PY'
 import json
 from pathlib import Path
-import shutil
+import subprocess
 import sys
-attachment_dir = Path(sys.argv[1])
-entries = json.loads((attachment_dir / 'manifest.json').read_text())
-for entry in entries:
-    for attachment in entry.get('attachments', []):
-        name = attachment.get('suggestedHumanReadableName', '')
-        for target in ('demo-reader-start', 'demo-reader-scroll'):
-            if name.startswith(target):
-                shutil.copyfile(attachment_dir / attachment['exportedFileName'],
-                                Path('Docs/demo') / (target + '.png'))
-for target in ('demo-reader-start', 'demo-reader-scroll'):
-    if not (Path('Docs/demo') / (target + '.png')).exists():
-        raise SystemExit('Screenshot not exported: ' + target)
+container = Path(subprocess.check_output(['xcrun', 'simctl', 'get_app_container',
+    sys.argv[1], 'fr.yannick.mangaflow', 'data'], text=True).strip())
+document = json.loads((container / 'Documents/last-conversion.json').read_text())
+assert document['title'] == 'mangaflow-public-demo' and len(document['pages']) == 1
+page = document['pages'][0]
+assert page['processed']
+manifest = {'engineVersion': document['engineVersion'],
+            'page': {key: page[key] for key in ('width', 'height', 'panels')}}
+Path('Docs/demo/conversion.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
 PY
+"${MANGAFLOW_PYTHON:-python3}" Scripts/render_demo.py

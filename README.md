@@ -7,17 +7,16 @@ Prototype iPhone / iPad **iOS 27+** : importer un CBZ, détecter les cases sur l
 Une page de manga devient une suite de cases à lire en faisant défiler l’écran. La détection, l’ordre des cases et le rendu sont calculés sur l’iPhone.
 
 <table>
-  <tr><th>Avant · page source</th><th>Après · début de lecture</th><th>Après · en faisant défiler</th></tr>
+  <tr><th>Avant · page complète</th><th>Après · toutes les cases à la suite</th></tr>
   <tr>
-    <td width="34%" valign="top"><img src="Docs/demo/source-page.png" alt="ONE PIECE — Eiichiro Oda : douzième page du fichier de test Chapitre 1196.cbz" width="300"></td>
-    <td width="33%" valign="top"><img src="Docs/demo/demo-reader-start.png" alt="Capture réelle du lecteur immersif après conversion, au début des cases" width="300"></td>
-    <td width="33%" valign="top"><img src="Docs/demo/demo-reader-scroll.png" alt="Capture réelle du lecteur après défilement vers les cases suivantes" width="300"></td>
+    <td width="50%" valign="top"><a href="Docs/demo/source-page.png"><img src="Docs/demo/source-page.png" alt="ONE PIECE — Eiichiro Oda : page 12 complète du fichier de test Chapitre 1196.cbz" width="420"></a></td>
+    <td width="50%" valign="top"><a href="Docs/demo/vertical-page.png"><img src="Docs/demo/vertical-page.png" alt="Les sept cases de la même page assemblées verticalement dans l’ordre de lecture" width="420"></a></td>
   </tr>
 </table>
 
-Exemple sur **ONE PIECE — Eiichiro Oda**, à partir de la **page 12** du fichier de test `Chapitre 1196.cbz`. Les deux images de droite sont des **captures réelles de l’application dans le simulateur iOS**, après conversion de cette même page par le modèle embarqué. Elles montrent deux positions dans la lecture, sans retouche du résultat. Cette page permet de comparer la mise en page d’origine avec l’enchaînement vertical des cases et de leurs bulles de dialogue.
+Exemple sur **ONE PIECE — Eiichiro Oda**, à partir de la **page 12** du fichier de test `Chapitre 1196.cbz`. À gauche, la page complète ; à droite, **ses sept cases assemblées sur toute la hauteur**, dans l’ordre calculé par le convertisseur iOS, sans espacement ajouté. Cliquer sur une image pour l’ouvrir en grand. Le montage est produit à partir des rectangles et des contours enregistrés par l’application ; il montre toute la page convertie, sans interface iOS.
 
-La page et ses adaptations visuelles restent la propriété de leurs ayants droit et ne sont pas couvertes par la licence AGPL du code. Le CBZ complet n’est pas publié. [Source, crédits et reproduction des captures](Docs/demo/README.md).
+La page et ses adaptations visuelles restent la propriété de leurs ayants droit et ne sont pas couvertes par la licence AGPL du code. Le CBZ complet n’est pas publié. [Source, crédits et reproduction du montage](Docs/demo/README.md).
 
 ## Lire sans distraction
 
