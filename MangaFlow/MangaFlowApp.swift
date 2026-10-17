@@ -5,18 +5,17 @@ struct MangaFlowApp: App {
     @State private var library = LibraryModel()
     @State private var remote = RemoteModel()
     @State private var favorites = FavoriteStore()
+    @State private var theme = ThemeSettings()
+    @State private var metadata = MetadataStore()
     @State private var tab = 0
     @Environment(\.scenePhase) private var scenePhase
     var body: some Scene {
         WindowGroup {
-            TabView(selection: $tab) {
-                LibraryView(library: library)
-                    .tabItem { Label("Bibliothèque", systemImage: "books.vertical") }.tag(0)
-                SourcesView(remote: remote, library: library)
-                    .tabItem { Label("Sources", systemImage: "network") }.tag(1)
-                FavoritesView(remote: remote, library: library)
-                    .tabItem { Label("Favoris", systemImage: "heart") }.tag(2)
+            ThemeHost {
+                AppShell(library: library, remote: remote, tab: $tab)
             }
+                .environment(theme)
+                .environment(metadata)
                 .environment(favorites)
                 .alert("Sources", isPresented: Binding(get: { remote.error != nil }, set: { if !$0 { remote.error = nil } })) {
                     Button("Fermer", role: .cancel) { remote.error = nil }
@@ -32,12 +31,14 @@ struct MangaFlowApp: App {
             .fullScreenCover(item: Binding(get: {
                 library.documents.first { $0.id == library.selected }
             }, set: { if $0 == nil { library.selected = nil } })) { document in
-                ReaderView(document: document, store: library.store) { panel in
-                    library.remember(documentID: document.id, panelID: panel)
-                }
+                ThemeHost {
+                    ReaderView(document: document, store: library.store, onPosition: { panel in
+                        library.remember(documentID: document.id, panelID: panel)
+                    }, nextChapter: nextChapter(after: document))
+                }.environment(theme).environment(metadata)
             }
-                .preferredColorScheme(.dark)
-                .tint(FlowStyle.accent)
+                .preferredColorScheme(theme.scheme)
+
                 .onOpenURL { library.importCBZ($0) }
                 .task {
                     #if DEBUG
@@ -55,4 +56,18 @@ struct MangaFlowApp: App {
                 }
         }
     }
+    private func nextChapter(after document: MangaDocument) -> (() -> Void)? {
+        guard let series = library.series.first(where: { $0.id == document.seriesID }),
+              let index = series.documents.firstIndex(where: { $0.id == document.id }),
+              series.documents.indices.contains(index + 1) else { return nil }
+        let next = series.documents[index + 1]
+        return {
+            library.selected = nil
+            Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(400))
+                library.open(next)
+            }
+        }
+    }
+
 }

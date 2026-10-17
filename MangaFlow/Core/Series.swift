@@ -34,7 +34,7 @@ struct LibrarySeries: Identifiable {
     var progress: Double { documents.isEmpty ? 0 : documents.map(\.readingProgress).reduce(0,+) / Double(documents.count) }
 }
 extension MangaDocument {
-    var seriesID: String { origin?.seriesID ?? manualSeriesID.map { "manual:\($0)" } ?? "local:\(id)" }
+    var seriesID: String { origin?.seriesID ?? manualGroupKey ?? manualSeriesID.map { "manual:\($0)" } ?? "local:\(id)" }
     var seriesTitle: String { origin?.mangaTitle ?? manualSeriesTitle ?? title }
     var readingProgress: Double {
         if readComplete == true { return 1 }

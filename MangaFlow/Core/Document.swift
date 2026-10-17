@@ -77,6 +77,7 @@ struct MangaDocument: Codable, Identifiable, Sendable {
     var lastPanelID: String?
     var remoteArtifactID: String? = nil
     var origin: ChapterOrigin? = nil
+    var manualGroupKey: String? = nil
     var manualSeriesID: UUID? = nil
     var manualSeriesTitle: String? = nil
     var chapterOrder: Double? = nil

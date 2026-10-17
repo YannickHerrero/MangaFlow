@@ -43,6 +43,17 @@
 	<string>Scanner le QR code du serveur MangaFlow sur ton Mac.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Accéder au serveur MangaFlow sur ton Mac pour parcourir les sources et importer les chapitres.</string>
+	<key>UIAppFonts</key>
+	<array>
+		<string>ZenKakuGothicNew-Bold.ttf</string>
+		<string>ArchivoBlack-Regular.ttf</string>
+		<string>Anton-Regular.ttf</string>
+		<string>SpaceMono-Regular.ttf</string>
+		<string>SpaceMono-Bold.ttf</string>
+		<string>ZenKakuGothicNew-Regular.ttf</string>
+		<string>SpaceGrotesk-Regular.ttf</string>
+		<string>SpaceGrotesk-Bold.ttf</string>
+	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
