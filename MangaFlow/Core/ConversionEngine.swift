@@ -10,17 +10,25 @@ actor ConversionEngine {
         // A missing/incompatible model is an error, never silently a whole-book fallback.
         try await detector.prepare()
         var doc = original
+        if doc.engineVersion != MangaDocument.engine {
+            doc.engineVersion = MangaDocument.engine
+            for index in doc.pages.indices { doc.pages[index].processed = false }
+            try store.save(doc)
+        }
         for index in doc.pages.indices where !doc.pages[index].processed {
             try Task.checkCancellation()
             let start = Date()
             let url = store.pageURL(doc, doc.pages[index])
             var page = doc.pages[index]
+            page.fallback = false
+            page.warning = nil
             do {
                 let dimensions = try PageImage.dimensions(at: url)
                 page.width = dimensions.0; page.height = dimensions.1
                 let image = try autoreleasepool { try PageImage.load(at: url, maxPixel: 1600) }
                 let detections = try await detector.detect(image: image)
                 page.panels = PanelLayout.readingPanels(detections, pageID: page.id, rtl: doc.rightToLeft)
+                page.panels = ContourRefiner.refine(image: image, panels: page.panels, texts: detections)
                 if page.panels.isEmpty {
                     page.fallback = true
                     page.panels = [ReadingPanel(id: "\(page.id)-full", rect: .full, confidence: 0)]

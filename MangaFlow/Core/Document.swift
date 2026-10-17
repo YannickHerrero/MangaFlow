@@ -39,6 +39,18 @@ struct ReadingPanel: Codable, Identifiable, Sendable {
     var id: String
     var rect: UnitRect
     var confidence: Double
+    var contour: PanelContour? = nil
+}
+
+struct PagePoint: Codable, Equatable, Sendable {
+    var x: Double
+    var y: Double
+}
+
+struct PanelContour: Codable, Equatable, Sendable {
+    /// Full-page coordinates, origin at top left. The image is masked, never warped.
+    var points: [PagePoint]
+    var protectedRects: [UnitRect] = []
 }
 
 struct MangaPage: Codable, Identifiable, Sendable {
@@ -54,7 +66,7 @@ struct MangaPage: Codable, Identifiable, Sendable {
 }
 
 struct MangaDocument: Codable, Identifiable, Sendable {
-    static let engine = "yolo26-fp32-layout-v1"
+    static let engine = "yolo26-fp32-contours-v2"
     var schema = 1
     var engineVersion = Self.engine
     var id: UUID
