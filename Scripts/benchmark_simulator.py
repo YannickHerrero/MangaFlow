@@ -10,7 +10,7 @@ from zipfile import ZipFile, ZIP_STORED
 device, source = sys.argv[1:3]
 def sim(*args):
     return subprocess.check_output(['xcrun', 'simctl', *args], text=True).strip()
-container = Path(sim('get_app_container', device, 'fr.local.MangaFlow', 'data'))
+container = Path(sim('get_app_container', device, 'fr.yannick.mangaflow', 'data'))
 archive_path = container / 'Documents' / 'Stress 200 pages.cbz'
 with ZipFile(source) as original, ZipFile(archive_path, 'w', ZIP_STORED) as output:
     pages = sorted(n for n in original.namelist() if n.lower().endswith(('.webp', '.png', '.jpg', '.jpeg')))
@@ -21,7 +21,7 @@ report = container / 'Documents' / 'last-conversion.json'
 if report.exists():
     report.unlink()
 started = time.monotonic()
-pid = int(sim('launch', '--terminate-running-process', device, 'fr.local.MangaFlow', '-import', str(archive_path)).split(':')[-1])
+pid = int(sim('launch', '--terminate-running-process', device, 'fr.yannick.mangaflow', '-import', str(archive_path)).split(':')[-1])
 max_rss = 0
 while time.monotonic() - started < 55:
     try:
@@ -44,6 +44,6 @@ metrics = dict(pages=200, regions=sum(len(p['panels']) for p in doc['pages']),
 Path('Artifacts/stress-metrics.json').write_text(json.dumps(metrics, indent=2))
 print(json.dumps(metrics, indent=2), flush=True)
 # Remove only this generated test document and archive; keep the user's original chapter untouched.
-sim('terminate', device, 'fr.local.MangaFlow')
+sim('terminate', device, 'fr.yannick.mangaflow')
 shutil.rmtree(container / 'Library/Application Support/MangaFlow' / doc['id'])
 archive_path.unlink()
