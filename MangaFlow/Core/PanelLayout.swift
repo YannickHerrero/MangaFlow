@@ -72,8 +72,68 @@ enum PanelLayout {
         }
     }
 
+    /// Merge a vertical run only when a separate tall neighbour establishes a
+    /// column layout. A regular grid must keep its row-by-row reading order.
+    private static func groupedColumns(_ input: [Detection]) -> [Detection] {
+        // Bounding boxes on either side of a slanted divider can overlap. Build
+        // candidate columns geometrically before applying RTL/LTR ordering.
+        var columns: [[Detection]] = []
+        for panel in input.sorted(by: { $0.rect.y == $1.rect.y ? $0.rect.x < $1.rect.x : $0.rect.y < $1.rect.y }) {
+            let match = columns.firstIndex { column in
+                let run = column + [panel]
+                let left = run.map { $0.rect.x }, right = run.map { $0.rect.maxX }
+                let width = right.max()! - left.min()!
+                return left.max()! - left.min()! <= width * 0.10 &&
+                    right.max()! - right.min()! <= width * 0.10
+            }
+            if let match { columns[match].append(panel) } else { columns.append([panel]) }
+        }
+        let panels = columns.flatMap { $0 }
+        var result: [Detection] = []
+        var start = 0
+        while start < panels.count {
+            var end = start + 1
+            var bounds = panels[start].rect.cgRect
+            var acceptedEnd = end
+            var acceptedBounds = bounds
+            while end < panels.count {
+                let previous = panels[end - 1].rect
+                let next = panels[end].rect
+                let union = bounds.union(next.cgRect)
+                let width = union.width
+                let run = Array(panels[start...end])
+                let lefts = run.map { $0.rect.x }, rights = run.map { $0.rect.maxX }
+                guard next.y - previous.y > 0.02, next.maxY - previous.maxY > 0.02,
+                      next.y - previous.maxY < 0.10,
+                      lefts.max()! - lefts.min()! <= width * 0.10,
+                      rights.max()! - rights.min()! <= width * 0.10 else { break }
+                let rect = UnitRect(union)
+                let outside = panels.indices.filter { $0 < start || $0 > end }
+                let anchors = outside.filter { index in
+                    let other = panels[index].rect
+                    let horizontalOverlap = max(0, min(other.maxX, rect.maxX) - max(other.x, rect.x))
+                    return horizontalOverlap <= min(other.width, rect.width) * 0.15 &&
+                        other.y <= rect.y + 0.06 && other.maxY >= rect.maxY - 0.06 &&
+                        other.height >= rect.height * 0.80
+                }
+                if !anchors.isEmpty && outside.allSatisfy({ index in
+                    anchors.contains(index) || rect.intersection(panels[index].rect) < panels[index].rect.area * 0.20
+                }) {
+                    acceptedEnd = end + 1
+                    acceptedBounds = union
+                }
+                bounds = union
+                end += 1
+            }
+            result.append(Detection(rect: UnitRect(acceptedBounds),
+                                    confidence: panels[start..<acceptedEnd].map(\.confidence).min() ?? 0, kind: 0))
+            start = acceptedEnd
+        }
+        return result
+    }
+
     static func readingPanels(_ detections: [Detection], pageID: Int, rtl: Bool) -> [ReadingPanel] {
-        let panels = ordered(normalized(detections), rtl: rtl)
+        let panels = ordered(groupedColumns(normalized(detections)), rtl: rtl)
         guard !panels.isEmpty else { return [] }
         // Already a vertical reading flow: preserve artwork, gutters and page margins.
         if isFullWidthStack(panels) {

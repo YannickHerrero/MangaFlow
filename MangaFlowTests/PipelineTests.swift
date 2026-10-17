@@ -19,6 +19,30 @@ final class PipelineTests: XCTestCase {
         let bottom = box(0.05, 0.55, 0.4, 0.4)
         XCTAssertEqual(PanelLayout.ordered([bottom, top, tall], rtl: true).map(\.rect), [tall.rect, top.rect, bottom.rect])
     }
+    func testColumnStackIsGroupedBesideTallNeighbourInBothDirections() {
+        let tall = box(0.595, 0.02, 0.36, 0.98)
+        let rows = [box(0, 0, 0.643, 0.473), box(0, 0.337, 0.616, 0.501),
+                    box(0, 0.817, 0.595, 0.183)]
+        for rtl in [true, false] {
+            let result = PanelLayout.readingPanels([tall] + rows, pageID: 15, rtl: rtl)
+            XCTAssertEqual(result.count, 2)
+            let column = result[rtl ? 1 : 0].rect
+            XCTAssertEqual(column.y, 0)
+            XCTAssertEqual(column.maxY, 1)
+            XCTAssertEqual(column.width, 0.651, accuracy: 0.002)
+        }
+    }
+    func testColumnGroupingPreservesGridsInsetsAndMisalignedPanels() {
+        let grid = [box(0.05, 0.05, 0.4, 0.4), box(0.55, 0.05, 0.4, 0.4),
+                    box(0.05, 0.55, 0.4, 0.4), box(0.55, 0.55, 0.4, 0.4)]
+        XCTAssertEqual(PanelLayout.readingPanels(grid, pageID: 0, rtl: true).count, 4)
+        let tall = box(0.55, 0.02, 0.4, 0.96)
+        let rows = [box(0.02, 0.02, 0.47, 0.45), box(0.02, 0.52, 0.47, 0.46)]
+        let inset = box(0.2, 0.2, 0.15, 0.15)
+        XCTAssertEqual(PanelLayout.readingPanels([tall] + rows + [inset], pageID: 0, rtl: true).count, 4)
+        let misaligned = [box(0.02, 0.02, 0.47, 0.45), box(0.2, 0.52, 0.29, 0.46)]
+        XCTAssertEqual(PanelLayout.readingPanels([tall] + misaligned, pageID: 0, rtl: true).count, 3)
+    }
     func testDuplicatesAndInvalidBoxesAreRemoved() {
         let valid = box(0.1, 0.1, 0.6, 0.6)
         let items = [valid, box(0.102, 0.1, 0.6, 0.6, score: 0.8), box(2, 2, 0.1, 0.1), box(0, 0, 0.001, 0.001), box(.nan, 0, 0.5, 0.5)]

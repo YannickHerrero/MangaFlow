@@ -4,6 +4,28 @@ import UIKit
 
 /// Explicit local review only: private pages and outputs stay outside the repository.
 final class PanelReviewTests: XCTestCase {
+    func testPrivateColumnReview() async throws {
+        let root = URL(fileURLWithPath: "/tmp/mangaflow-310-review")
+        guard FileManager.default.fileExists(atPath: root.appendingPathComponent("enabled").path) else {
+            throw XCTSkip("Opt-in private column fixture absent")
+        }
+        let url = root.appendingPathComponent("page.jpg")
+        let detector = LocalPanelDetector()
+        let image = try PageImage.load(at: url, maxPixel: 1600)
+        let detections = try await detector.detect(image: image)
+        let expected = try JSONDecoder().decode([ReadingPanel].self, from: Data(contentsOf: root.appendingPathComponent("proposed/panels.json")))
+        let panels = ContourRefiner.refine(image: image, panels: PanelLayout.readingPanels(detections, pageID: 15, rtl: true), texts: detections)
+        XCTAssertEqual(panels.count, 2)
+        let output = root.appendingPathComponent("integrated")
+        try FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
+        for (index, pair) in zip(panels, expected).enumerated() {
+            XCTAssertEqual(pair.0.rect, pair.1.rect, "Automatic grouping must match the reviewed preview")
+            XCTAssertEqual(pair.0.contour, pair.1.contour)
+            let crop = try PageImage.crop(at: url, rect: pair.0.rect, contour: pair.0.contour, targetWidth: 700)
+            try XCTUnwrap(crop.pngData()).write(to: output.appendingPathComponent("\(index).png"))
+        }
+    }
+
     func testPrivateChapterReview() async throws {
         let root = URL(fileURLWithPath: "/tmp/mangaflow-panel-review")
         guard FileManager.default.fileExists(atPath: root.appendingPathComponent("enabled").path) else {
