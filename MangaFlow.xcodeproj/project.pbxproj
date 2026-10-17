@@ -16,15 +16,19 @@
 		2711920A1E4C4EA6116C03CD /* RemoteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC8AC22A72D5F674847E33B /* RemoteTests.swift */; };
 		2E4D4AFE27D734D3386FE49D /* SourcesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917EA8608BE0D98D6EE0FCE0 /* SourcesView.swift */; };
 		30E10EA192ACDB62E452EF37 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B784E6D43EAB943220D31A85 /* ReaderView.swift */; };
+		372694D336AC315B04B67EC1 /* FavoritesDownloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F104D92F12C9568B671BCF89 /* FavoritesDownloadTests.swift */; };
 		3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C10539866E45547DF7B3668 /* ContourTests.swift */; };
 		43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98185ADBDC0AA67C5F17620A /* PipelineTests.swift */; };
+		443ADEDB6436F1807E051197 /* FavoriteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C6DC4026536AD2E46B8975 /* FavoriteStore.swift */; };
 		4658517CAF94B0D0C1B12F4C /* RemoteAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB95DFDD728CF426DEDD7AC /* RemoteAPI.swift */; };
 		48FED1788D3583B0EC0386B4 /* PageImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98F57F916FC0DCD29F3FCE6 /* PageImage.swift */; };
+		500905AD86D73423B48B0F92 /* ChapterDownloadRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FAFCC1CB06020BAF8370C91 /* ChapterDownloadRow.swift */; };
 		581C0CD86025FCE09471F35D /* LibraryModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9514AF7AAE987A8555F972C5 /* LibraryModel.swift */; };
 		7416E7B4A8A81F17A01B4A7F /* Document.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCC5856AF88AAAB92018B97 /* Document.swift */; };
 		742FCC1B4510DB974618E3AC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FB18DFA549CC3F7DABCF44F6 /* Assets.xcassets */; };
 		78FF987D20A640557B8A4065 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23646A9B7FB378F997A80B /* LibraryView.swift */; };
 		81E4C8BE6B2BE5D6FB85B690 /* ConversionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 856681329C79CB7670043370 /* ConversionEngine.swift */; };
+		88B9E331BBDECF9F73923A40 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 013E13DFEB81AFF0156996AB /* FavoritesView.swift */; };
 		8E67E5D8817BAE93A726A1DE /* OfflineRemoteReadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBE9F7380B7FC7953B1FEB /* OfflineRemoteReadTests.swift */; };
 		9805465137DD124E0AFC1C48 /* ConnectionVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E149430519E8A896568481F /* ConnectionVault.swift */; };
 		BC53FD44435CAF2E9863FA0D /* ReaderWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */; };
@@ -35,6 +39,7 @@
 		DF3A55EE066F1A01872A812C /* ZIPFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = 230FEC6233A2AAF3AD2D8531 /* ZIPFoundation */; };
 		E0DA161B55C868F3D93ED2CB /* DocumentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DA2ADCEF5A36D0461BBF5F7 /* DocumentStore.swift */; };
 		F256BCC1BD746D8E46DD5764 /* ContourRefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FAD8E2D019DC4B43251F28D /* ContourRefiner.swift */; };
+		F626E47981186277C6616566 /* FavoritesWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D1F97D3FBDDF569116B662 /* FavoritesWorkflowTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,6 +60,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		013E13DFEB81AFF0156996AB /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
 		0ABBE9F7380B7FC7953B1FEB /* OfflineRemoteReadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OfflineRemoteReadTests.swift; sourceTree = "<group>"; };
 		0BB5C197C0E4A04A45407615 /* RemoteModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteModels.swift; sourceTree = "<group>"; };
 		0CCC5856AF88AAAB92018B97 /* Document.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Document.swift; sourceTree = "<group>"; };
@@ -81,11 +87,15 @@
 		933F3B1528F20796EAF18034 /* MangaFlow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MangaFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9514AF7AAE987A8555F972C5 /* LibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModel.swift; sourceTree = "<group>"; };
 		98185ADBDC0AA67C5F17620A /* PipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineTests.swift; sourceTree = "<group>"; };
+		9FAFCC1CB06020BAF8370C91 /* ChapterDownloadRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterDownloadRow.swift; sourceTree = "<group>"; };
 		B784E6D43EAB943220D31A85 /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
 		B98F57F916FC0DCD29F3FCE6 /* PageImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageImage.swift; sourceTree = "<group>"; };
 		CB6697429CF8A157068E5342 /* RemoteModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteModel.swift; sourceTree = "<group>"; };
 		DA23646A9B7FB378F997A80B /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		E45DE83544C164DA23D2D3F2 /* Simulator.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Simulator.entitlements; sourceTree = "<group>"; };
+		F104D92F12C9568B671BCF89 /* FavoritesDownloadTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesDownloadTests.swift; sourceTree = "<group>"; };
+		F5C6DC4026536AD2E46B8975 /* FavoriteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteStore.swift; sourceTree = "<group>"; };
+		F9D1F97D3FBDDF569116B662 /* FavoritesWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesWorkflowTests.swift; sourceTree = "<group>"; };
 		FB18DFA549CC3F7DABCF44F6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -131,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				135DEA2C652C344A2DBBE207 /* DemoScreenshotTests.swift */,
+				F9D1F97D3FBDDF569116B662 /* FavoritesWorkflowTests.swift */,
 				0ABBE9F7380B7FC7953B1FEB /* OfflineRemoteReadTests.swift */,
 				816EC226408A0BC1E7D688FF /* OnlineWorkflowTests.swift */,
 				1478558C05D1D9B2605DA8D0 /* ReaderWorkflowTests.swift */,
@@ -159,7 +170,10 @@
 		7FEC36296D19D4F36D3CE6BA /* Remote */ = {
 			isa = PBXGroup;
 			children = (
+				9FAFCC1CB06020BAF8370C91 /* ChapterDownloadRow.swift */,
 				6E149430519E8A896568481F /* ConnectionVault.swift */,
+				F5C6DC4026536AD2E46B8975 /* FavoriteStore.swift */,
+				013E13DFEB81AFF0156996AB /* FavoritesView.swift */,
 				67C74956BC4970C2D99E17E9 /* PairingScanner.swift */,
 				6DB95DFDD728CF426DEDD7AC /* RemoteAPI.swift */,
 				CB6697429CF8A157068E5342 /* RemoteModel.swift */,
@@ -197,6 +211,7 @@
 			isa = PBXGroup;
 			children = (
 				8C10539866E45547DF7B3668 /* ContourTests.swift */,
+				F104D92F12C9568B671BCF89 /* FavoritesDownloadTests.swift */,
 				98185ADBDC0AA67C5F17620A /* PipelineTests.swift */,
 				1FC8AC22A72D5F674847E33B /* RemoteTests.swift */,
 			);
@@ -325,6 +340,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				201B5112A28BA66CAF15B039 /* DemoScreenshotTests.swift in Sources */,
+				F626E47981186277C6616566 /* FavoritesWorkflowTests.swift in Sources */,
 				8E67E5D8817BAE93A726A1DE /* OfflineRemoteReadTests.swift in Sources */,
 				0DA5796D55973BBD4E43C8A7 /* OnlineWorkflowTests.swift in Sources */,
 				BC53FD44435CAF2E9863FA0D /* ReaderWorkflowTests.swift in Sources */,
@@ -336,6 +352,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */,
+				372694D336AC315B04B67EC1 /* FavoritesDownloadTests.swift in Sources */,
 				43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */,
 				2711920A1E4C4EA6116C03CD /* RemoteTests.swift in Sources */,
 			);
@@ -345,11 +362,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				500905AD86D73423B48B0F92 /* ChapterDownloadRow.swift in Sources */,
 				9805465137DD124E0AFC1C48 /* ConnectionVault.swift in Sources */,
 				F256BCC1BD746D8E46DD5764 /* ContourRefiner.swift in Sources */,
 				81E4C8BE6B2BE5D6FB85B690 /* ConversionEngine.swift in Sources */,
 				7416E7B4A8A81F17A01B4A7F /* Document.swift in Sources */,
 				E0DA161B55C868F3D93ED2CB /* DocumentStore.swift in Sources */,
+				443ADEDB6436F1807E051197 /* FavoriteStore.swift in Sources */,
+				88B9E331BBDECF9F73923A40 /* FavoritesView.swift in Sources */,
 				581C0CD86025FCE09471F35D /* LibraryModel.swift in Sources */,
 				78FF987D20A640557B8A4065 /* LibraryView.swift in Sources */,
 				1BEB4C13E538F68AAD84B204 /* LocalPanelDetector.swift in Sources */,
@@ -487,7 +507,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = MangaFlow/Simulator.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MangaFlow/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MangaFlow;
@@ -607,7 +627,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
 				"CODE_SIGN_STYLE[sdk=iphoneos*]" = Manual;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = KY6RHJR4LZ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MangaFlow/Info.plist;

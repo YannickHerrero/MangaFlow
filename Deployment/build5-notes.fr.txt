@@ -1,0 +1,1 @@
+Favoris : ajoute un manga avec le cœur depuis ses chapitres et retrouve-le dans le nouvel onglet Favoris, sur sa source d’origine. Téléchargements : état visible directement dans la liste des chapitres, bouton désactivé pendant la demande et le téléchargement, progression, erreur avec nouvelle tentative, puis bouton Importer et lire.

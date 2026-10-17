@@ -4,6 +4,7 @@ import SwiftUI
 struct MangaFlowApp: App {
     @State private var library = LibraryModel()
     @State private var remote = RemoteModel()
+    @State private var favorites = FavoriteStore()
     @State private var tab = 0
     @Environment(\.scenePhase) private var scenePhase
     var body: some Scene {
@@ -13,7 +14,13 @@ struct MangaFlowApp: App {
                     .tabItem { Label("Bibliothèque", systemImage: "books.vertical") }.tag(0)
                 SourcesView(remote: remote, library: library)
                     .tabItem { Label("Sources", systemImage: "network") }.tag(1)
+                FavoritesView(remote: remote, library: library)
+                    .tabItem { Label("Favoris", systemImage: "heart") }.tag(2)
             }
+                .environment(favorites)
+                .alert("Sources", isPresented: Binding(get: { remote.error != nil }, set: { if !$0 { remote.error = nil } })) {
+                    Button("Fermer", role: .cancel) { remote.error = nil }
+                } message: { Text(remote.error ?? "") }
                 .onChange(of: library.selected) { _, selected in if selected != nil { tab = 0 } }
                 .task(id: scenePhase) {
                     guard scenePhase == .active else { return }

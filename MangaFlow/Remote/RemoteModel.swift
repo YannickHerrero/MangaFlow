@@ -11,11 +11,18 @@ final class RemoteModel {
     var busy = false
     var importing = false
     var sourceSearch = ""
+    private(set) var requestingDownloads: Set<ChapterDownloadKey> = []
+    private(set) var downloadErrors: [ChapterDownloadKey: String] = [:]
+    private var acceptedDownloads: [String: RemoteJob] = [:]
     private(set) var client: RemoteAPI?
     init() {
         do { connection = try ConnectionVault.load() }
         catch { self.error = error.localizedDescription }
         if let connection { client = RemoteAPI(connection: connection) }
+    }
+    init(connection: ServerConnection?, session: URLSession) {
+        self.connection = connection
+        if let connection { client = RemoteAPI(connection: connection, session: session) }
     }
     func pair(_ text: String) async {
         guard !busy else { return }; busy = true; error = nil
@@ -32,7 +39,8 @@ final class RemoteModel {
         guard let client else { return }
         do {
             let updated = try await client.jobs()
-            jobs = updated
+            acceptedDownloads = acceptedDownloads.filter { entry in !updated.contains { $0.id == entry.key } }
+            jobs = Array(acceptedDownloads.values) + updated
             sources = try await client.sources()
             status = try await client.status()
             connected = true
@@ -41,6 +49,7 @@ final class RemoteModel {
     func forget() {
         ConnectionVault.clear(); connection = nil; client = nil; connected = false
         sources = []; jobs = []; status = nil
+        requestingDownloads = []; downloadErrors = [:]; acceptedDownloads = [:]
     }
     func revoke() async {
         do { try await client?.revoke(); forget() } catch { report(error) }
@@ -53,10 +62,31 @@ final class RemoteModel {
     func cancel(_ job: RemoteJob) async {
         do { _ = try await client?.cancel(job.id); await refresh() } catch { report(error) }
     }
+    func downloadJob(for manga: RemoteManga, chapter: RemoteChapter) -> RemoteJob? {
+        jobs.first {
+            $0.kind == "download" && $0.target.sourceID == manga.sourceID &&
+            $0.target.manga?.id == manga.id && $0.target.chapter?.id == chapter.id
+        }
+    }
     func download(_ manga: RemoteManga, chapter: RemoteChapter) async {
-        guard let client else { return }
-        do { _ = try await client.create("download", target: .init(sourceID: manga.sourceID, manga: manga, chapter: chapter)); await refresh() }
-        catch { report(error) }
+        let key = ChapterDownloadKey(manga: manga, chapter: chapter)
+        guard !requestingDownloads.contains(key) else { return }
+        if let current = downloadJob(for: manga, chapter: chapter), !current.finished { return }
+        requestingDownloads.insert(key); downloadErrors[key] = nil
+        defer { requestingDownloads.remove(key) }
+        guard let client else {
+            let failure = RemoteFailure(code: "authentication_invalid", message: "Relie cet appareil au Mac avant de télécharger.")
+            downloadErrors[key] = failure.localizedDescription; report(failure); return
+        }
+        do {
+            let created = try await client.create("download", target: .init(sourceID: manga.sourceID, manga: manga, chapter: chapter))
+            // Reflect acceptance immediately, without waiting for the next polling cycle.
+            acceptedDownloads[created.id] = created
+            jobs.removeAll { $0.id == created.id }; jobs.insert(created, at: 0)
+        } catch is CancellationError {} catch {
+            downloadErrors[key] = error.localizedDescription
+            report(error)
+        }
     }
     func importArtifact(_ job: RemoteJob, library: LibraryModel) async {
         guard !importing, let client, let artifactID = job.artifactID else { return }

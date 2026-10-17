@@ -43,7 +43,7 @@ struct SourcesView: View {
                         TextField("Rechercher une source ou un tag", text: $remote.sourceSearch)
                         ForEach(remote.sources.filter { remote.sourceSearch.isEmpty || ($0.name + " " + $0.tags.joined(separator: " ") + " " + $0.languages.joined(separator: " ")).localizedCaseInsensitiveContains(remote.sourceSearch) }) { source in
                             NavigationLink {
-                                SourceCatalogView(remote: remote, source: source)
+                                SourceCatalogView(remote: remote, source: source, library: library)
                             } label: {
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text(source.name)
@@ -89,15 +89,14 @@ struct SourcesView: View {
                     Task { await remote.pair(text) }
                 } catch { remote.report(error) }
             }
-            .alert("Sources", isPresented: Binding(get: { remote.error != nil }, set: { if !$0 { remote.error = nil } })) {
-                Button("Fermer", role: .cancel) { remote.error = nil }
-            } message: { Text(remote.error ?? "") }
+
         }
     }
 }
 private struct SourceCatalogView: View {
     @Bindable var remote: RemoteModel
     let source: RemoteSource
+    let library: LibraryModel
     @State private var mangas: [RemoteManga] = []
     @State private var search = ""
     @State private var total = 0
@@ -117,7 +116,7 @@ private struct SourceCatalogView: View {
                 }
             }
             ForEach(mangas) { manga in
-                NavigationLink(manga.title) { MangaChaptersView(remote: remote, manga: manga) }
+                NavigationLink(manga.title) { MangaChaptersView(remote: remote, manga: manga, library: library) }
                     .accessibilityIdentifier("manga-\(manga.id)")
             }
             if loading { ProgressView() }
@@ -138,9 +137,11 @@ private struct SourceCatalogView: View {
         } catch { remote.report(error) }
     }
 }
-private struct MangaChaptersView: View {
+struct MangaChaptersView: View {
     @Bindable var remote: RemoteModel
     let manga: RemoteManga
+    let library: LibraryModel
+    @Environment(FavoriteStore.self) private var favorites
     @State private var jobID: String?
     @State private var starting = false
     private var job: RemoteJob? { remote.jobs.first { $0.id == jobID } }
@@ -149,20 +150,25 @@ private struct MangaChaptersView: View {
             if starting || (job != nil && job?.finished == false) { ProgressView("Chargement des chapitres sur le Mac…") }
             if let error = job?.error { Text(error.localizedDescription).foregroundStyle(.orange) }
             ForEach(job?.result?.chapters ?? []) { chapter in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text(chapter.title)
-                        if let language = chapter.language { Text(language).font(.caption).foregroundStyle(.secondary) }
-                    }
-                    Spacer()
-                    Button { Task { await remote.download(manga, chapter: chapter) } } label: { Image(systemName: "arrow.down.circle") }
-                        .accessibilityLabel("Télécharger \(chapter.title)")
-                        .accessibilityIdentifier("download-\(chapter.id)")
-                }
+                ChapterDownloadRow(remote: remote, library: library, manga: manga, chapter: chapter)
             }
-            Text("Les téléchargements sont suivis dans l’onglet Sources.").font(.caption).foregroundStyle(.secondary)
+
         }
         .navigationTitle(manga.title)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                if let serverID = remote.connection?.serverID {
+                    let saved = favorites.contains(manga, serverID: serverID)
+                    Button {
+                        do {
+                            try favorites.toggle(manga, sourceName: remote.sources.first { $0.id == manga.sourceID }?.name ?? manga.sourceID, serverID: serverID)
+                        } catch { remote.report(error) }
+                    } label: { Image(systemName: saved ? "heart.fill" : "heart") }
+                    .accessibilityLabel(saved ? "Retirer des favoris" : "Ajouter aux favoris")
+                    .accessibilityIdentifier("toggleFavorite")
+                }
+            }
+        }
         .task {
             guard let client = remote.client else { return }
             starting = true; defer { starting = false }
