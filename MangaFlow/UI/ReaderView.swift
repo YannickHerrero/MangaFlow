@@ -9,6 +9,7 @@ struct ReaderView: View {
     @State private var original: MangaPage?
     @AppStorage("leftToRightReading") private var leftToRight = false
     @AppStorage("followPanelBorders") private var followPanelBorders = true
+    @State private var controlsVisible = true
     @State private var restored = false
     private struct Row: Identifiable {
         let page: MangaPage
@@ -36,38 +37,37 @@ struct ReaderView: View {
         NavigationStack {
             GeometryReader { geometry in
                 ScrollView {
-                    LazyVStack(spacing: 22) {
+                    LazyVStack(spacing: 0) {
                         ForEach(rows) { row in
-                            VStack(spacing: 8) {
-                                if row.panel.id == row.page.panels.first?.id {
-                                    HStack {
-                                        Text("PAGE \(row.page.id + 1)").tracking(2)
-                                        Spacer()
-                                        if row.page.fallback { Text("PAGE ENTIÈRE") }
-                                    }.font(.system(size: 9, weight: .medium, design: .monospaced)).foregroundStyle(.gray).padding(.horizontal, 16)
-                                }
-                                let ratio = max(0.1, Double(max(row.page.width, 1)) * row.panel.rect.width / (Double(max(row.page.height, 1)) * row.panel.rect.height))
-                                CropImage(url: store.pageURL(document, row.page), rect: row.panel.rect,
-                                          contour: followPanelBorders ? row.panel.contour : nil,
-                                          targetWidth: min(1600, Int(geometry.size.width * 3)))
-                                    .frame(width: geometry.size.width, height: geometry.size.width / ratio)
-                                    .background(followPanelBorders && row.panel.contour != nil ? Color.clear : Color.white)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture { original = row.page }
-                                    .accessibilityElement(children: .ignore)
-                                    .accessibilityLabel("Page \(row.page.id + 1), case \(row.panel.id). Toucher pour voir la page originale.")
-                                    .accessibilityAddTraits(.isButton)
-                                    .accessibilityIdentifier("panel-\(row.panel.id)")
-                            }.id(row.id)
+                            let ratio = max(0.1, Double(max(row.page.width, 1)) * row.panel.rect.width / (Double(max(row.page.height, 1)) * row.panel.rect.height))
+                            CropImage(url: store.pageURL(document, row.page), rect: row.panel.rect,
+                                      contour: followPanelBorders ? row.panel.contour : nil,
+                                      targetWidth: min(1600, Int(geometry.size.width * 3)))
+                                .frame(width: geometry.size.width, height: geometry.size.width / ratio)
+                                .background(followPanelBorders && row.panel.contour != nil ? Color.clear : Color.white)
+                                .contentShape(Rectangle())
+                                .gesture(TapGesture(count: 2).exclusively(before: TapGesture())
+                                    .onEnded { gesture in
+                                        switch gesture {
+                                        case .first: toggleControls()
+                                        case .second: original = row.page
+                                        }
+                                    })
+                                .accessibilityElement(children: .ignore)
+                                .accessibilityLabel("Page \(row.page.id + 1), case \(row.panel.id). Toucher pour voir la page originale.")
+                                .accessibilityAddTraits(.isButton)
+                                .accessibilityIdentifier("panel-\(row.panel.id)")
+                                .accessibilityAction { original = row.page }
+                                .accessibilityAction(named: controlsVisible ? "Masquer les commandes" : "Afficher les commandes") { toggleControls() }
+                                .id(row.id)
                         }
-                        Label("Fin du chapitre", systemImage: "checkmark.circle")
-                            .font(.subheadline).foregroundStyle(FlowStyle.accent).padding(40)
                     }
                     .scrollTargetLayout()
-                    .padding(.vertical, 18)
                 }
                 .scrollPosition(id: $position, anchor: .top)
                 .accessibilityIdentifier("readerScroll")
+                .accessibilityLabel("Lecture du manga")
+                .accessibilityValue("Page \(currentPage + 1), case \(currentPanelNumber)")
                 .background(Color.black)
                 .onChange(of: position) { _, value in
                     if restored, let value { onPosition(value) }
@@ -78,26 +78,30 @@ struct ReaderView: View {
                     restored = true
                 }
             }
+            .ignoresSafeArea(.container, edges: .vertical)
             .navigationTitle(document.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(FlowStyle.background, for: .navigationBar)
+            .toolbar(controlsVisible ? .visible : .hidden, for: .navigationBar)
+            .statusBarHidden(!controlsVisible)
+            .persistentSystemOverlays(controlsVisible ? .automatic : .hidden)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { dismiss() } label: { Image(systemName: "chevron.down") }.accessibilityLabel("Fermer la lecture")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { toggleControls() } label: { Image(systemName: "eye.slash") }
+                        .accessibilityLabel("Masquer l’interface")
+                        .accessibilityHint("Touchez deux fois une case pour réafficher les commandes.")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button("Voir la page originale") { original = document.pages.first { $0.id == currentPage } }
                         Toggle("Lecture de gauche à droite", isOn: $leftToRight)
                         Toggle("Suivre les bords des cases", isOn: $followPanelBorders)
+                        Button("Plein écran · double toucher pour revenir") { toggleControls() }
                         Button("Revenir au début") { position = rows.first?.id }
                     } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("Options de lecture")
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Text("\(min(currentPage + 1, document.pages.count)) / \(document.pages.count) · Toucher une case pour voir la page")
-                        .font(.system(size: 10, design: .monospaced)).foregroundStyle(.secondary)
-                        .accessibilityIdentifier("readingPosition")
-                        .accessibilityValue("Page \(currentPage + 1), case \(currentPanelNumber)")
                 }
             }
             .sheet(item: $original) { page in
@@ -113,6 +117,9 @@ struct ReaderView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
             Task { await CropLoader.shared.clear() }
         }
+    }
+    private func toggleControls() {
+        withAnimation(.easeInOut(duration: 0.2)) { controlsVisible.toggle() }
     }
 }
 

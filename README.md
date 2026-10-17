@@ -21,7 +21,8 @@ Le chapitre privé de test n'est ni intégré à l'app ni versionné. Le modèle
 - CBZ avec images JPEG, PNG et WebP ; tri naturel des fichiers, dossiers inclus.
 - Conversion locale, une page à la fois, sauvegarde après chaque page.
 - Pause / reprise, reprise après fermeture de l'app.
-- Défilement vertical des cases, ordre manga droite → gauche par défaut.
+- Défilement vertical sans espacement ajouté entre les cases, ordre manga droite → gauche par défaut.
+- Lecture immersive sans compteur : bouton œil pour masquer les commandes, double toucher sur une case pour les réafficher. Le simple toucher ouvre toujours l’original.
 - Option gauche → droite dans le menu du lecteur.
 - Consultation de la page originale avec zoom.
 - Position mémorisée à la case près, réouverture et suppression des documents locaux.

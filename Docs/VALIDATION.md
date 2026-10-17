@@ -22,7 +22,7 @@ Les sections suivantes décrivent la validation initiale de la v1.
 - Build Debug pour simulateur iOS 27 : réussi.
 - Build Release arm64 pour iPhone / iOS 27.1 SDK : réussi, sans signature (`CODE_SIGNING_ALLOWED=NO`). Taille du bundle : environ 11 Mo.
 - Suite finale : **10 tests unitaires + 1 test d'interface, zéro échec et zéro test ignoré**.
-- Test UI : import du CBZ privé, ouverture automatique du lecteur, deux défilements, consultation de l'original, fermeture, arrêt de l'app, relancement et vérification de la même page / case.
+- Test UI : import du CBZ privé, absence de compteur et d’espacement entre cases, masquage des commandes, ouverture de l’original par simple toucher en plein écran, restauration des commandes par double toucher, deux défilements, fermeture et relancement avec restauration de la même page / case.
 - Les essais automatisés utilisent une injection de fichier en Debug pour démarrer l'import. Le choix du fichier dans le sélecteur iCloud natif n'a pas été automatisé.
 - Aucun iPhone physique connecté pendant cette validation : pas de mesure sur appareil réel et pas d'installation signée effectuée.
 

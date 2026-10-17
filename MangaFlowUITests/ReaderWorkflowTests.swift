@@ -16,12 +16,31 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertTrue(closeReader.waitForExistence(timeout: 60), "Conversion should open the reader")
         let scroll = app.scrollViews["readerScroll"]
         XCTAssertTrue(scroll.exists)
+        XCTAssertFalse(app.staticTexts["readingPosition"].exists, "Reader must not show a bottom page counter")
+        let cover = app.buttons["panel-0-full"]
+        let nextPanel = app.buttons["panel-1-0"]
+        XCTAssertTrue(cover.exists); XCTAssertTrue(nextPanel.exists)
+        XCTAssertEqual(cover.frame.maxY, nextPanel.frame.minY, accuracy: 1,
+                       "Panels must touch, including across page boundaries")
+        app.buttons["Masquer l’interface"].tap()
+        XCTAssertFalse(closeReader.exists, "Immersive reading hides the top controls")
+        cover.tap()
+        XCTAssertTrue(app.buttons["Fermer"].waitForExistence(timeout: 5), "Single tap must still open the original while controls are hidden")
+        app.buttons["Fermer"].tap()
+        cover.doubleTap()
+        XCTAssertTrue(closeReader.waitForExistence(timeout: 5), "Double tap must restore the controls")
+        XCTAssertFalse(app.buttons["Fermer"].exists, "Double tap must not also open the page")
         scroll.swipeUp()
         scroll.swipeUp()
-        let savedPosition = app.staticTexts["readingPosition"].value as? String
+        let savedPosition = scroll.value as? String
         XCTAssertNotNil(savedPosition, "Reader should expose its current page and panel")
         let reading = XCTAttachment(screenshot: app.screenshot()); reading.name = "Converted chapter"; reading.lifetime = .keepAlways
         add(reading)
+        app.buttons["Masquer l’interface"].tap()
+        let immersive = XCTAttachment(screenshot: app.screenshot()); immersive.name = "Immersive reading"; immersive.lifetime = .keepAlways
+        add(immersive)
+        scroll.doubleTap()
+        XCTAssertTrue(closeReader.waitForExistence(timeout: 5))
         app.buttons["Options de lecture"].tap()
         app.buttons["Voir la page originale"].tap()
         XCTAssertTrue(app.buttons["Fermer"].waitForExistence(timeout: 5))
@@ -36,7 +55,7 @@ final class ReaderWorkflowTests: XCTestCase {
         reopen.tap()
         XCTAssertTrue(closeReader.waitForExistence(timeout: 5))
         XCTAssertTrue(app.scrollViews["readerScroll"].exists)
-        XCTAssertEqual(app.staticTexts["readingPosition"].value as? String, savedPosition,
+        XCTAssertEqual(app.scrollViews["readerScroll"].value as? String, savedPosition,
                        "Reopening should restore the current page and panel")
     }
 }
