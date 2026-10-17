@@ -48,3 +48,7 @@ npm --prefix Server test
 Server launch/pairing remains unchanged; see ../Server/README.md. Existing pairing credentials remain in Keychain.
 
 Validated on 18 October 2026: live AniList Naruto lookup returned media 36444 and a cover URL; live LELScan Blue Lock 364.1 download/import completed with nine images; favorite persisted across relaunch; the existing private chapter 1196 reader workflow passed. Screenshot attachments stay in ignored Artifacts/ThemeUI rather than publishing private library content.
+
+Final validation: 40 Swift fixture/unit tests and nine server fixture tests pass. iPhone UI checks cover the real private chapter, all six theme/appearance combinations, theme selection persistence, and a live favorite/download/import flow. LELScan Blue Lock chapters 364.1 (nine pages) and 363 (20 pages) were downloaded and imported, and the saved manifests contain exactly one source-series identity for both. Offline reading passed with the server actually stopped, then the service was restarted. All theme/appearance screens and preference persistence also passed on an iPad Pro 13-inch simulator. The tablet check caught a plain-button hit-area issue; the tab labels now explicitly expose the whole segment as a rectangular touch target.
+
+The release archive was checked with `codesign --verify --deep --strict` and exported for internal TestFlight. Apple processing/distribution state is recorded separately in Deployment/README.md only after confirmation.
