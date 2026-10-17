@@ -29,6 +29,32 @@ final class PipelineTests: XCTestCase {
         let inset = box(0.6, 0.6, 0.25, 0.25)
         XCTAssertEqual(PanelLayout.normalized([large, inset]).count, 2)
     }
+    func testFullWidthRowsPreserveEntirePageInBothReadingDirections() {
+        let rows = [box(0.04, 0.04, 0.92, 0.27), box(0.06, 0.32, 0.90, 0.30),
+                    box(0.05, 0.61, 0.90, 0.34), box(0.3, 0.2, 0.2, 0.1, kind: 1)]
+        for rtl in [true, false] {
+            let panels = PanelLayout.readingPanels(rows, pageID: 12, rtl: rtl)
+            XCTAssertEqual(panels.count, 1)
+            XCTAssertEqual(panels.first?.rect, .full)
+            XCTAssertEqual(panels.first?.id, "12-0")
+            XCTAssertNil(panels.first?.contour)
+        }
+    }
+    func testFullWidthRuleRejectsSideBySideAndInsetPanels() {
+        for rows in [
+            [box(0.04, 0.04, 0.92, 0.4), box(0.04, 0.48, 0.44, 0.45), box(0.52, 0.48, 0.44, 0.45)],
+            [box(0.04, 0.04, 0.92, 0.92), box(0.6, 0.6, 0.3, 0.25)],
+            [box(0.04, 0.04, 0.92, 0.8), box(0.04, 0.3, 0.92, 0.3)]
+        ] {
+            XCTAssertEqual(PanelLayout.readingPanels(rows, pageID: 0, rtl: true).count, rows.count)
+        }
+    }
+    func testNarrowRowsStillCropAndEmptyDetectionsStillFallBackInEngine() {
+        let narrow = [box(0.2, 0.05, 0.6, 0.4), box(0.2, 0.55, 0.6, 0.4)]
+        XCTAssertEqual(PanelLayout.readingPanels(narrow, pageID: 0, rtl: true).count, 2)
+        XCTAssertTrue(PanelLayout.readingPanels([], pageID: 0, rtl: true).isEmpty)
+        XCTAssertEqual(PanelLayout.readingPanels([box(0.04, 0.05, 0.92, 0.9)], pageID: 0, rtl: true).first?.rect, .full)
+    }
     func testLetterboxPortraitAndLandscape() {
         let portrait = LocalPanelDetector.unletterbox(x1: 160, y1: 0, x2: 480, y2: 640, width: 1000, height: 2000)
         XCTAssertEqual(portrait.x, 0, accuracy: 0.00001)

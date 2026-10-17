@@ -52,8 +52,31 @@ enum PanelLayout {
         return result
     }
 
+    /// Use unpadded detections so text expansion cannot hide a narrow or inset panel.
+    private static func isFullWidthStack(_ panels: [Detection]) -> Bool {
+        guard !panels.isEmpty else { return false }
+        // Allow up to 8% page margin per edge, with only small differences between rows.
+        guard panels.allSatisfy({ $0.rect.x <= 0.08 && $0.rect.maxX >= 0.92 }) else { return false }
+        let leftEdges = panels.map { $0.rect.x }
+        let rightEdges = panels.map { $0.rect.maxX }
+        guard (leftEdges.max()! - leftEdges.min()!) <= 0.04,
+              (rightEdges.max()! - rightEdges.min()!) <= 0.04 else { return false }
+        let rows = panels.sorted { $0.rect.y < $1.rect.y }
+        // Slight overlap is allowed for detector noise / slanted borders, never nested rows.
+        return zip(rows, rows.dropFirst()).allSatisfy { upper, lower in
+            let overlap = upper.rect.maxY - lower.rect.y
+            return lower.rect.y > upper.rect.y &&
+                overlap <= min(0.02, min(upper.rect.height, lower.rect.height) * 0.10)
+        }
+    }
+
     static func readingPanels(_ detections: [Detection], pageID: Int, rtl: Bool) -> [ReadingPanel] {
         let panels = ordered(normalized(detections), rtl: rtl)
+        // Already a vertical reading flow: preserve artwork, gutters and page margins.
+        if isFullWidthStack(panels) {
+            return [ReadingPanel(id: "\(pageID)-0", rect: .full,
+                                 confidence: panels.map(\.confidence).min() ?? 0)]
+        }
         let texts = detections.filter { $0.kind == 1 && $0.confidence >= 0.35 && $0.rect.area > 0 }
         var crops = panels.map { $0.rect.padded(0.008) }
         // Assign each text to its strongest overlapping panel, then preserve its full box.
