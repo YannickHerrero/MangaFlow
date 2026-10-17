@@ -1,0 +1,20 @@
+{
+  "name": "mangaflow-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/cli.mjs start",
+    "pair": "node src/cli.mjs pair",
+    "test": "node --test test/*.test.mjs",
+    "engine:proof": "node scripts/proof.mjs",
+    "update": "node src/cli.mjs update"
+  },
+  "dependencies": {
+    "@electron/remote": "2.1.3",
+    "crypto-js": "4.2.0",
+    "electron": "44.9.0",
+    "jszip": "3.10.1",
+    "qrcode": "1.5.4"
+  }
+}

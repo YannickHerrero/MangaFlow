@@ -16,3 +16,6 @@ __pycache__/
 *.ipa
 *.xcarchive/
 release.local.json
+node_modules/
+Server/.runtime/
+Server/.state/
