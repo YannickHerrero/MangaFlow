@@ -1,5 +1,17 @@
 # TestFlight privé
 
+## Première livraison terminée
+
+Le 17 octobre 2026, la version **0.1.0 (1)** a été signée, exportée puis envoyée avec succès. Apple a validé le build et confirme **INTERNAL_ONLY** / **IN_BETA_TESTING**. Il est affecté au groupe ci-dessous avec exactement un testeur. La demande d'envoi de l'invitation à `yannick.herrero@proton.me` a été acceptée par Apple. Aucun groupe externe ni lien public n'a été créé.
+
+Accès : https://appstoreconnect.apple.com/apps/6824043882/testflight/ios
+
+Les 17 tests ont été réexécutés avec le Bundle ID de distribution et passent. La signature de l'archive a été vérifiée avec `codesign --verify --deep --strict`. Le manifeste de confidentialité couvre les préférences locales et la vérification de l'espace disque ; l'app déclare ne pas utiliser de chiffrement non exempté.
+
+Sur iPhone sous iOS 27 ou plus récent : ouvrir l'invitation Apple, accepter avec TestFlight et installer **MangaFlow reader**. La fiche App Store Connect a été créée manuellement par l'utilisateur ; les opérations suivantes ont été réalisées via la clé API existante.
+
+## Configuration
+
 - App Store Connect : **MangaFlow reader**, ID `6824043882`, SKU `mangaflow` (fiche créée par l'utilisateur).
 - Bundle ID : `fr.yannick.mangaflow`.
 - Équipe Apple : `KY6RHJR4LZ`.
@@ -29,10 +41,10 @@ Le profil et le certificat doivent être installés sur le Mac. Le profil est af
 Installer `Scripts/requirements-deployment.txt` dans un environnement Python, puis :
 
 ```bash
-python Scripts/testflight.py --credentials /chemin/prive/release.json --upload --build 1
+python Scripts/testflight.py --credentials /chemin/prive/release.json --upload --build 1 --invite
 ```
 
-Le script vérifie la fiche app, crée ou retrouve le groupe interne, exige que son unique membre soit l'adresse prévue, envoie l'IPA, attend le traitement Apple et affecte le build au groupe. Les opérations ne soumettent rien à la revue App Store ou à une bêta externe.
+Le script vérifie la fiche app, crée ou retrouve le groupe interne, exige que son unique membre soit l'adresse prévue, envoie l'IPA, attend le traitement Apple, vérifie l'audience interne et affecte le build au groupe. `--invite` demande explicitement l'envoi de l'invitation au seul testeur. Les opérations ne soumettent rien à la revue App Store ou à une bêta externe.
 
 Après un envoi déjà réussi, relancer **sans `--upload`** pour reprendre l'attente et l'affectation du même build. `--configure-only` prépare et vérifie le groupe sans envoyer de binaire.
 

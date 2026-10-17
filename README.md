@@ -2,6 +2,10 @@
 
 Prototype iPhone / iPad **iOS 27+** : importer un CBZ, détecter les cases sur l'appareil et lire le manga dans un défilement vertical. Aucun serveur, compte ni clé API. Le détecteur est inclus dans l'application.
 
+## Installer la version privée TestFlight
+
+La version **MangaFlow reader 0.1.0 (1)** est disponible dans le groupe interne **Yannick — Personnel**, réservé à `yannick.herrero@proton.me`. Ouvrir l'invitation Apple sur l'iPhone et installer via TestFlight (iOS 27 minimum). Aucun lien public ni groupe externe. Détails de livraison et commandes : `Deployment/README.md`.
+
 ## Essayer sur iPhone
 
 1. Ouvrir `MangaFlow.xcodeproj` dans Xcode 27 ou plus récent.

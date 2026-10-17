@@ -23,6 +23,7 @@ def main():
     parser.add_argument('--ipa', default='Artifacts/TestFlight/MangaFlow.ipa')
     parser.add_argument('--upload', action='store_true', help='Upload the signed IPA (omit to resume after an existing upload)')
     parser.add_argument('--configure-only', action='store_true', help='Prepare and verify the private internal group without uploading')
+    parser.add_argument('--invite', action='store_true', help='Ask Apple to send the TestFlight invitation to the sole configured tester')
     parser.add_argument('--build', default='1')
     args = parser.parse_args()
     api = AppStoreConnect(args.credentials)
@@ -95,6 +96,8 @@ def main():
     else:
         raise RuntimeError('Processing still pending. Rerun without --upload to resume.')
     build_id = build['id']
+    if build['attributes'].get('buildAudienceType') != 'INTERNAL_ONLY':
+        raise RuntimeError('Build is not marked INTERNAL_ONLY. Export again with testFlightInternalTestingOnly=true.')
     locales = get(f'/v1/builds/{build_id}/betaBuildLocalizations')
     if not any(x['attributes']['locale'] == 'fr-FR' for x in locales):
         api.request('POST', '/v1/betaBuildLocalizations', {'data': {'type': 'betaBuildLocalizations',
@@ -112,9 +115,17 @@ def main():
     assert len(members) == 1 and members[0]['attributes']['email'].lower() == EMAIL
     assert any(x['id'] == build_id for x in assigned)
     detail = api.request('GET', f'/v1/builds/{build_id}/buildBetaDetail')['data']
+    if detail['attributes'].get('internalBuildState') != 'IN_BETA_TESTING':
+        raise RuntimeError('Build is assigned but not yet in beta testing: ' + str(detail['attributes'].get('internalBuildState')))
+    if args.invite:
+        api.request('POST', '/v1/betaTesterInvitations', {'data': {'type': 'betaTesterInvitations',
+            'relationships': {'app': {'data': {'type': 'apps', 'id': app_id}},
+                              'betaTester': {'data': {'type': 'betaTesters', 'id': members[0]['id']}}}}})
+        print('Apple accepted the TestFlight invitation request for', EMAIL, flush=True)
     status = {'app_id': app_id, 'bundle_id': BUNDLE, 'build_id': build_id, 'build_number': args.build,
               'group_id': group_id, 'group_name': GROUP, 'tester': EMAIL, 'public_link': False,
               'internal_build_state': detail['attributes'].get('internalBuildState'),
+              'build_audience': build['attributes'].get('buildAudienceType'),
               'url': f'https://appstoreconnect.apple.com/apps/{app_id}/testflight/ios'}
     (artifacts / 'testflight-status.json').write_text(json.dumps(status, indent=2))
     print(json.dumps(status, indent=2), flush=True)
