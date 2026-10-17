@@ -34,6 +34,8 @@ struct MangaFlowApp: App {
                 ThemeHost {
                     ReaderView(document: document, store: library.store, onPosition: { panel in
                         library.remember(documentID: document.id, panelID: panel)
+                    }, onComplete: {
+                        if let current = library.documents.first(where: { $0.id == document.id }) { library.edit(current) { $0.readComplete = true } }
                     }, nextChapter: nextChapter(after: document))
                 }.environment(theme).environment(metadata)
             }
@@ -43,6 +45,8 @@ struct MangaFlowApp: App {
                 .task {
                     #if DEBUG
                     let arguments = ProcessInfo.processInfo.arguments
+                    if let i = arguments.firstIndex(of: "-theme"), arguments.indices.contains(i + 1), let chosen = AppTheme(rawValue: arguments[i + 1]) { theme.theme = chosen }
+                    if let i = arguments.firstIndex(of: "-appearance"), arguments.indices.contains(i + 1) { theme.appearance = arguments[i + 1] }
                     if let index = arguments.firstIndex(of: "-import"), arguments.indices.contains(index + 1), !library.isBusy {
                         library.importCBZ(URL(fileURLWithPath: arguments[index + 1]))
                     }

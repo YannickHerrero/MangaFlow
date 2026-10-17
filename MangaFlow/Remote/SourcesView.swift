@@ -9,7 +9,6 @@ struct ConnectionView: View {
     @State private var scanner = false
     @State private var filePicker = false
     var body: some View {
-        NavigationStack {
             List {
                 Section("Connexion au Mac") {
                     if let connection = remote.connection {
@@ -39,8 +38,6 @@ struct ConnectionView: View {
                         if remote.busy { ProgressView("Appairage…") }
                     }
                 }
-                if remote.connection != nil {
-                }
             }
             .scrollContentBackground(.hidden).background(p.paper)
             .navigationTitle("Connexion au Mac")
@@ -56,7 +53,6 @@ struct ConnectionView: View {
                 } catch { remote.report(error) }
             }
 
-        }
     }
 }
 struct SourceCatalogView: View {
@@ -66,13 +62,14 @@ struct SourceCatalogView: View {
     let library: LibraryModel
     @State private var mangas: [RemoteManga] = []
     @State private var search = ""
+    @FocusState private var searchFocused: Bool
     @State private var total = 0
     @State private var loading = false
     private var current: RemoteSource { remote.sources.first { $0.id == source.id } ?? source }
     var body: some View {
         ScrollView {
           LazyVStack(alignment: .leading, spacing: 14) {
-            TextField("Rechercher dans le catalogue local", text: $search)
+            TextField("Rechercher dans le catalogue local", text: $search).focused($searchFocused).submitLabel(.search).onSubmit { searchFocused = false }
                 .textFieldStyle(.plain).padding(14).background(p.surface).accessibilityIdentifier("catalogSearch")
             VStack(alignment: .leading, spacing: 10) {
                 Text("Catalogue local du Mac").font(p.font(18, title: true))

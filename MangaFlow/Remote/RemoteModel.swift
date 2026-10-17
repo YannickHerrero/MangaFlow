@@ -11,6 +11,11 @@ final class RemoteModel {
     var busy = false
     var importing = false
     var sourceSearch = ""
+    var transferFailures: [String: String] = (UserDefaults.standard.dictionary(forKey: "transferFailures") as? [String: String]) ?? [:]
+    private func setTransferFailure(_ jobID: String, _ message: String?) {
+        transferFailures[jobID] = message
+        UserDefaults.standard.set(transferFailures, forKey: "transferFailures")
+    }
     var transferProgress: Double = 0
     var transferJobID: String?
     var transferPhase = ""
@@ -115,7 +120,11 @@ final class RemoteModel {
         UserDefaults.standard.set(job.id, forKey: "interruptedTransfer")
         do {
             let identity = (connection?.serverID ?? "") + ":" + artifactID
-            if let document = library.documents.first(where: { $0.remoteArtifactID == identity }) {
+            let provenance = ChapterOrigin(job: job, serverID: connection?.serverID ?? "", sourceName: sources.first { $0.id == job.target.sourceID }?.name)
+            setTransferFailure(job.id, nil)
+            if let document = library.documents.first(where: {
+                $0.remoteArtifactID == identity || (provenance != nil && $0.origin?.seriesID == provenance?.seriesID && $0.origin?.chapterID == provenance?.chapterID)
+            }) {
                 library.open(document)
                 return
             }
@@ -127,7 +136,11 @@ final class RemoteModel {
             defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
             try await library.importRemoteCBZ(url, artifactID: identity, origin: ChapterOrigin(job: job, serverID: connection?.serverID ?? "", sourceName: sources.first { $0.id == job.target.sourceID }?.name))
             importedJobs.insert(job.id); UserDefaults.standard.set(Array(importedJobs), forKey: "importedJobs")
-        } catch { report(error) }
+        } catch is CancellationError {
+            setTransferFailure(job.id, "Import interrompu. Tu peux le reprendre.")
+        } catch {
+            setTransferFailure(job.id, error.localizedDescription); report(error)
+        }
     }
     private struct Snapshot: Codable { let sources: [RemoteSource]; let jobs: [RemoteJob] }
     private func snapshotURL(_ serverID: String) -> URL {
