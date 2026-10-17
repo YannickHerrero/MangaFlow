@@ -1,0 +1,53 @@
+import XCTest
+@testable import MangaFlow
+
+final class SeriesMetadataTests:XCTestCase {
+    private func job(source:String="lelscan",mangaID:String="/naruto",chapterID:String="/1",order:Int=1)->RemoteJob {
+        RemoteJob(id:UUID().uuidString,kind:"download",target:.init(sourceID:source,manga:RemoteManga(id:mangaID,sourceID:source,title:"Naruto"),chapter:RemoteChapter(id:chapterID,title:"Chapitre \(order)",language:"fr",order:order)),state:"completed",progress:.init(completed:2,total:2),error:nil,artifactID:"cbz",result:nil)
+    }
+    func testOpaqueIdentitySeparatesSourcesServersAndAmbiguousDelimiters() {
+        let a=ChapterOrigin(job:job(),serverID:"mac",sourceName:"LELScan")!
+        let b=ChapterOrigin(job:job(source:"other"),serverID:"mac",sourceName:nil)!
+        let c=ChapterOrigin(job:job(),serverID:"other-mac",sourceName:nil)!
+        XCTAssertNotEqual(a.seriesID,b.seriesID);XCTAssertNotEqual(a.seriesID,c.seriesID)
+        XCTAssertNotEqual(ChapterOrigin.key("a:b","c","d"),ChapterOrigin.key("a","b:c","d"))
+        XCTAssertEqual(a.seriesID,ChapterOrigin(job:job(chapterID:"/2",order:2),serverID:"mac",sourceName:nil)!.seriesID)
+    }
+    func testOldManifestDecodesWithoutNewFields() throws {
+        let doc=MangaDocument(id:UUID(),title:"Old",pages:[])
+        var object=try XCTUnwrap(JSONSerialization.jsonObject(with:JSONEncoder().encode(doc)) as? [String:Any])
+        for key in ["origin","manualGroupKey","manualSeriesID","lastReadAt","readComplete"] {object.removeValue(forKey:key)}
+        let restored=try JSONDecoder().decode(MangaDocument.self,from:JSONSerialization.data(withJSONObject:object))
+        XCTAssertNil(restored.origin);XCTAssertEqual(restored.title,"Old");XCTAssertEqual(restored.readingProgress,0)
+    }
+    func testReadingProgressAndExplicitUnread() {
+        var doc=MangaDocument(id:UUID(),title:"Chapter",pages:[MangaPage(id:0,filename:"page",panels:(0..<4).map {ReadingPanel(id:"0-\($0)",rect:.full,confidence:1)})])
+        doc.lastPanelID="0-2";XCTAssertEqual(doc.readingProgress,0.5)
+        doc.readComplete=true;XCTAssertEqual(doc.readingProgress,1)
+        doc.readComplete=false;doc.lastPanelID=nil;XCTAssertEqual(doc.readingProgress,0)
+    }
+    func testMetadataTitleMatchingIsExactAfterNormalization() throws {
+        let data=Data(#"{"id":30011,"title":{"romaji":"NARUTO","english":null,"native":"ナルト"},"synonyms":["Naruto"],"coverImage":{"large":"https://example.com/cover.jpg"}}"#.utf8)
+        let item=try JSONDecoder().decode(MangaMetadata.self,from:data)
+        XCTAssertTrue(item.exactMatch("Naruto"));XCTAssertFalse(item.exactMatch("Boruto"));XCTAssertFalse(item.exactMatch("Naruto Shippuden"))
+        XCTAssertEqual(MangaMetadata.normalize("Génie de l’Académie"),MangaMetadata.normalize("Genie de l'Academie"))
+    }
+    @MainActor func testMetadataChoiceAndLocalFallbackPersist() throws {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer {try? FileManager.default.removeItem(at:root)}
+        let metadata=MetadataStore(root:root)
+        let item=try JSONDecoder().decode(MangaMetadata.self,from:Data(#"{"id":1,"title":{"romaji":"Naruto"}}"#.utf8))
+        try metadata.set("series",media:item)
+        XCTAssertEqual(MetadataStore(root:root).entries["series"]?.media?.id,1)
+        try metadata.set("series",media:nil)
+        XCTAssertNil(MetadataStore(root:root).entries["series"]?.media)
+        XCTAssertEqual(MetadataStore(root:root).entries["series"]?.manual,true)
+    }
+    @MainActor func testMigrationUsesArtifactIdentityRatherThanFilename() throws {
+        let library=LibraryModel();library.documents=[]
+        // Do not write to the real library: only a non-matching old import is reconciled.
+        var doc=MangaDocument(id:UUID(),title:"Naruto",pages:[]);doc.remoteArtifactID="other-mac:cbz"
+        library.documents=[doc];library.reconcile(jobs:[job()],serverID:"mac",sources:[])
+        XCTAssertNil(library.documents[0].origin)
+    }
+}
