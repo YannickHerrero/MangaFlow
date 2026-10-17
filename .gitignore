@@ -10,3 +10,9 @@ Fixtures/
 *.cbz
 *.pt
 __pycache__/
+*.p8
+*.p12
+*.mobileprovision
+*.ipa
+*.xcarchive/
+release.local.json

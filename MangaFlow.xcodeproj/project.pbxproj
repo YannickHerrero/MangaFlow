@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17D0B1BF3E3DAE6075AFD69C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5DE401A570B20B11FAFB9005 /* PrivacyInfo.xcprivacy */; };
 		1BEB4C13E538F68AAD84B204 /* LocalPanelDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19EC948B19E7526AE89E56CE /* LocalPanelDetector.swift */; };
 		30E10EA192ACDB62E452EF37 /* ReaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B784E6D43EAB943220D31A85 /* ReaderView.swift */; };
 		3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C10539866E45547DF7B3668 /* ContourTests.swift */; };
@@ -51,6 +52,7 @@
 		31958CBD7089BEA9A7BB676D /* MangaFlowTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MangaFlowTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		33A0FC65B3F2EFC5216FD754 /* MangaFlowUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = MangaFlowUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D08534A61B2F111598C24DB /* PanelLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelLayout.swift; sourceTree = "<group>"; };
+		5DE401A570B20B11FAFB9005 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		6F81E3720D66783B3166CADA /* PanelDetector.mlpackage */ = {isa = PBXFileReference; path = PanelDetector.mlpackage; sourceTree = "<group>"; };
 		7D2723F15CE916C44110AC21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7DA2ADCEF5A36D0461BBF5F7 /* DocumentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStore.swift; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 				FB18DFA549CC3F7DABCF44F6 /* Assets.xcassets */,
 				7D2723F15CE916C44110AC21 /* Info.plist */,
 				2FDF51AAF1188E84EBD86C9B /* MangaFlowApp.swift */,
+				5DE401A570B20B11FAFB9005 /* PrivacyInfo.xcprivacy */,
 				D335F55CCC81408B0113346A /* Core */,
 				4F5890AC24A81C9B8C12D760 /* Models */,
 				4076A023F999D75F0EC4CCF2 /* UI */,
@@ -270,6 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				742FCC1B4510DB974618E3AC /* Assets.xcassets in Resources */,
+				17D0B1BF3E3DAE6075AFD69C /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -446,7 +450,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = fr.local.MangaFlow;
+				PRODUCT_BUNDLE_IDENTIFIER = fr.yannick.mangaflow;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -549,7 +553,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution";
+				"CODE_SIGN_STYLE[sdk=iphoneos*]" = Manual;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KY6RHJR4LZ;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MangaFlow/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = MangaFlow;
@@ -563,7 +570,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 0.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = fr.local.MangaFlow;
+				PRODUCT_BUNDLE_IDENTIFIER = fr.yannick.mangaflow;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "MangaFlow Internal App Store 20261017";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
