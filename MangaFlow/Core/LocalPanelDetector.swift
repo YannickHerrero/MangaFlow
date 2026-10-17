@@ -33,6 +33,10 @@ actor LocalPanelDetector {
     }
 
     func detect(image: CGImage) throws -> [Detection] {
+        try autoreleasepool { try detectPage(image: image) }
+    }
+
+    private func detectPage(image: CGImage) throws -> [Detection] {
         let model = try model()
         let width = Double(image.width), height = Double(image.height)
         let scale = min(640 / width, 640 / height)

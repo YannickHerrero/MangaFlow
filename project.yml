@@ -35,6 +35,11 @@ targets:
     info:
       path: MangaFlow/Info.plist
       properties:
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
         CFBundleDocumentTypes:
           - CFBundleTypeName: Comic Book Archive
             LSHandlerRank: Owner
