@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Téléchargement et import en une action — build 8
+
+Le 18 octobre 2026, **0.1.0 (8)** a été validé par Apple et affecté au groupe privé existant, avec un seul testeur (**INTERNAL_ONLY**, **IN_BETA_TESTING**, aucun lien public). Identifiant : `4a3126c9-2111-4756-907e-569c8a6f4ee1`.
+
+Télécharger un chapitre depuis Explorer programme désormais son transfert et son import automatiques dans la bibliothèque. Les demandes sont conservées avant la réponse du serveur et reprises au retour dans l’app. Les imports sont traités un par un et attendent si une conversion est déjà en cours. Le lecteur ne s’ouvre pas automatiquement : le bouton devient Lire quand le chapitre est disponible localement. Une erreur propose une nouvelle tentative ; une annulation explicite retire la demande automatique. La nouvelle icône LIRE du build 7 est incluse.
+
+Validation : 47 tests unitaires Swift, dont persistance/isolation des demandes, récupération après réponse manquante, attente d’une bibliothèque occupée, absence de doublons/ouverture du lecteur et comptage des transferts. Parcours réel LELScan / Blue Lock 362 : un seul appui Télécharger, import automatique, maintien dans Explorer, puis lecture après relancement. Archive signée, vérifiée et exportée avant envoi.
+
 ## Nouvelle icône — build 7
 
 Le 18 octobre 2026, **0.1.0 (7)** a été validé par Apple et affecté au même groupe privé à un seul testeur (**INTERNAL_ONLY**, **IN_BETA_TESTING**, lien public désactivé). Identifiant : `43603d48-38a4-4f45-bc51-2bdeedbe8118`. L’icône utilise l’image originale carrée LIRE fournie par l’utilisateur, redimensionnée de 1254 à 1024 pixels, sans transparence et sans recadrage. Archive signée, vérifiée et exportée avec succès.
