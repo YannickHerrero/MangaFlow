@@ -7,7 +7,7 @@ Commandes à exécuter depuis la racine du dépôt. Prérequis : Xcode 27+ et un
 ```bash
 xcodebuild -project MangaFlow.xcodeproj -scheme MangaFlow \
   -destination 'platform=iOS Simulator,name=MangaFlow-Test' \
-  -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO test
+  -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=YES test
 ```
 
 Les tests unitaires construisent leurs propres images et archives. Le test UI utilise un CBZ privé optionnel placé dans `/private/tmp/mangaflow-ui-fixture.cbz` ; en son absence il est explicitement ignoré. Pour le chapitre utilisé pendant le développement :
@@ -42,3 +42,7 @@ Les mesures de validation et les limites observées sont dans [VALIDATION.md](VA
 Installer `Scripts/requirements-model.txt` dans un environnement Python 3.9 compatible, placer les poids officiels dans `/tmp/manga_panel_detector_fp32.pt`, puis exécuter `python Scripts/export_model.py`. Les coordonnées de sortie attendues sont `[1, 300, 6]` : x1, y1, x2, y2, score, classe.
 
 Provenance et licences : voir [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Le code et le modèle exporté sont publiés sous **AGPL-3.0** ; voir [LICENSE](../LICENSE). ZIPFoundation conserve sa licence MIT. Chika est une référence fonctionnelle ; l’application Swift est une implémentation indépendante.
+
+## Sources en ligne
+
+Voir [l’audit et la validation](ONLINE_SOURCES.md), le [serveur Mac](../Server/README.md) et le [contrat API](../Server/API.md). Les tests de Keychain nécessitent la signature ad hoc du simulateur.

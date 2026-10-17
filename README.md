@@ -2,7 +2,7 @@
 
 [Français](README.fr.md)
 
-Turn CBZ manga into a vertical, webtoon-style reading experience on iPhone and iPad. Panel detection runs entirely on-device with Core ML. No server or account required.
+Turn CBZ manga into a vertical, webtoon-style reading experience on iPhone and iPad. Panel detection runs entirely on-device with Core ML. Local CBZ reading needs no server or account.
 
 ## Before & after
 
@@ -25,6 +25,10 @@ One page, seven automatically extracted panels. Click either image to view it fu
 - Resume conversions and pick up where you left off reading.
 
 Manga reading order is right-to-left by default, with a left-to-right option.
+
+## Online sources
+
+Optionally browse HakuNeko sources through a Mac on the same local network. Pair by QR code, download chapters on the Mac, then import and read them offline on iPhone or iPad. [Mac server setup](Server/README.md).
 
 ## Try it
 

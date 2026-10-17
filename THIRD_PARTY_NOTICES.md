@@ -33,3 +33,9 @@ Le CBZ de l'utilisateur reste local dans le dossier ignoré `Fixtures/`. Les cap
 `Docs/demo/source-page.png` reproduit une seule page de **ONE PIECE**, par **Eiichiro Oda**, publié au Japon par **Shueisha**. Elle provient du fichier local `Chapitre 1196.cbz` fourni par l’utilisateur, dont la page d’ouverture indique le chapitre 1186. Le montage `Docs/demo/vertical-page.png` assemble les sept cases de cette même page à partir du manifeste calculé par MangaFlow. La source et le protocole sont documentés dans [Docs/demo/README.md](Docs/demo/README.md).
 
 Les dessins, personnages et textes restent la propriété de leurs ayants droit. L’extrait et le montage qui le reproduit sont exclus de la licence AGPL-3.0 du logiciel. Le CBZ complet n’est pas publié. Aucune affiliation à l’auteur ou à l’éditeur n’est revendiquée.
+
+## HakuNeko et serveur facultatif
+
+Source : https://github.com/manga-download/hakuneko — licence Unlicense. Le serveur télécharge le paquet web officiel signé et le conserve hors Git. Aucun fichier amont n’est modifié ; les adaptations sont dans `Server/src/engine`. Audit et version vérifiée : [Docs/ONLINE_SOURCES.md](Docs/ONLINE_SOURCES.md). Le fichier `Server/src/engine/upstream-public.pem` contient uniquement la clé publique de vérification publiée par HakuNeko.
+
+Le serveur utilise Electron (MIT), @electron/remote (MIT), CryptoJS (MIT), JSZip (MIT ou GPL-3.0) et qrcode (MIT). Les versions et intégrités sont verrouillées dans `Server/package-lock.json` ; leurs textes de licence sont fournis dans les paquets installés.

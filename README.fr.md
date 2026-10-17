@@ -2,7 +2,7 @@
 
 [English](README.md)
 
-Transformez vos mangas CBZ en lecture verticale, façon webtoon, sur iPhone et iPad. La détection des cases fonctionne entièrement sur l’appareil avec Core ML. Aucun serveur ni compte nécessaire.
+Transformez vos mangas CBZ en lecture verticale, façon webtoon, sur iPhone et iPad. La détection des cases fonctionne entièrement sur l’appareil avec Core ML. La lecture des CBZ locaux ne nécessite aucun serveur ni compte.
 
 ## Avant / après
 
@@ -25,6 +25,10 @@ Une page, sept cases extraites automatiquement. Cliquez sur une image pour l’a
 - Reprise des conversions et mémorisation de la position de lecture.
 
 L’ordre manga va de droite à gauche par défaut, avec une option gauche à droite.
+
+## Sources en ligne
+
+Parcourez des sources HakuNeko via un Mac sur le même réseau local. Appairez par QR code, téléchargez les chapitres sur le Mac, puis importez-les pour les lire hors ligne sur iPhone ou iPad. [Installer le serveur Mac](Server/README.md).
 
 ## Essayer
 
