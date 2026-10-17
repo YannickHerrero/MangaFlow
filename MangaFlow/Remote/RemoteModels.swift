@@ -12,8 +12,9 @@ struct PairingPayload: Codable {
         let date = ISO8601DateFormatter()
         date.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let parsed = URL(string: serverURL)
-        let parts = parsed?.host?.split(separator: ".").compactMap { Int($0) } ?? []
-        let privateIPv4 = parts.count == 4 && parts.allSatisfy { (0...255).contains($0) } &&
+        let hostParts = parsed?.host?.split(separator: ".", omittingEmptySubsequences: false) ?? []
+        let parts = hostParts.compactMap { Int($0) }
+        let privateIPv4 = hostParts.count == 4 && parts.count == 4 && parts.allSatisfy { (0...255).contains($0) } &&
             (parts[0] == 10 || (parts[0] == 192 && parts[1] == 168) || (parts[0] == 172 && (16...31).contains(parts[1])))
         var transportValid = parsed?.scheme == "https" ||
             (parsed?.scheme == "http" && ((parsed?.host?.hasSuffix(".local") ?? false) || privateIPv4))

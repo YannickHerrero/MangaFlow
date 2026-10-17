@@ -10,7 +10,7 @@ final class RemoteTests: XCTestCase {
         XCTAssertEqual(try payload().validatedURL().host, "mac.local")
         XCTAssertEqual(try payload(url: "http://192.168.1.29:9120").validatedURL().host, "192.168.1.29")
         XCTAssertNoThrow(try payload(url: "https://custom.example:9443").validatedURL())
-        for url in ["http://public.example", "http://mac.local.evil.com", "http://user:password@mac.local", "http://mac.local/path", "http://mac.local?secret=foo", "file:///private/tmp/data"] {
+        for url in ["http://public.example", "http://10.1.2.3.example.com", "http://mac.local.evil.com", "http://user:password@mac.local", "http://mac.local/path", "http://mac.local?secret=foo", "file:///private/tmp/data"] {
             XCTAssertThrowsError(try payload(url: url).validatedURL(), url)
         }
         XCTAssertThrowsError(try payload(expiration: Date().addingTimeInterval(-1)).validatedURL())
