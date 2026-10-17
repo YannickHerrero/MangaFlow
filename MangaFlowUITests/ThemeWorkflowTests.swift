@@ -42,6 +42,45 @@ final class ThemeWorkflowTests: XCTestCase {
     XCTAssertTrue(app.buttons["theme-holo"].waitForExistence(timeout: 5))
     XCTAssertEqual(app.buttons["theme-holo"].value as? String, "Sélectionné")
   }
+  func testTabBarReservesScrollViewportAcrossThemesAndRoutes() throws {
+    continueAfterFailure = false
+    let app = XCUIApplication()
+    defer { XCUIDevice.shared.orientation = .portrait }
+    for theme in ["holo", "brutal", "manga"] {
+      app.launchArguments = ["-theme", theme, "-appearance", "light"]
+      app.launch()
+      XCTAssertTrue(app.buttons["tab-0"].waitForExistence(timeout: 10))
+      for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+        XCUIDevice.shared.orientation = orientation
+        for tab in 0..<3 {
+          app.buttons["tab-\(tab)"].tap()
+          let scroll = app.scrollViews.firstMatch
+          XCTAssertTrue(scroll.waitForExistence(timeout: 5))
+          scroll.swipeUp()
+          scroll.swipeUp()
+          assertAboveTabBar(scroll, app: app)
+          capture(app, "bottom-\(theme)-\(orientation.rawValue)-tab\(tab)")
+        }
+      }
+      XCUIDevice.shared.orientation = .portrait
+      app.buttons["tab-0"].tap()
+      let series = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'series-'")).firstMatch
+      if series.exists {
+        series.tap()
+        let scroll = app.scrollViews.firstMatch
+        XCTAssertTrue(scroll.waitForExistence(timeout: 5))
+        scroll.swipeUp(); scroll.swipeUp()
+        assertAboveTabBar(scroll, app: app)
+        capture(app, "bottom-\(theme)-series-detail")
+      }
+      app.terminate()
+    }
+  }
+  private func assertAboveTabBar(_ scroll: XCUIElement, app: XCUIApplication) {
+    let barTop = (0..<3).map { app.buttons["tab-\($0)"].frame.minY }.min()!
+    XCTAssertLessThanOrEqual(scroll.frame.maxY, barTop + 1,
+      "The scroll viewport must end above the custom tab bar, including pushed destinations")
+  }
   private func capture(_ app: XCUIApplication, _ name: String) {
     let attachment = XCTAttachment(screenshot: app.screenshot())
     attachment.name = name

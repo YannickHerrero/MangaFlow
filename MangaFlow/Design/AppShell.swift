@@ -6,16 +6,18 @@ struct AppShell: View {
   @Binding var tab: Int
   @Environment(\.palette) private var p
   var body: some View {
-    ZStack {
-      ThemeBackground()
+    // Reserve real layout space for the bar. An inset outside NavigationStack
+    // can be lost when a pushed destination establishes its own safe area.
+    VStack(spacing: 0) {
       Group {
         switch tab {
         case 1: ExplorerView(remote: remote, library: library)
         case 2: ActivityView(remote: remote, library: library)
         default: SeriesLibraryView(library: library, remote: remote)
         }
-      }
-    }.safeAreaInset(edge: .bottom, spacing: 0) { ThemeTabBar(selection: $tab, count: activeCount) }
+      }.frame(maxWidth: .infinity, maxHeight: .infinity).clipped()
+      ThemeTabBar(selection: $tab, count: activeCount)
+    }.background { ThemeBackground() }
       .onChange(of: remote.jobs.count) { _, _ in reconcile() }
       .onChange(of: remote.connected) { _, _ in reconcile() }
   }
