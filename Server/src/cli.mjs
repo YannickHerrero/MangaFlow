@@ -63,7 +63,7 @@ if(command==='start'){
   const file=path.join(state,command==='pair'?'pairing.json':'pairing-simulator.json');await fs.writeFile(file,text,{mode:0o600});
   console.log(await QRCode.toString(text,{type:'terminal',small:true}));
   await QRCode.toFile(path.join(state,'pairing.png'),text,{width:500});
-  console.log('Scan in MangaFlow → Sources. This code expires in 5 minutes and can be used once.');
+  console.log('Scan in MangaFlow → Explorer → Connecter le Mac. This code expires in 5 minutes and can be used once.');
   console.log('For simulator testing, import the pairing payload file: '+file);
   setTimeout(()=>{fs.rm(file,{force:true});fs.rm(path.join(state,'pairing.png'),{force:true});},5*60_000).unref();
 }else if(command==='set-url'){

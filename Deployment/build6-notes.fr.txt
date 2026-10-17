@@ -1,0 +1,5 @@
+Trois thèmes au choix : Holographique, Brutaliste et Planche manga, chacun en clair, sombre ou selon le système. Barres d’onglets personnalisées issues de la maquette.
+
+Nouvelle navigation Bibliothèque / Explorer / Activité. Bibliothèque regroupée par manga et source, progression de lecture, recherche, filtres, classement des chapitres et reprise. Couvertures AniList avec cache hors ligne et correction manuelle.
+
+Favoris de mangas et de sources dans Explorer. Activité : téléchargement sur le Mac, file d’attente, transfert vers l’appareil avec progression et annulation, découpage local et historique. Lecture du chapitre local suivant et conservation des pages composées uniquement de cases pleine largeur.

@@ -39,3 +39,9 @@ Les dessins, personnages et textes restent la propriété de leurs ayants droit.
 Source : https://github.com/manga-download/hakuneko — licence Unlicense. Le serveur télécharge le paquet web officiel signé et le conserve hors Git. Aucun fichier amont n’est modifié ; les adaptations sont dans `Server/src/engine`. Audit et version vérifiée : [Docs/ONLINE_SOURCES.md](Docs/ONLINE_SOURCES.md). Le fichier `Server/src/engine/upstream-public.pem` contient uniquement la clé publique de vérification publiée par HakuNeko.
 
 Le serveur utilise Electron (MIT), @electron/remote (MIT), CryptoJS (MIT), JSZip (MIT ou GPL-3.0) et qrcode (MIT). Les versions et intégrités sont verrouillées dans `Server/package-lock.json` ; leurs textes de licence sont fournis dans les paquets installés.
+
+## Typography and optional metadata
+
+Space Grotesk, Archivo Black, Space Mono, Anton and Zen Kaku Gothic New are bundled from the Google Fonts repository under SIL Open Font License 1.1. Individual copyright notices and full license texts are in `MangaFlow/Resources/Fonts/*-OFL.txt`. Space Grotesk's bundled regular/bold instances were generated from the upstream variable font.
+
+AniList provides optional manga metadata and cover URLs through its public API (https://anilist.co ; https://docs.anilist.co/guide/terms-of-use). Manga covers and metadata are not covered by MangaFlow's AGPL license. They are fetched for the user's selected series and cached locally; none are bundled in the application.

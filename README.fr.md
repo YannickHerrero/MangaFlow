@@ -27,6 +27,8 @@ Une page, sept cases extraites automatiquement. Cliquez sur une image pour l’a
 
 L’ordre manga va de droite à gauche par défaut, avec une option gauche à droite.
 
+Trois thèmes au choix, une bibliothèque par série avec couvertures AniList et un suivi d’activité unifié. [Détails](Docs/THEMES_AND_LIBRARY.md).
+
 ## Sources en ligne
 
 Parcourez des sources HakuNeko via un Mac sur le même réseau local. Appairez par QR code, téléchargez les chapitres sur le Mac, puis importez-les pour les lire hors ligne sur iPhone ou iPad. [Installer le serveur Mac](Server/README.md).

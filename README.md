@@ -27,6 +27,8 @@ One page, seven automatically extracted panels. Click either image to view it fu
 
 Manga reading order is right-to-left by default, with a left-to-right option.
 
+Three selectable themes, a series library with AniList covers, and a unified activity view. [Details](Docs/THEMES_AND_LIBRARY.md).
+
 ## Online sources
 
 Optionally browse HakuNeko sources through a Mac on the same local network. Pair by QR code, download chapters on the Mac, then import and read them offline on iPhone or iPad. [Mac server setup](Server/README.md).
