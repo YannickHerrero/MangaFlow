@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Trois thèmes et bibliothèque par série — build 6
+
+Le 18 octobre 2026, **0.1.0 (6)** a été validé par Apple et affecté au groupe interne **Yannick — Personnel**, avec exactement un testeur. États confirmés : **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING** ; lien public désactivé. Identifiant du build : `3d41b797-ad8b-4016-9c58-842225c6a196`.
+
+Nouveautés : thèmes Holographique, Brutaliste et Planche manga en clair/sombre/système, tab bars personnalisées, navigation Bibliothèque / Explorer / Activité, séries liées aux identifiants des sources, couvertures AniList corrigibles avec cache, favoris de sources, filtres et états de lecture, suivi des transferts avec progression/annulation et lecture du chapitre local suivant. La règle conservant les pages composées uniquement de cases pleine largeur est incluse. Appairage et fichiers locaux conservés.
+
+Validation : 40 tests unitaires Swift et neuf tests serveur, captures et parcours des six variantes sur simulateurs iPhone et iPad, sélection du thème conservée après relancement, lecture du CBZ privé et reprise, Blue Lock / LELScan 364.1 (neuf pages) et 363 (20 pages) téléchargés/importés dans une seule série, et lecture avec le serveur réellement arrêté. Signature de l’archive vérifiée avec `codesign --verify --deep --strict`. Le serveur a été relancé après le contrôle hors ligne. [Architecture, migration et limites](../Docs/THEMES_AND_LIBRARY.md).
+
 ## Favoris et suivi des téléchargements — build 5
 
 Le 17 octobre 2026, **0.1.0 (5)** a été validé par Apple et affecté au groupe interne existant : **INTERNAL_ONLY**, **IN_BETA_TESTING**, un seul testeur. L’appairage et la bibliothèque existants sont conservés.
