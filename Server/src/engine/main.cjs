@@ -24,8 +24,10 @@ app.whenReady().then(async () => {
   });
   ipcMain.on('engine-ready', () => process.send?.({ ready: true }));
   ipcMain.on('engine-result', (_, result) => process.send?.(result));
-  process.on('message', request => win.webContents.send('engine-request', request));
-  process.on('disconnect', () => app.quit());
+  process.on('message', request => { if(request.shutdown)app.exit(0);else win.webContents.send('engine-request', request); });
+  process.on('disconnect', () => app.exit(0));
   await win.loadFile(path.join(__dirname,'worker.html'));
 });
+process.on('SIGTERM',()=>app.exit(0));
+process.on('SIGINT',()=>app.exit(0));
 app.on('window-all-closed',()=>{});

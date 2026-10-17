@@ -30,5 +30,10 @@ export class EngineClient {
       this.pending.set(id,{resolve,reject,timer});this.process.send({id,operation,...args});
     });
   }
-  close(){this.process?.kill();}
+  close(){
+    const child=this.process;if(!child)return;
+    if(child.connected){try{child.send({shutdown:true});child.disconnect();}catch{}}
+    child.kill('SIGTERM');
+    const force=setTimeout(()=>{if(child.exitCode===null&&child.signalCode===null)child.kill('SIGKILL');},2000);force.unref();
+  }
 }

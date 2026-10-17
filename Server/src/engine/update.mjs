@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import os from 'node:os';
 import { createVerify, createHash } from 'node:crypto';
 import JSZip from 'jszip';
 import { APIError } from '../errors.mjs';
@@ -12,9 +13,14 @@ export async function signedRelease() {
   if (link.origin !== new URL(channel).origin || !/^[A-Z0-9]+\.zip$/.test(path.basename(link.pathname))) throw new Error('Unexpected official package URL');
   const archive = await fetch(link, { signal: AbortSignal.timeout(120000) });
   if (!archive.ok) throw new Error('Update package unavailable');
-  const bytes = Buffer.from(await archive.arrayBuffer());
-  verifySignature(bytes, link.searchParams.get('signature') || '');
-  return { version: path.basename(link.pathname, '.zip'), bytes, sha256: createHash('sha256').update(bytes).digest('hex') };
+  const scratch = await fs.mkdtemp(path.join(os.tmpdir(), 'mangaflow-upstream-'));
+  try {
+    const file = path.join(scratch, 'package.zip');
+    await fs.writeFile(file, Buffer.from(await archive.arrayBuffer()), {mode:0o600});
+    const bytes = await fs.readFile(file);
+    verifySignature(bytes, link.searchParams.get('signature') || '');
+    return { version: path.basename(link.pathname, '.zip'), bytes, sha256: createHash('sha256').update(bytes).digest('hex') };
+  } finally { await fs.rm(scratch, {recursive:true,force:true}); }
 }
 export async function extractRelease(root, release) {
   const dest = path.resolve(root, 'versions', release.version);
