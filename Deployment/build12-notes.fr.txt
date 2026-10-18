@@ -1,0 +1,3 @@
+Le bouton Chapitre suivant ouvre toujours le début du chapitre cible, même s’il avait déjà été lu jusqu’à la fin. L’ouverture normale depuis la bibliothèque conserve la reprise de lecture.
+
+Nouveau bouton Pages originales dans l’en-tête du lecteur : bascule entre les cases recadrées et les pages entières en défilement continu, sans espacement ajouté. La page courante est conservée lors du changement de mode, le choix est mémorisé et le toucher pour agrandir reste disponible.

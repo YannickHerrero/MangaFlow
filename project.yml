@@ -32,7 +32,7 @@ targets:
         INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
         INFOPLIST_KEY_UIFileSharingEnabled: YES
         MARKETING_VERSION: '0.1.0'
-        CURRENT_PROJECT_VERSION: '11'
+        CURRENT_PROJECT_VERSION: '12'
       configs:
         Release:
           DEVELOPMENT_TEAM: KY6RHJR4LZ
