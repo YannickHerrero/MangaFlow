@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Début du chapitre suivant et pages originales — build 12
+
+Le 18 octobre 2026, **0.1.0 (12)** a été confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au même groupe privé à un seul testeur, sans lien public. Identifiant : `cd9c529f-808d-4275-a074-760fb83bda57`.
+
+Le bouton Chapitre suivant ouvre explicitement le début du document cible, avec remise à zéro persistée de sa position et de son état terminé. L’ouverture normale conserve la reprise. L’identité du lecteur dépend du document pour empêcher la réutilisation de la position du chapitre précédent. Le bouton Pages originales, dans l’en-tête, affiche les pages entières en défilement continu sans masque ni espacement ajouté. Il conserve la page courante au changement de mode, mémorise le choix et réutilise le zoom original existant.
+
+Validation : 56 tests unitaires réussis (deux revues privées supplémentaires ignorées dans la suite courante), plus deux parcours UI réussis sur iPhone : chapitre suivant déjà terminé ouvrant à la page 1, bascule de mode avec maintien de la page, absence d’espacement, zoom et réouverture. Le mode a aussi été testé sur un chapitre réel importé. Fixtures locales de contrôle nettoyées après les tests. Archive signée, signature vérifiée, export et disponibilité TestFlight privée confirmés. Le serveur Mac répond après la livraison.
+
 ## Chapitres récents en premier — build 11
 
 Le 18 octobre 2026, **0.1.0 (11)** a été confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé à un seul testeur et sans lien public. Identifiant : `8e51ee22-cb3b-42c6-80b3-c8d91cecb52a`.
