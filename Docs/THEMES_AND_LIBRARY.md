@@ -58,3 +58,9 @@ The release archive was checked with `codesign --verify --deep --strict` and exp
 A chapter's Download action now means download on Mac **and** import into this device's library. Durable intent is recorded before the server request and reconciled with the returned/recovered job. Completed artifacts are transferred and converted automatically while the app is active; a busy library defers the next import. Only one phone import runs at a time. Relaunch recovers the pending intent and local conversion checkpoints. Auto-import does not open the reader or change tabs. The row becomes Read when the local chapter is ready. A failed import shows a retry action rather than retrying indefinitely; explicit cancellation removes the automatic intent. Existing manual CBZ imports still open the reader on completion.
 
 The single-tap live flow was verified with LELScan Blue Lock 362: Download, automatic transfer/conversion, Read without a second import action, no unsolicited reader presentation, and reading after relaunch.
+
+## Reader modes and chapter transitions
+
+The reader header includes a persistent Original pages toggle. It uses the same image loader and continuous zero-spacing scroll as panel mode, with full-page rectangles and no contour masks. Switching mode maps the current position to the first panel of the same page; stored progress uses canonical panel IDs. Tapping either representation opens the existing zoomable original view.
+
+Opening a chapter normally resumes its saved position. The next-chapter action explicitly clears the target chapter’s saved position and completed flag before opening it; reader state is keyed by document identity so the previous scroll position cannot carry over. The reset is checkpointed before either opening or reconverting an older document.

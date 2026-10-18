@@ -1,6 +1,72 @@
 import XCTest
 
 final class ReaderWorkflowTests: XCTestCase {
+    func testNextChapterStartsAtBeginningEvenWhenPreviouslyFinished() throws {
+        guard FileManager.default.fileExists(atPath: "/tmp/mangaflow-reader-next-review.json") else {
+            throw XCTSkip("Explicit next-chapter review fixture absent")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication(); app.launchArguments = ["-theme", "holo"]; app.launch()
+        let series = app.buttons["series-reader-qa"].firstMatch
+        XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
+        let read = app.buttons["read-Reader QA 1"].firstMatch
+        XCTAssertTrue(read.waitForExistence(timeout: 10)); read.tap()
+        XCTAssertTrue(app.buttons["Fermer la lecture"].waitForExistence(timeout: 10))
+        if app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'original-page-'")).firstMatch.exists {
+            app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap()
+        }
+        let next = app.buttons["nextChapter"]
+        XCTAssertTrue(next.waitForExistence(timeout: 10)); next.tap()
+        XCTAssertTrue(app.navigationBars["Reader QA 2"].waitForExistence(timeout: 10))
+        let scroll = app.scrollViews["readerScroll"]
+        XCTAssertEqual(scroll.value as? String, "Page 1, case 1")
+        XCTAssertTrue(app.buttons["panel-0-0"].exists)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Next chapter starts at page one"; screenshot.lifetime = .keepAlways; add(screenshot)
+    }
+
+    func testOriginalPagesToggleKeepsCurrentPageAndPersists() throws {
+        guard FileManager.default.fileExists(atPath: "/tmp/mangaflow-reader-review"),
+              FileManager.default.fileExists(atPath: "/tmp/mangaflow-reader-next-review.json") else {
+            throw XCTSkip("Explicit reader review requires an already imported private chapter")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-theme", "holo"]
+        app.launch()
+        let series = app.buttons["series-reader-qa"].firstMatch
+        XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
+        let read = app.buttons["read-Reader QA 2"].firstMatch
+        XCTAssertTrue(read.waitForExistence(timeout: 10))
+        let readID = read.identifier
+        read.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["readerOriginalPages"].firstMatch.waitForExistence(timeout: 60))
+        app.buttons["Options de lecture"].tap()
+        app.buttons["Revenir au début"].tap()
+        if !app.buttons["original-page-0"].exists { app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap() }
+        XCTAssertTrue(app.buttons["original-page-0"].waitForExistence(timeout: 5))
+        let scroll = app.scrollViews["readerScroll"]
+        let first = app.buttons["original-page-0"], second = app.buttons["original-page-1"]
+        XCTAssertEqual(first.frame.maxY, second.frame.minY, accuracy: 1)
+        first.tap()
+        XCTAssertTrue(app.buttons["Fermer"].waitForExistence(timeout: 5))
+        app.buttons["Fermer"].tap()
+        scroll.swipeUp(); scroll.swipeUp()
+        let page = (scroll.value as? String ?? "").components(separatedBy: ",")[0]
+        XCTAssertFalse(page.isEmpty)
+        app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap()
+        XCTAssertTrue(NSPredicate(format: "value BEGINSWITH %@", page).evaluate(with: scroll))
+        app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap()
+        app.buttons["Fermer la lecture"].tap()
+        XCTAssertTrue(app.buttons[readID].firstMatch.waitForExistence(timeout: 5))
+        app.buttons[readID].firstMatch.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["readerOriginalPages"].firstMatch.waitForExistence(timeout: 10))
+        XCTAssertTrue(NSPredicate(format: "value BEGINSWITH %@", page).evaluate(with: app.scrollViews["readerScroll"]))
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Original pages continuous reading"; screenshot.lifetime = .keepAlways; add(screenshot)
+        app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap()
+    }
+
     func testRealChapterImportReadAndReopen() throws {
         let path = ProcessInfo.processInfo.environment["MANGAFLOW_TEST_CBZ"] ?? ""
         guard !path.isEmpty, FileManager.default.fileExists(atPath: path) else {

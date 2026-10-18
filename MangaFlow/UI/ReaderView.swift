@@ -12,6 +12,7 @@ struct ReaderView: View {
     @State private var original: MangaPage?
     @AppStorage("leftToRightReading") private var leftToRight = false
     @AppStorage("followPanelBorders") private var followPanelBorders = true
+    @AppStorage("readOriginalPages") private var originalPages = false
     @State private var controlsVisible = true
     @State private var restored = false
     private struct Row: Identifiable {
@@ -22,7 +23,10 @@ struct ReaderView: View {
     private var rows: [Row] {
         document.pages.filter(\.processed).flatMap { page in
             let panels: [ReadingPanel]
-            if leftToRight {
+            if originalPages {
+                // Keep a canonical panel ID so progress survives mode switches.
+                panels = [ReadingPanel(id: page.panels.first?.id ?? "\(page.id)-full", rect: .full, confidence: 1)]
+            } else if leftToRight {
                 let boxes = page.panels.map { Detection(rect: $0.rect, confidence: $0.confidence, kind: 0) }
                 panels = PanelLayout.ordered(boxes, rtl: false).compactMap { box in page.panels.first { $0.rect == box.rect } }
             } else { panels = page.panels }
@@ -44,7 +48,7 @@ struct ReaderView: View {
                         ForEach(rows) { row in
                             let ratio = max(0.1, Double(max(row.page.width, 1)) * row.panel.rect.width / (Double(max(row.page.height, 1)) * row.panel.rect.height))
                             CropImage(url: store.pageURL(document, row.page), rect: row.panel.rect,
-                                      contour: followPanelBorders ? row.panel.contour : nil,
+                                      contour: !originalPages && followPanelBorders ? row.panel.contour : nil,
                                       targetWidth: min(1600, Int(geometry.size.width * 3)))
                                 .frame(width: geometry.size.width, height: geometry.size.width / ratio)
                                 .background(followPanelBorders && row.panel.contour != nil ? Color.clear : Color.white)
@@ -57,9 +61,9 @@ struct ReaderView: View {
                                         }
                                     })
                                 .accessibilityElement(children: .ignore)
-                                .accessibilityLabel("Page \(row.page.id + 1), case \(row.panel.id). Toucher pour voir la page originale.")
+                                .accessibilityLabel(originalPages ? "Page originale \(row.page.id + 1). Toucher pour agrandir." : "Page \(row.page.id + 1), case \(row.panel.id). Toucher pour voir la page originale.")
                                 .accessibilityAddTraits(.isButton)
-                                .accessibilityIdentifier("panel-\(row.panel.id)")
+                                .accessibilityIdentifier(originalPages ? "original-page-\(row.page.id)" : "panel-\(row.panel.id)")
                                 .accessibilityAction { original = row.page }
                                 .accessibilityAction(named: controlsVisible ? "Masquer les commandes" : "Afficher les commandes") { toggleControls() }
                                 .id(row.id)
@@ -69,6 +73,7 @@ struct ReaderView: View {
                     .scrollTargetLayout()
                 }
                 .scrollPosition(id: $position, anchor: .top)
+                .id(originalPages)
                 .onScrollGeometryChange(for: Bool.self) { geometry in
                     geometry.contentSize.height > 0 && geometry.contentOffset.y + geometry.containerSize.height >= geometry.contentSize.height - 24
                 } action: { _, atEnd in if atEnd { onComplete?() } }
@@ -99,6 +104,14 @@ struct ReaderView: View {
                     Button { dismiss() } label: { Image(systemName: "chevron.down") }.accessibilityLabel("Fermer la lecture")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
+                    Toggle(isOn: Binding(get: { originalPages }, set: setOriginalPages)) {
+                        Image(systemName: "doc.richtext")
+                    }.toggleStyle(.button)
+                        .accessibilityLabel("Pages originales")
+                        .accessibilityHint("Afficher les pages entières en défilement continu, sans recadrage.")
+                        .accessibilityIdentifier("readerOriginalPages")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Button { toggleControls() } label: { Image(systemName: "eye.slash") }
                         .accessibilityLabel("Masquer l’interface")
                         .accessibilityHint("Touchez deux fois une case pour réafficher les commandes.")
@@ -126,6 +139,11 @@ struct ReaderView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
             Task { await CropLoader.shared.clear() }
         }
+    }
+    private func setOriginalPages(_ enabled: Bool) {
+        let page = currentPage
+        originalPages = enabled
+        position = rows.first { $0.page.id == page }?.id ?? rows.first?.id
     }
     private func toggleControls() {
         withAnimation(.easeInOut(duration: 0.2)) { controlsVisible.toggle() }

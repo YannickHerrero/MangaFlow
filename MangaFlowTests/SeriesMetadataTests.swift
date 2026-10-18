@@ -146,6 +146,30 @@ final class SeriesMetadataTests: XCTestCase {
     XCTAssertEqual(restored.title, "A renamed chapter")
   }
 
+  @MainActor func testOpeningNextChapterFromBeginningResetsPersistedProgressOnlyWhenRequested() throws {
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let store = DocumentStore(root: root)
+    var page = MangaPage(id: 0, filename: "page.png")
+    page.processed = true
+    page.panels = [ReadingPanel(id: "0-0", rect: .full, confidence: 1)]
+    var doc = MangaDocument(id: UUID(), title: "310", pages: [page])
+    doc.lastPanelID = "0-0"; doc.readComplete = true
+    try store.save(doc)
+    let library = LibraryModel(store: store)
+    library.open(doc)
+    XCTAssertEqual(library.documents.first?.lastPanelID, "0-0")
+    library.selected = nil
+    library.open(doc, fromBeginning: true)
+    XCTAssertEqual(library.selected, doc.id)
+    XCTAssertNil(library.documents.first?.lastPanelID)
+    XCTAssertEqual(library.documents.first?.readComplete, false)
+    XCTAssertNil(try store.loadAll().first?.lastPanelID)
+    // A stale document captured by a navigation closure must not restore its old position.
+    library.open(doc)
+    XCTAssertNil(library.documents.first?.lastPanelID)
+  }
+
   func testServerTimestampsSupportJavaScriptMillisecondsAndLegacySeconds() {
     XCTAssertNotNil(RemoteJob.timestamp("2026-10-18T01:02:03.456Z"))
     XCTAssertNotNil(RemoteJob.timestamp("2026-10-18T01:02:03Z"))

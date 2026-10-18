@@ -39,7 +39,7 @@ struct MangaFlowApp: App {
                     }, onComplete: {
                         if let current = library.documents.first(where: { $0.id == document.id }) { library.edit(current) { $0.readComplete = true } }
                     }, nextChapter: nextChapter(after: document))
-                }.environment(theme).environment(metadata)
+                }.id(document.id).environment(theme).environment(metadata)
             }
                 .preferredColorScheme(theme.scheme)
 
@@ -71,7 +71,7 @@ struct MangaFlowApp: App {
             library.selected = nil
             Task { @MainActor in
                 try? await Task.sleep(for: .milliseconds(400))
-                library.open(next)
+                library.open(next, fromBeginning: true)
             }
         }
     }

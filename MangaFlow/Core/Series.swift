@@ -91,7 +91,14 @@ extension LibraryModel {
       update(updated)
     } catch { self.error = error.localizedDescription }
   }
-  func open(_ doc: MangaDocument) {
+  func open(_ document: MangaDocument, fromBeginning: Bool = false) {
+    var doc = documents.first { $0.id == document.id } ?? document
+    if fromBeginning {
+      doc.lastPanelID = nil
+      doc.readComplete = false
+      do { try store.save(doc); update(doc) }
+      catch { self.error = error.localizedDescription; return }
+    }
     if doc.complete && doc.engineVersion == MangaDocument.engine {
       selected = doc.id
     } else {
