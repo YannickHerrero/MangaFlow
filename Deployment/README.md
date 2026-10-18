@@ -1,5 +1,21 @@
 # TestFlight privé
 
+## Chapitres récents en premier — build 11
+
+Le 18 octobre 2026, **0.1.0 (11)** a été confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé à un seul testeur et sans lien public. Identifiant : `8e51ee22-cb3b-42c6-80b3-c8d91cecb52a`.
+
+Ce build réunit le regroupement par colonne, la correction de l’espace réservé à la tab bar du build 10 et le tri de la fiche manga du plus récent au plus ancien (310 avant 309). Le tri de présentation est séparé de l’ordre de lecture utilisé pour le chapitre suivant. Les titres non numériques conservent l’ordre de catalogue fourni par la source ; un classement manuel utilise son ordre explicite, décroissant à l’affichage.
+
+Validation : 55 tests automatisés réussis, dont tri naturel, classement manuel, titres non numériques et conservation de l’ordre chronologique de lecture. Deux tests de revue privée ignorés dans la suite courante. Contrôles de la tab bar sur iPhone et iPad effectués pour le même changement dans le build 10. Archive signée, signature vérifiée et export terminé avant envoi ; disponibilité privée confirmée par Apple.
+
+## Regroupement par colonne et espace sous la navigation — build 10
+
+Le 18 octobre 2026, **0.1.0 (10)** a été confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING** dans le groupe privé à un seul testeur, sans lien public. Identifiant : `9cf43a05-195d-4a54-bbab-24bfdb1522f0`.
+
+Les piles de cases alignées sont regroupées lorsqu’une grande case voisine établit une disposition en colonnes. La page 16 de Blue Lock 310 reproduit exactement l’aperçu validé. Le moteur v5 reconvertit les anciens chapitres à leur ouverture. La tab bar occupe désormais un espace réservé en dehors des NavigationStack ; les zones défilantes s’arrêtent au-dessus de la barre.
+
+Les changements sont dans des commits distincts : colonnes `3260771`, tab bar `6494d99`. Validation : 54 tests automatisés, deux revues privées exécutées explicitement (page 16 du chapitre 310 et chapitre 309 complet), contrôle des trois thèmes et des limites des zones défilantes sur simulateurs iPhone et iPad, avec portrait et paysage sur iPad. Les deux tests privés sont ignorés dans les suites courantes. Archive signée et vérifiée. L’envoi était déjà commencé au moment de la demande de tri des chapitres ; ce tri est inclus dans le build suivant.
+
 ## Bandes pleine largeur et masques inclinés — build 9
 
 Le 18 octobre 2026, **0.1.0 (9)** a été validé par Apple et affecté au même groupe privé à un seul testeur : **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, lien public désactivé. Identifiant : `0d325c86-46cd-482d-9a1a-5360a20ff231`.
