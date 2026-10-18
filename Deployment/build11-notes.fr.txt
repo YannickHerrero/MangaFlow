@@ -1,0 +1,5 @@
+Les cases empilées dans une même colonne peuvent maintenant rester regroupées lorsqu’une grande case voisine établit une disposition en colonnes. Validation sur la page 16 de Blue Lock 310, avec conservation de l’ordre de lecture et des masques.
+
+Correction de l’espace réservé à la tab bar personnalisée : la zone défilante s’arrête au-dessus de la barre, y compris dans les écrans de détail, pour permettre d’accéder au contenu en bas des pages.
+
+Sur la fiche d’un manga dans la bibliothèque, les chapitres les plus récents apparaissent en premier (par exemple 310 avant 309). L’enchaînement de lecture vers le chapitre suivant conserve son ordre chronologique.
