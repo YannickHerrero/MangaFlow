@@ -109,6 +109,27 @@ final class SeriesMetadataTests: XCTestCase {
       library.series.first { $0.documents.count == 2 }?.documents.map(\.id), [b.id, a.id])
   }
 
+  @MainActor func testSeriesDisplaysNewestChapterWithoutChangingReadingOrder() throws {
+    let library = LibraryModel()
+    var older = MangaDocument(id: UUID(), title: "309", pages: [])
+    var newer = MangaDocument(id: UUID(), title: "310", pages: [])
+    older.origin = ChapterOrigin(job: job(chapterID: "/309", order: 55), serverID: "mac", sourceName: nil)
+    newer.origin = ChapterOrigin(job: job(chapterID: "/310", order: 54), serverID: "mac", sourceName: nil)
+    older.chapterTitleOverride = "309"
+    newer.chapterTitleOverride = "310"
+    library.documents = [newer, older]
+    let series = try XCTUnwrap(library.series.first)
+    XCTAssertEqual(series.chaptersNewestFirst.map(\.displayChapterTitle), ["310", "309"])
+    XCTAssertEqual(series.documents.map(\.displayChapterTitle), ["309", "310"])
+    older.chapterOrder = 1; newer.chapterOrder = 2
+    library.documents = [older, newer]
+    XCTAssertEqual(library.series.first?.chaptersNewestFirst.map(\.id), [newer.id, older.id])
+    older.chapterTitleOverride = "Bonus ancien"; newer.chapterTitleOverride = "Bonus récent"
+    older.chapterOrder = nil; newer.chapterOrder = nil
+    library.documents = [older, newer]
+    XCTAssertEqual(library.series.first?.chaptersNewestFirst.map(\.id), [newer.id, older.id])
+  }
+
   @MainActor func testArtifactMigrationPersistsOriginAndKeepsReadingPosition() throws {
     let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     defer { try? FileManager.default.removeItem(at: root) }

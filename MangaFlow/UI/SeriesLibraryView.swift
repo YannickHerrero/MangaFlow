@@ -315,7 +315,7 @@ struct SeriesDetailView: View {
                 library: library)
             }
           }
-          ForEach(series.documents) { doc in
+          ForEach(series.chaptersNewestFirst) { doc in
             HStack {
               VStack(alignment: .leading, spacing: 6) {
                 Text(doc.displayChapterTitle).font(p.font(17, title: true))

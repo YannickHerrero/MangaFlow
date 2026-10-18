@@ -32,6 +32,12 @@ struct LibrarySeries: Identifiable {
   let id: String
   let title: String
   let documents: [MangaDocument]
+  /// Presentation order only; `documents` keeps the order used by “next chapter”.
+  var chaptersNewestFirst: [MangaDocument] {
+    let orderedByChapter = documents.contains { $0.chapterOrder != nil }
+      || documents.allSatisfy { $0.displayChapterTitle.contains(where: \.isNumber) }
+    return orderedByChapter ? Array(documents.reversed()) : documents
+  }
   var sourceName: String { documents.compactMap(\.origin).first?.sourceName ?? "Import local" }
   var unread: Int { documents.filter { $0.readComplete != true }.count }
   var lastRead: Date { documents.compactMap(\.lastReadAt).max() ?? .distantPast }
