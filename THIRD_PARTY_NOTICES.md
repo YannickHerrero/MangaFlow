@@ -49,3 +49,13 @@ AniList provides optional manga metadata and cover URLs through its public API (
 ## Terminal theme palette
 
 The Terminal theme uses color values from the official Catppuccin Latte and Mocha palettes: https://catppuccin.com/palette/. The interface is an original SwiftUI implementation inspired by terminal UI conventions; it does not bundle Ratatui or other Rust code.
+
+## Balloon and free-text detector
+
+- Author: ogkalu — https://huggingface.co/ogkalu/comic-speech-bubble-detector-yolov8m
+- Pinned revision: `21d5af0a9c69bb522b9968d6cc915f898d71a264`.
+- Checkpoint: `comic-speech-bubble-detector.pt`, SHA256 `10bc9f702698148e079fb4462a6b910fcd69753e04838b54087ef91d5633097b`.
+- The upstream model card declares Apache-2.0 (see `Licenses/BubbleDetector-Apache-2.0.txt`). The checkpoint uses Ultralytics YOLOv8m; the Ultralytics exporter labels its generated package AGPL-3.0. MangaFlow remains AGPL-3.0; this note does not relicense Ultralytics components.
+- Upstream describes training on approximately 8,000 manga, webtoon, manhua and western comic images at 1024 pixels. No training images are bundled.
+- Local modification: export to Core ML FP16, fixed 1024 × 1024 input, without built-in NMS. Swift postprocessing performs confidence filtering, class-specific NMS and coordinate restoration. No retraining.
+- Exported weights are in `MangaFlow/Models/TextDetector.mlpackage` (~50 MiB). Reproduction: `Scripts/export_text_model.py` with `Scripts/requirements-model.txt`.

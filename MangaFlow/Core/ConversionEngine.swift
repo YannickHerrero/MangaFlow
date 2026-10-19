@@ -2,6 +2,7 @@ import Foundation
 
 actor ConversionEngine {
     let detector = LocalPanelDetector()
+    let textDetector = LocalTextDetector()
     let store: DocumentStore
     init(store: DocumentStore) { self.store = store }
 
@@ -9,6 +10,7 @@ actor ConversionEngine {
                  progress: @escaping @Sendable (MangaDocument) async -> Void) async throws -> MangaDocument {
         // A missing/incompatible model is an error, never silently a whole-book fallback.
         try await detector.prepare()
+        try await textDetector.prepare()
         var doc = original
         if doc.engineVersion != MangaDocument.engine {
             doc.engineVersion = MangaDocument.engine
@@ -23,11 +25,23 @@ actor ConversionEngine {
             page.fallback = false
             page.warning = nil
             page.zoomPanels = nil
+            page.textRegions = nil
             do {
                 let dimensions = try PageImage.dimensions(at: url)
                 page.width = dimensions.0; page.height = dimensions.1
                 let image = try autoreleasepool { try PageImage.load(at: url, maxPixel: 1600) }
                 let detections = try await detector.detect(image: image)
+                let textDetections = try await textDetector.detect(image: image)
+                let primaryText = TextRegions.regions(textDetections, fallback: detections, pageID: page.id)
+                let narration: [Detection]
+                do {
+                    narration = try NarrationDetector.detect(image: image, excluding: primaryText.map(\.rect))
+                } catch {
+                    // Supplementary OCR must never prevent reading or discard primary detections.
+                    narration = []
+                    page.warning = "Détection complémentaire du texte indisponible ; le zoom sur les cases reste disponible."
+                }
+                page.textRegions = TextRegions.regions(textDetections, fallback: detections + narration, pageID: page.id)
                 let individual = PanelLayout.ordered(PanelLayout.normalized(detections), rtl: doc.rightToLeft)
                     .enumerated().map { index, detection in
                         ReadingPanel(id: "\(page.id)-zoom-\(index)", rect: detection.rect, confidence: detection.confidence)

@@ -41,6 +41,20 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertEqual(page.frame.minY, frame.minY, accuracy: 1)
         XCTAssertEqual(page.frame.width, frame.width, accuracy: 1)
         XCTAssertEqual(page.frame.height, frame.height, accuracy: 1)
+        for (position, expected) in [(CGVector(dx: 0.75, dy: 0.13), "Bulle agrandie"),
+                                     (CGVector(dx: 0.18, dy: 0.60), "Texte agrandi")] {
+            let textPoint = page.coordinate(withNormalizedOffset: position)
+            textPoint.tap()
+            let enlarged = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", expected), object: page)
+            XCTAssertEqual(XCTWaiter.wait(for: [enlarged], timeout: 3), .completed)
+            XCTAssertFalse(app.buttons["Fermer"].exists)
+            XCTAssertEqual(scroll.value as? String, saved)
+            let capture = XCTAttachment(screenshot: app.screenshot())
+            capture.name = expected; capture.lifetime = .keepAlways; add(capture)
+            textPoint.tap()
+            let reset = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Page entière"), object: page)
+            XCTAssertEqual(XCTWaiter.wait(for: [reset], timeout: 3), .completed)
+        }
         toggle.tap()
         let cropped = app.buttons["panel-0-0"]
         XCTAssertTrue(cropped.waitForExistence(timeout: 5))

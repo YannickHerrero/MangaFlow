@@ -8,6 +8,13 @@ enum PanelZoom {
         let y: CGFloat
     }
 
+    static func text(at point: CGPoint, in regions: [PageTextRegion]) -> PageTextRegion? {
+        regions.filter { $0.rect.cgRect.contains(point) }.min {
+            if $0.kind != $1.kind { return $0.kind == .bubble }
+            return $0.rect.area < $1.rect.area
+        }
+    }
+
     static func panel(at point: CGPoint, in panels: [ReadingPanel]) -> ReadingPanel? {
         panels.filter { panel in
             guard panel.rect.area < 0.94, panel.rect.cgRect.contains(point) else { return false }
@@ -24,14 +31,14 @@ enum PanelZoom {
         }
     }
 
-    static func transform(for panel: ReadingPanel, size: CGSize, visible: CGRect) -> Transform {
+    static func transform(for panel: ReadingPanel, size: CGSize, visible: CGRect, maximumScale: CGFloat = 4) -> Transform {
         let rect = panel.rect.cgRect
         guard size.width > 0, size.height > 0, rect.width > 0, rect.height > 0 else {
             return Transform(scale: 1, x: 0, y: 0)
         }
         // Fit the case into the currently visible slice of this page. Preserve
         // aspect ratio and cap magnification; the page's layout frame never changes.
-        let scale = max(1, min(4, min(visible.width / (rect.width * size.width),
+        let scale = max(1, min(maximumScale, min(visible.width / (rect.width * size.width),
                                     visible.height / (rect.height * size.height))))
         return Transform(scale: scale,
                          x: visible.midX - rect.midX * size.width * scale,

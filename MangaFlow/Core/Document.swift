@@ -53,6 +53,17 @@ struct PanelContour: Codable, Equatable, Sendable {
     var protectedRects: [UnitRect] = []
 }
 
+enum PageTextKind: String, Codable, Sendable { case bubble, freeText }
+
+struct PageTextRegion: Codable, Identifiable, Sendable {
+    var id: String
+    var rect: UnitRect
+    var kind: PageTextKind
+    var confidence: Double
+    /// Context around the balloon/text; the hit target stays the original detection.
+    var zoomRect: UnitRect { rect.padded(kind == .bubble ? 0.012 : 0.015) }
+}
+
 struct MangaPage: Codable, Identifiable, Sendable {
     var id: Int
     var filename: String
@@ -61,6 +72,7 @@ struct MangaPage: Codable, Identifiable, Sendable {
     var panels: [ReadingPanel] = []
     /// Individual detections, before reading-strip/column grouping, for page-mode hit testing.
     var zoomPanels: [ReadingPanel]? = nil
+    var textRegions: [PageTextRegion]? = nil
     var processed = false
     var fallback = false
     var warning: String?
@@ -68,7 +80,7 @@ struct MangaPage: Codable, Identifiable, Sendable {
 }
 
 struct MangaDocument: Codable, Identifiable, Sendable {
-    static let engine = "yolo26-fp32-contours-v6"
+    static let engine = "yolo26-fp32-contours-v7-text"
     var schema = 1
     var engineVersion = Self.engine
     var id: UUID
