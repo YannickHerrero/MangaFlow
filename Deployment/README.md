@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Quatrième thème Terminal — build 13
+
+**0.1.0 (13)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au même groupe privé à un seul testeur, sans lien public. Identifiant : `72fb102c-aa05-4a1c-b20e-12fc2f0aabcf`.
+
+Le thème Terminal est disponible dans Réglages → Thème. Composition SwiftUI originale inspirée des TUI : Space Mono, cadres rectangulaires fins, bibliothèque et favoris textuels sans couvertures décoratives, reprise compacte et barre d’onglets textuelle personnalisée. Catppuccin Latte en clair, Mocha en sombre, avec prise en charge du mode système. Les fonctions et les identifiants des trois thèmes précédents sont conservés. La fiche manga utilise un en-tête terminal et conserve l’accès aux métadonnées/couvertures.
+
+Validation : 56 tests unitaires réussis (deux revues privées ignorées), parcours de sélection et persistance depuis Holographique sur iPhone et iPad, captures des deux apparences et de la fiche manga, contrôle des limites des zones défilantes pour les quatre thèmes en portrait/paysage sur iPad. Captures locales dans Artifacts/TerminalQA et Artifacts/TerminalQA-iPad, ignorées par Git. Archive signée, signature vérifiée, export et disponibilité TestFlight privée confirmés.
+
 ## Début du chapitre suivant et pages originales — build 12
 
 Le 18 octobre 2026, **0.1.0 (12)** a été confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au même groupe privé à un seul testeur, sans lien public. Identifiant : `cd9c529f-808d-4275-a074-760fb83bda57`.
