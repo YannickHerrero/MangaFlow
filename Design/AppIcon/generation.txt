@@ -1,0 +1,5 @@
+Generated with the built-in imagegen tool.
+
+Prompt: Create a square MangaFlow iOS icon using the Files and Preview icons in the supplied screenshot as style references: porcelain white background, rounded dimensional manga pages, three vertically arranged luminous cyan and blue comic panels, restrained pink iridescence, subtle bevels and soft shadows. Centered, readable at home-screen size. No text, folder, camera lens, watermark, mockup or baked external rounded-square mask.
+
+Approved by the user and integrated into MangaFlow/Assets.xcassets/AppIcon.appiconset/AppIcon.png (1024 × 1024, opaque RGB). The original generated master is preserved alongside this file.
