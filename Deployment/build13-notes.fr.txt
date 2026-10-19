@@ -1,0 +1,5 @@
+Quatrième thème : Terminal, inspiré des interfaces TUI.
+
+Palette Catppuccin Latte en clair et Mocha en sombre, typographie monospace, cadres fins, navigation textuelle et bibliothèque compacte sans couvertures décoratives. Les favoris, sources, téléchargements, métadonnées et modes de lecture restent accessibles.
+
+Sélection dans Réglages → Thème → Terminal. Les modes Clair, Sombre et Système sont pris en charge ; le choix du thème est mémorisé.
