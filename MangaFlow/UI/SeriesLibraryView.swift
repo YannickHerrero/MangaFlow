@@ -43,7 +43,10 @@ struct SeriesLibraryView: View {
             hero(latest, doc)
           } else {
             VStack(alignment: .leading, spacing: 16) {
-              Text("Le prochain chapitre\ncommence ici.").font(p.font(36, title: true))
+              Text(
+                p.theme == .terminal
+                  ? "aucun chapitre local" : "Le prochain chapitre\ncommence ici."
+              ).font(p.font(36, title: true))
               Text("Importe un CBZ ou choisis un manga dans Explorer.")
               Button("Importer un manga") { importer = true }.buttonStyle(ThemeButtonStyle())
             }.padding(20)
@@ -76,7 +79,27 @@ struct SeriesLibraryView: View {
               Image(systemName: "arrow.up.arrow.down")
             }.accessibilityLabel("Trier la bibliothèque")
           }.padding(12).background(p.surface)
-          if p.theme == .brutal {
+          if p.theme == .terminal {
+            Text("┌─ bibliothèque [\(displayed.count)]").foregroundStyle(p.accent)
+            ForEach(Array(displayed.enumerated()), id: \.element.id) { i, series in
+              NavigationLink {
+                SeriesDetailView(seriesID: series.id, library: library, remote: remote)
+              } label: {
+                HStack(alignment: .top, spacing: 10) {
+                  Text(String(format: "%02d", i + 1)).foregroundStyle(p.accent)
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text(series.title).font(p.font(14, title: true))
+                    Text(
+                      "\(series.documents.count) ch · \(series.unread) non lus · \(series.sourceName)"
+                    ).font(p.font(11)).foregroundStyle(p.muted)
+                  }
+                  Spacer(minLength: 0)
+                  Text(">")
+                }.frame(minHeight: 44).padding(.vertical, 6)
+                  .overlay(alignment: .bottom) { Rectangle().fill(p.line).frame(height: 0.5) }
+              }.buttonStyle(.plain).accessibilityIdentifier("series-\(series.id)")
+            }
+          } else if p.theme == .brutal {
             ForEach(Array(displayed.enumerated()), id: \.element.id) { i, series in
               NavigationLink {
                 SeriesDetailView(seriesID: series.id, library: library, remote: remote)
@@ -170,7 +193,16 @@ struct SeriesLibraryView: View {
       })
   }
   @ViewBuilder private func hero(_ series: LibrarySeries, _ doc: MangaDocument) -> some View {
-    if p.theme == .holo {
+    if p.theme == .terminal {
+      VStack(alignment: .leading, spacing: 10) {
+        Text("┌─ reprendre").foregroundStyle(p.accent)
+        Text(series.title).font(p.font(16, title: true))
+        Text("ch. \(doc.displayChapterTitle) · \(Int(doc.readingProgress * 100)) %")
+          .foregroundStyle(p.muted)
+        Button("[ lire → ]") { library.open(doc) }.buttonStyle(ThemeButtonStyle())
+          .disabled(library.isBusy).accessibilityIdentifier("read-\(doc.title)")
+      }.frame(maxWidth: .infinity, alignment: .leading).themeCard()
+    } else if p.theme == .holo {
       VStack(alignment: .leading, spacing: 0) {
         Text("Ce soir, on lit").font(p.font(40, title: true))
         Text(series.title + " ?").font(p.font(40, title: true)).foregroundStyle(p.gradient)
@@ -296,13 +328,18 @@ struct SeriesDetailView: View {
     ScrollView {
       if let series {
         VStack(alignment: .leading, spacing: 16) {
-          SeriesCover(
-            key: series.id, title: series.title,
-            fallback: series.documents.first.flatMap { d in
-              d.pages.first.map { library.store.pageURL(d, $0) }
-            }
-          ).frame(height: 260).clipped()
+          if p.theme != .terminal {
+            SeriesCover(
+              key: series.id, title: series.title,
+              fallback: series.documents.first.flatMap { d in
+                d.pages.first.map { library.store.pageURL(d, $0) }
+              }
+            ).frame(height: 260).clipped()
+          }
           Text(series.title).font(p.font(32, title: true))
+          if p.theme == .terminal {
+            Button("[ métadonnées / couverture ]") { metadata = true }.foregroundStyle(p.accent)
+          }
           Text("\(series.sourceName) · \(series.documents.count) chapitres sur cet appareil")
           if let origin = series.documents.first?.origin,
             remote.connection?.serverID == origin.serverID
@@ -349,6 +386,7 @@ struct SeriesDetailView: View {
     }.background { ThemeBackground() }.navigationTitle(series?.title ?? "Manga")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar { Button("Couverture", systemImage: "photo") { metadata = true } }
+      .modifier(TerminalNavigation(title: series?.title ?? "Manga"))
       .sheet(isPresented: $metadata) { MetadataPicker(key: seriesID, title: series?.title ?? "") }
       .sheet(item: $edit) { doc in ChapterEditor(document: doc, library: library) }
       .confirmationDialog(

@@ -45,7 +45,9 @@ struct SettingsView: View {
               } label: {
                 Text(mode.1).frame(maxWidth: .infinity).padding(12).background(
                   settings.appearance == mode.0 ? p.accent : p.surface
-                ).foregroundStyle(settings.appearance == mode.0 ? Color.white : p.ink)
+                ).foregroundStyle(
+                  settings.appearance == mode.0
+                    ? (p.theme == .terminal ? p.paper : Color.white) : p.ink)
               }.buttonStyle(.plain).accessibilityIdentifier("appearance-\(mode.0)")
             }
           }
@@ -119,9 +121,10 @@ struct ThemePreview: View {
       if theme == .holo { p.gradient.opacity(0.25) }
       if theme == .manga { MangaRays().stroke(p.ink.opacity(0.5), lineWidth: 0.5) }
       VStack(spacing: 6) {
-        Text("Aa").font(p.font(27, title: true))
+        Text(theme == .terminal ? ">_" : "Aa").font(p.font(27, title: true))
         Rectangle().fill(p.accent).frame(height: 8)
       }
-    }.clipped().overlay(Rectangle().stroke(p.ink, lineWidth: theme == .holo ? 0 : 2))
+    }.clipped().overlay(
+      Rectangle().stroke(p.ink, lineWidth: theme == .holo ? 0 : theme == .terminal ? 1 : 2))
   }
 }

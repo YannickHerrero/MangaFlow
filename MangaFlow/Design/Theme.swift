@@ -2,13 +2,14 @@ import CoreText
 import SwiftUI
 
 enum AppTheme: String, CaseIterable, Identifiable {
-  case holo, brutal, manga
+  case holo, brutal, manga, terminal
   var id: String { rawValue }
   var name: String {
     switch self {
     case .holo: "Holographique"
     case .brutal: "Brutaliste"
     case .manga: "Planche manga"
+    case .terminal: "Terminal"
     }
   }
   var detail: String {
@@ -16,6 +17,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
     case .holo: "Pastels irisés, verre"
     case .brutal: "Grille brute, typo massive"
     case .manga: "Cases, trames, bulles"
+    case .terminal: "Catppuccin · Latte / Mocha"
     }
   }
 }
@@ -38,37 +40,51 @@ struct ThemePalette {
   let theme: AppTheme
   let dark: Bool
   var ink: Color {
-    Color(
+    if theme == .terminal { return Color(hex: dark ? 0xCDD6F4 : 0x4C4F69) }
+    return Color(
       hex: dark ? (theme == .holo ? 0xF4F1FF : 0xF1EBDF) : (theme == .holo ? 0x17142B : 0x141210))
   }
   var paper: Color {
-    Color(
+    if theme == .terminal { return Color(hex: dark ? 0x1E1E2E : 0xEFF1F5) }
+    return Color(
       hex: theme == .holo
         ? (dark ? 0x1A1530 : 0xFFFFFF)
         : theme == .brutal ? (dark ? 0x0A0A0A : 0xF2F2EE) : (dark ? 0x141210 : 0xF1EBDF))
   }
   var surface: Color {
-    theme == .holo
+    if theme == .terminal { return Color(hex: dark ? 0x181825 : 0xE6E9EF) }
+    return theme == .holo
       ? Color.white.opacity(dark ? 0.07 : 0.58)
       : Color(hex: theme == .brutal ? (dark ? 0x141414 : 0xFFFFFF) : (dark ? 0x1E1B18 : 0xFFFDF8))
   }
   var accent: Color {
-    Color(
+    if theme == .terminal { return Color(hex: dark ? 0xA6E3A1 : 0x1E66F5) }
+    return Color(
       hex: theme == .holo
         ? 0x6D4BFF : theme == .brutal ? (dark ? 0xD4FF00 : 0xFF3B00) : (dark ? 0xE8233F : 0xD7192F))
   }
-  var line: Color { theme == .holo ? .white.opacity(dark ? 0.18 : 0.9) : ink }
+  var muted: Color { Color(hex: dark ? 0xBAC2DE : 0x5C5F77) }
+  var line: Color {
+    theme == .terminal
+      ? Color(hex: dark ? 0x585B70 : 0x9CA0B0)
+      : theme == .holo ? .white.opacity(dark ? 0.18 : 0.9) : ink
+  }
   var radius: CGFloat { theme == .holo ? 22 : theme == .manga ? 4 : 0 }
   var bodyFont: String {
-    theme == .holo
+    if theme == .terminal { return "SpaceMono-Regular" }
+    return theme == .holo
       ? "SpaceGrotesk-Regular" : theme == .brutal ? "SpaceMono-Regular" : "ZenKakuGothicNew-Regular"
   }
   var titleFont: String {
-    theme == .holo
+    if theme == .terminal { return "SpaceMono-Regular" }
+    return theme == .holo
       ? "SpaceGrotesk-Bold" : theme == .brutal ? "ArchivoBlack-Regular" : "Anton-Regular"
   }
   func font(_ size: CGFloat, title: Bool = false) -> Font {
-    .custom(title ? titleFont : bodyFont, size: size, relativeTo: title ? .title : .body)
+    .custom(
+      title ? titleFont : bodyFont,
+      size: theme == .terminal ? min(max(size, 12), title ? 16 : 14) : size,
+      relativeTo: title ? .title : .body)
   }
   var gradient: LinearGradient {
     LinearGradient(
@@ -125,18 +141,24 @@ struct ThemeBackground: View {
 struct ThemeCard: ViewModifier {
   @Environment(\.palette) private var p
   func body(content: Content) -> some View {
-    content.padding(14).background(p.surface, in: RoundedRectangle(cornerRadius: p.radius))
-      .overlay(
-        RoundedRectangle(cornerRadius: p.radius).stroke(p.line, lineWidth: p.theme == .holo ? 1 : 3)
-      )
+    content.padding(p.theme == .terminal ? 10 : 14).background(
+      p.surface, in: RoundedRectangle(cornerRadius: p.radius)
+    )
+    .overlay(
+      RoundedRectangle(cornerRadius: p.radius).stroke(
+        p.line, lineWidth: p.theme == .holo || p.theme == .terminal ? 1 : 3)
+    )
   }
 }
 extension View { func themeCard() -> some View { modifier(ThemeCard()) } }
 struct ThemeButtonStyle: ButtonStyle {
   @Environment(\.palette) private var p
   func makeBody(configuration: Configuration) -> some View {
-    configuration.label.padding(.horizontal, 16).padding(.vertical, 12)
-      .background(p.ink, in: RoundedRectangle(cornerRadius: p.theme == .holo ? 24 : 0))
+    configuration.label.padding(.horizontal, p.theme == .terminal ? 10 : 16).padding(.vertical, 12)
+      .background(
+        p.theme == .terminal ? p.accent : p.ink,
+        in: RoundedRectangle(cornerRadius: p.theme == .holo ? 24 : 0)
+      )
       .foregroundStyle(p.paper).opacity(configuration.isPressed ? 0.65 : 1)
   }
 }
@@ -154,7 +176,10 @@ struct ThemeHeader: View {
           AngularGradient(colors: [.purple, .pink, .cyan, .purple], center: .center)
         ).frame(width: 28, height: 28)
       }
-      Text(p.theme == .holo ? title : title.uppercased()).font(
+      Text(
+        p.theme == .terminal
+          ? "~/" + title.lowercased() : p.theme == .holo ? title : title.uppercased()
+      ).font(
         p.font(p.theme == .manga ? 32 : 14, title: p.theme == .manga)
       ).lineLimit(1).minimumScaleFactor(0.6)
       Spacer()
@@ -176,11 +201,21 @@ struct ThemeHeader: View {
   }
   private func icon(_ name: String, label: String, action: @escaping () -> Void) -> some View {
     Button(action: action) {
-      Image(systemName: name).frame(width: 42, height: 42)
-        .background(p.surface, in: RoundedRectangle(cornerRadius: p.theme == .brutal ? 0 : 22))
+      Group {
+        if p.theme == .terminal {
+          Text(name == "plus" ? "[+]" : "[:]").font(p.font(14)).foregroundStyle(p.accent)
+        } else {
+          Image(systemName: name)
+        }
+      }.frame(width: 42, height: 42)
+        .background(
+          p.surface,
+          in: RoundedRectangle(cornerRadius: p.theme == .brutal || p.theme == .terminal ? 0 : 22)
+        )
         .overlay(
-          RoundedRectangle(cornerRadius: p.theme == .brutal ? 0 : 22).stroke(
-            p.line, lineWidth: p.theme == .holo ? 1 : 3))
+          RoundedRectangle(cornerRadius: p.theme == .brutal || p.theme == .terminal ? 0 : 22)
+            .stroke(
+              p.line, lineWidth: p.theme == .holo || p.theme == .terminal ? 1 : 3))
     }.accessibilityLabel(label).buttonStyle(.plain)
   }
 }
@@ -200,26 +235,50 @@ struct ThemeTabBar: View {
   let count: Int
   @Environment(\.palette) private var p
   var body: some View {
-    HStack(spacing: p.theme == .brutal ? 0 : p.theme == .holo ? 4 : 8) {
-      ForEach(0..<3) { i in
-        Button {
-          selection = i
-        } label: {
-          HStack(spacing: 5) {
-            if p.theme == .holo {
-              Image(systemName: ["books.vertical", "safari", "arrow.down.circle"][i]).font(
-                .system(size: 16))
-            }
+    if p.theme == .terminal {
+      HStack(spacing: 0) {
+        ForEach(0..<3) { i in
+          Button {
+            selection = i
+          } label: {
             Text(
-              p.theme == .holo
-                ? ["Biblio", "Explorer", "Activité"][i] : ["BIBLIO", "EXPLORER", "ACTIVITÉ"][i]
-            ).font(p.font(p.theme == .manga ? 17 : 12, title: p.theme == .manga)).fontWeight(.bold)
-            if i == 2 && count > 0 {
-              Text("\(count)").font(.system(size: 10, weight: .bold)).padding(4).background(
-                p.theme == .manga ? p.paper : p.accent, in: Capsule()
-              ).foregroundStyle(p.theme == .manga ? p.ink : Color.white)
-            }
-          }.frame(maxWidth: .infinity, minHeight: p.theme == .holo ? 50 : 48).contentShape(Rectangle())
+              (selection == i ? "> " : "  ") + ["biblio", "explorer", "activité"][i]
+                + (i == 2 && count > 0 ? " (\(count))" : "")
+            )
+            .font(p.font(12)).lineLimit(1).minimumScaleFactor(0.75)
+            .frame(maxWidth: .infinity, minHeight: 48).contentShape(Rectangle())
+            .foregroundStyle(selection == i ? p.paper : p.ink)
+            .background(selection == i ? p.accent : p.surface)
+          }.buttonStyle(.plain).accessibilityIdentifier("tab-\(i)")
+            .accessibilityLabel(["Bibliothèque", "Explorer", "Activité"][i])
+            .accessibilityAddTraits(selection == i ? .isSelected : [])
+        }
+      }.overlay(alignment: .top) { Rectangle().fill(p.line).frame(height: 1) }
+        .background(p.surface.ignoresSafeArea(edges: .bottom))
+    } else {
+      HStack(spacing: p.theme == .brutal ? 0 : p.theme == .holo ? 4 : 8) {
+        ForEach(0..<3) { i in
+          Button {
+            selection = i
+          } label: {
+            HStack(spacing: 5) {
+              if p.theme == .holo {
+                Image(systemName: ["books.vertical", "safari", "arrow.down.circle"][i]).font(
+                  .system(size: 16))
+              }
+              Text(
+                p.theme == .holo
+                  ? ["Biblio", "Explorer", "Activité"][i] : ["BIBLIO", "EXPLORER", "ACTIVITÉ"][i]
+              ).font(p.font(p.theme == .manga ? 17 : 12, title: p.theme == .manga)).fontWeight(
+                .bold)
+              if i == 2 && count > 0 {
+                Text("\(count)").font(.system(size: 10, weight: .bold)).padding(4).background(
+                  p.theme == .manga ? p.paper : p.accent, in: Capsule()
+                ).foregroundStyle(p.theme == .manga ? p.ink : Color.white)
+              }
+            }.frame(maxWidth: .infinity, minHeight: p.theme == .holo ? 50 : 48).contentShape(
+              Rectangle()
+            )
             .foregroundStyle(
               i == selection
                 ? (p.theme == .holo || p.theme == .manga ? Color.white : p.paper)
@@ -239,26 +298,27 @@ struct ThemeTabBar: View {
             .overlay(alignment: .leading) {
               if p.theme == .brutal && i > 0 { Rectangle().fill(p.ink).frame(width: 3) }
             }
-        }.buttonStyle(.plain).accessibilityIdentifier("tab-\(i)").accessibilityLabel(
-          ["Bibliothèque", "Explorer", "Activité"][i]
-        ).accessibilityAddTraits(i == selection ? .isSelected : [])
-      }
-    }.padding(p.theme == .holo ? 7 : p.theme == .manga ? 8 : 0)
-      .background(
-        p.theme == .manga ? p.ink : p.theme == .holo ? p.paper.opacity(0.7) : p.paper,
-        in: RoundedRectangle(cornerRadius: p.theme == .holo ? 33 : 0)
-      )
-      .overlay(
-        RoundedRectangle(cornerRadius: p.theme == .holo ? 33 : 0).stroke(
-          p.line, lineWidth: p.theme == .holo ? 1 : p.theme == .brutal ? 3 : 0)
-      )
-      .shadow(color: p.theme == .holo ? .purple.opacity(0.15) : .clear, radius: 15, y: 8)
-      .background {
-        if p.theme != .holo {
-          (p.theme == .manga ? p.ink : p.paper).ignoresSafeArea(edges: .bottom)
+          }.buttonStyle(.plain).accessibilityIdentifier("tab-\(i)").accessibilityLabel(
+            ["Bibliothèque", "Explorer", "Activité"][i]
+          ).accessibilityAddTraits(i == selection ? .isSelected : [])
         }
-      }
-      .padding(.horizontal, p.theme == .holo ? 18 : 0).padding(.bottom, p.theme == .holo ? 8 : 0)
+      }.padding(p.theme == .holo ? 7 : p.theme == .manga ? 8 : 0)
+        .background(
+          p.theme == .manga ? p.ink : p.theme == .holo ? p.paper.opacity(0.7) : p.paper,
+          in: RoundedRectangle(cornerRadius: p.theme == .holo ? 33 : 0)
+        )
+        .overlay(
+          RoundedRectangle(cornerRadius: p.theme == .holo ? 33 : 0).stroke(
+            p.line, lineWidth: p.theme == .holo ? 1 : p.theme == .brutal ? 3 : 0)
+        )
+        .shadow(color: p.theme == .holo ? .purple.opacity(0.15) : .clear, radius: 15, y: 8)
+        .background {
+          if p.theme != .holo {
+            (p.theme == .manga ? p.ink : p.paper).ignoresSafeArea(edges: .bottom)
+          }
+        }
+        .padding(.horizontal, p.theme == .holo ? 18 : 0).padding(.bottom, p.theme == .holo ? 8 : 0)
+    }
   }
 }
 
@@ -272,9 +332,18 @@ struct ThemedNavigation: ViewModifier {
         Button {
           dismiss()
         } label: {
-          Image(systemName: "arrow.left").frame(width: 44, height: 44)
+          Group {
+            if p.theme == .terminal {
+              Text("[<]").font(p.font(14)).foregroundStyle(p.accent)
+            } else {
+              Image(systemName: "arrow.left")
+            }
+          }.frame(width: 44, height: 44)
         }.accessibilityLabel("Retour").accessibilityIdentifier("routeBack")
-        Text(p.theme == .holo ? title : title.uppercased()).font(p.font(18, title: true)).lineLimit(
+        Text(
+          p.theme == .terminal
+            ? "~/" + title.lowercased() : p.theme == .holo ? title : title.uppercased()
+        ).font(p.font(18, title: true)).lineLimit(
           1)
         Spacer()
       }.padding(.horizontal, 8).foregroundStyle(p.ink).background(
@@ -284,4 +353,13 @@ struct ThemedNavigation: ViewModifier {
 }
 extension View {
   func themedNavigation(_ title: String) -> some View { modifier(ThemedNavigation(title: title)) }
+}
+
+/// Use the terminal header on library detail routes without changing other themes.
+struct TerminalNavigation: ViewModifier {
+  let title: String
+  @Environment(\.palette) private var p
+  func body(content: Content) -> some View {
+    if p.theme == .terminal { content.themedNavigation(title) } else { content }
+  }
 }

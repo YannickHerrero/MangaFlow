@@ -4,6 +4,12 @@ The three native SwiftUI themes reproduce the supplied HTML mockup's distinct co
 
 Reference: user-owned `Manga → Webtoon — thèmes.html`, 19 boards (six library, six explorer, six activity and settings), SHA-256 `2ba3031aade07efb9312d0d3422228a933485eae9a4388948ebfb58b5f91de4f`. The original mockup and its illustrative manga assets are not bundled or published. Real app states replace example names and counters. Screens not specified by the mockup use the same theme primitives.
 
+## Terminal theme
+
+A fourth, original SwiftUI composition is inspired by terminal interfaces such as Ratatui. It uses the existing bundled Space Mono font, one-pixel rectangular borders, a text tab bar, compact list rows and a text-only resume panel. Main library and favorite views omit cover art; cover selection remains available from the detail route. No Rust runtime or terminal emulator is involved.
+
+System/light/dark appearance selects [Catppuccin Latte or Mocha](https://catppuccin.com/palette/). Roles use the official Base, Mantle, Text and Subtext colors; the accent is Latte Blue or Mocha Green so selected text stays readable. Existing theme identifiers and preferences remain compatible. The new choice is available in Settings → Theme and is persisted exactly like the other themes.
+
 ## Series and migration
 
 Remote chapters retain `ChapterOrigin`: server UUID, source ID/name, opaque manga ID/title, opaque chapter ID/title, order and language. Length-prefixed identity components prevent ambiguous concatenations. Different sources and servers remain separate, even with identical manga titles or AniList IDs. Subsequent imports of the same chapter reuse the local document, including when the server generates another artifact.

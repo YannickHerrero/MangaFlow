@@ -31,9 +31,12 @@ struct ExplorerView: View {
             title: p.theme == .brutal ? "Explorer / \(remote.sources.count) sources" : "Explorer",
             remote: remote, library: library)
           Text(
-            p.theme == .brutal
-              ? "TROU\nVER." : p.theme == .manga ? "Quoi lire ensuite ?!" : "Trouver\nla suite."
-          ).font(p.font(p.theme == .brutal ? 70 : 42, title: true)).tracking(-1.5)
+            p.theme == .terminal
+              ? "[ \(remote.sources.count) sources ]"
+              : p.theme == .brutal
+                ? "TROU\nVER." : p.theme == .manga ? "Quoi lire ensuite ?!" : "Trouver\nla suite."
+          ).font(p.font(p.theme == .brutal ? 70 : 42, title: true)).tracking(
+            p.theme == .terminal ? 0 : -1.5)
           HStack {
             Image(systemName: "magnifyingglass")
             TextField("Source ou manga favori", text: $search).focused($searchFocused).submitLabel(
@@ -111,15 +114,22 @@ struct ExplorerView: View {
         }
     }
   }
-  private func favoriteTile(_ fav: FavoriteManga) -> some View {
-    VStack(alignment: .leading, spacing: 8) {
-      SeriesCover(
-        key: ChapterOrigin.key(fav.serverID, fav.manga.sourceID, fav.manga.id),
-        title: fav.manga.title
-      ).frame(width: 110, height: 155).clipShape(RoundedRectangle(cornerRadius: p.radius))
-      Text(fav.manga.title).font(p.font(14, title: true)).lineLimit(1)
-      Text(fav.sourceName).font(p.font(11))
-    }.frame(width: 110, alignment: .leading)
+  @ViewBuilder private func favoriteTile(_ fav: FavoriteManga) -> some View {
+    if p.theme == .terminal {
+      VStack(alignment: .leading, spacing: 6) {
+        Text("[★] " + fav.manga.title).font(p.font(14, title: true))
+        Text(fav.sourceName).font(p.font(11)).foregroundStyle(p.muted)
+      }.frame(minWidth: 140, minHeight: 44, alignment: .leading).themeCard()
+    } else {
+      VStack(alignment: .leading, spacing: 8) {
+        SeriesCover(
+          key: ChapterOrigin.key(fav.serverID, fav.manga.sourceID, fav.manga.id),
+          title: fav.manga.title
+        ).frame(width: 110, height: 155).clipShape(RoundedRectangle(cornerRadius: p.radius))
+        Text(fav.manga.title).font(p.font(14, title: true)).lineLimit(1)
+        Text(fav.sourceName).font(p.font(11))
+      }.frame(width: 110, alignment: .leading)
+    }
   }
   private func sourceRow(_ source: RemoteSource, featured: Bool = false) -> some View {
     HStack {
@@ -127,9 +137,11 @@ struct ExplorerView: View {
         SourceCatalogView(remote: remote, source: source, library: library)
       } label: {
         HStack(spacing: 12) {
-          Text(String(source.name.prefix(1))).font(p.font(24, title: true)).frame(
-            width: 44, height: 44
-          ).background(p.accent.opacity(0.18), in: RoundedRectangle(cornerRadius: p.radius))
+          if p.theme != .terminal {
+            Text(String(source.name.prefix(1))).font(p.font(24, title: true)).frame(
+              width: 44, height: 44
+            ).background(p.accent.opacity(0.18), in: RoundedRectangle(cornerRadius: p.radius))
+          }
           VStack(alignment: .leading, spacing: 4) {
             Text(source.name).font(p.font(16, title: true))
             Text(status(source)).font(p.font(11))

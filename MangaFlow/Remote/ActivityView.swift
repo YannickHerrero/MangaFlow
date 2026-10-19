@@ -24,9 +24,11 @@ struct ActivityView: View {
             title: p.theme == .brutal ? "Activité / file" : "Activité", remote: remote,
             library: library)
           Text(
-            p.theme == .brutal
-              ? String(format: "%02d.", remote.activeDownloadCount)
-              : "\(jobs.filter {!$0.finished}.count) chapitre(s)\nen route."
+            p.theme == .terminal
+              ? "$ activité · \(remote.activeDownloadCount) en cours"
+              : p.theme == .brutal
+                ? String(format: "%02d.", remote.activeDownloadCount)
+                : "\(jobs.filter {!$0.finished}.count) chapitre(s)\nen route."
           ).font(p.font(p.theme == .brutal ? 80 : 40, title: true))
           if !remote.connected {
             Text(
@@ -97,16 +99,32 @@ struct ActivityView: View {
       } else if job.state == "completed" {
         let imported = remote.localDocument(for: job, library: library)?.complete == true
         Text(imported ? "Prêt à lire hors ligne" : "CBZ prêt sur le Mac").font(p.font(12))
-        if let date = RemoteJob.timestamp(job.updatedAt) { Text(date.formatted(date: .abbreviated, time: .shortened)).font(p.font(11)).foregroundStyle(.secondary) }
+        if let date = RemoteJob.timestamp(job.updatedAt) {
+          Text(date.formatted(date: .abbreviated, time: .shortened)).font(p.font(11))
+            .foregroundStyle(.secondary)
+        }
         if let failure = remote.transferFailures[job.id] {
           Text(failure).font(p.font(12)).foregroundStyle(p.accent)
         }
-        Button(imported ? "Lire" : remote.transferFailures[job.id] != nil ? "Réessayer l’import" : remote.isAwaitingImport(job) ? "Ajout en attente…" : "Ajouter à la bibliothèque") {
-          if imported { remote.startImport(job, library: library) }
-          else { remote.requestAutomaticImport(job); remote.processAutomaticImports(library: library) }
+        Button(
+          imported
+            ? "Lire"
+            : remote.transferFailures[job.id] != nil
+              ? "Réessayer l’import"
+              : remote.isAwaitingImport(job) ? "Ajout en attente…" : "Ajouter à la bibliothèque"
+        ) {
+          if imported {
+            remote.startImport(job, library: library)
+          } else {
+            remote.requestAutomaticImport(job)
+            remote.processAutomaticImports(library: library)
+          }
         }
-          .buttonStyle(ThemeButtonStyle()).disabled(remote.importing || library.isBusy || (remote.isAwaitingImport(job) && remote.transferFailures[job.id] == nil))
-          .accessibilityIdentifier("importRemote-\(job.id)")
+        .buttonStyle(ThemeButtonStyle()).disabled(
+          remote.importing || library.isBusy
+            || (remote.isAwaitingImport(job) && remote.transferFailures[job.id] == nil)
+        )
+        .accessibilityIdentifier("importRemote-\(job.id)")
         if !imported {
           Button("Télécharger à nouveau si le CBZ a expiré") {
             if let manga = job.target.manga, let chapter = job.target.chapter {
