@@ -1,6 +1,54 @@
 import XCTest
 
 final class ReaderWorkflowTests: XCTestCase {
+    func testPageTapZoomsIndividualCaseInlineAndSecondTapRestoresPage() throws {
+        guard FileManager.default.fileExists(atPath: "/tmp/mangaflow-panel-zoom-review.json") else {
+            throw XCTSkip("Explicit inline zoom fixture absent")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication(); app.launchArguments = ["-theme", "holo"]; app.launch()
+        let series = app.buttons["series-panel-zoom-qa"].firstMatch
+        XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
+        app.buttons["read-Panel Zoom QA"].tap()
+        let toggle = app.descendants(matching: .any)["readerOriginalPages"].firstMatch
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+        if !app.buttons["original-page-0"].exists { toggle.tap() }
+        let page = app.buttons["original-page-0"]
+        XCTAssertTrue(page.waitForExistence(timeout: 5))
+        let scroll = app.scrollViews["readerScroll"]
+        let saved = scroll.value as? String
+        let frame = page.frame
+        let point = page.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.30))
+        point.tap()
+        let zoomed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Case agrandie"), object: page)
+        XCTAssertEqual(XCTWaiter.wait(for: [zoomed], timeout: 3), .completed, "Tap state: \(String(describing: page.value))")
+        XCTAssertFalse(app.buttons["Fermer"].exists, "Page mode must not open the original sheet")
+        XCTAssertEqual(page.frame.minY, frame.minY, accuracy: 1)
+        XCTAssertEqual(page.frame.width, frame.width, accuracy: 1)
+        XCTAssertEqual(page.frame.height, frame.height, accuracy: 1)
+        XCTAssertEqual(scroll.value as? String, saved)
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Individual panel inline zoom"; attachment.lifetime = .keepAlways; add(attachment)
+        point.doubleTap()
+        XCTAssertFalse(app.buttons["Fermer la lecture"].exists)
+        XCTAssertEqual(page.value as? String, "Case agrandie", "Double tap must not toggle zoom")
+        point.doubleTap()
+        XCTAssertTrue(app.buttons["Fermer la lecture"].waitForExistence(timeout: 5))
+        point.tap()
+        let restoredPage = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Page entière"), object: page)
+        XCTAssertEqual(XCTWaiter.wait(for: [restoredPage], timeout: 3), .completed)
+        XCTAssertEqual(scroll.value as? String, saved)
+        XCTAssertEqual(page.frame.minY, frame.minY, accuracy: 1)
+        XCTAssertEqual(page.frame.width, frame.width, accuracy: 1)
+        XCTAssertEqual(page.frame.height, frame.height, accuracy: 1)
+        toggle.tap()
+        let cropped = app.buttons["panel-0-0"]
+        XCTAssertTrue(cropped.waitForExistence(timeout: 5))
+        cropped.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.30)).tap()
+        XCTAssertTrue(app.buttons["Fermer"].waitForExistence(timeout: 5), "Panel-mode tap keeps its original zoom sheet")
+        app.buttons["Fermer"].tap()
+    }
+
     func testNextChapterStartsAtBeginningEvenWhenPreviouslyFinished() throws {
         guard FileManager.default.fileExists(atPath: "/tmp/mangaflow-reader-next-review.json") else {
             throw XCTSkip("Explicit next-chapter review fixture absent")
@@ -49,8 +97,7 @@ final class ReaderWorkflowTests: XCTestCase {
         let first = app.buttons["original-page-0"], second = app.buttons["original-page-1"]
         XCTAssertEqual(first.frame.maxY, second.frame.minY, accuracy: 1)
         first.tap()
-        XCTAssertTrue(app.buttons["Fermer"].waitForExistence(timeout: 5))
-        app.buttons["Fermer"].tap()
+        XCTAssertFalse(app.buttons["Fermer"].exists, "Original page taps no longer open a sheet")
         scroll.swipeUp(); scroll.swipeUp()
         let page = (scroll.value as? String ?? "").components(separatedBy: ",")[0]
         XCTAssertFalse(page.isEmpty)

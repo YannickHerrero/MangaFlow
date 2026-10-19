@@ -22,11 +22,17 @@ actor ConversionEngine {
             var page = doc.pages[index]
             page.fallback = false
             page.warning = nil
+            page.zoomPanels = nil
             do {
                 let dimensions = try PageImage.dimensions(at: url)
                 page.width = dimensions.0; page.height = dimensions.1
                 let image = try autoreleasepool { try PageImage.load(at: url, maxPixel: 1600) }
                 let detections = try await detector.detect(image: image)
+                let individual = PanelLayout.ordered(PanelLayout.normalized(detections), rtl: doc.rightToLeft)
+                    .enumerated().map { index, detection in
+                        ReadingPanel(id: "\(page.id)-zoom-\(index)", rect: detection.rect, confidence: detection.confidence)
+                    }
+                page.zoomPanels = ContourRefiner.refine(image: image, panels: individual, texts: detections)
                 page.panels = PanelLayout.readingPanels(detections, pageID: page.id, rtl: doc.rightToLeft)
                 page.panels = ContourRefiner.refine(image: image, panels: page.panels, texts: detections)
                 if page.panels.isEmpty {

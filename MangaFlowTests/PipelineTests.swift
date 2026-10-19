@@ -169,6 +169,7 @@ final class PipelineTests: XCTestCase {
         let engine = ConversionEngine(store: store)
         doc = try await engine.convert(doc) { _ in }
         XCTAssertTrue(doc.complete)
+        XCTAssertTrue(doc.pages.allSatisfy { $0.zoomPanels?.isEmpty == false }, "Keep individual geometry for original-page zoom")
         XCTAssertGreaterThanOrEqual(doc.panelCount, 2)
         XCTAssertTrue(doc.pages.allSatisfy { $0.width == 800 && $0.height == 1200 })
         let firstDuration = doc.pages[0].milliseconds

@@ -59,6 +59,8 @@ struct MangaPage: Codable, Identifiable, Sendable {
     var width: Int = 0
     var height: Int = 0
     var panels: [ReadingPanel] = []
+    /// Individual detections, before reading-strip/column grouping, for page-mode hit testing.
+    var zoomPanels: [ReadingPanel]? = nil
     var processed = false
     var fallback = false
     var warning: String?
@@ -66,7 +68,7 @@ struct MangaPage: Codable, Identifiable, Sendable {
 }
 
 struct MangaDocument: Codable, Identifiable, Sendable {
-    static let engine = "yolo26-fp32-contours-v5"
+    static let engine = "yolo26-fp32-contours-v6"
     var schema = 1
     var engineVersion = Self.engine
     var id: UUID

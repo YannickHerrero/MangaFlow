@@ -23,6 +23,7 @@
 		3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C10539866E45547DF7B3668 /* ContourTests.swift */; };
 		3FF2F53627C0FCFC4F03183E /* PanelReviewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F720442B7A9D5235435795F /* PanelReviewTests.swift */; };
 		43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98185ADBDC0AA67C5F17620A /* PipelineTests.swift */; };
+		44102A17724331FFC560CDCE /* PanelZoomTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4ACE6B31BE95706BD12DA51E /* PanelZoomTests.swift */; };
 		443ADEDB6436F1807E051197 /* FavoriteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C6DC4026536AD2E46B8975 /* FavoriteStore.swift */; };
 		451E9F29B87F45755A361FD1 /* spacegrotesk-OFL.txt in Resources */ = {isa = PBXBuildFile; fileRef = 000895D5C7E6A1DE72EBC6E1 /* spacegrotesk-OFL.txt */; };
 		4658517CAF94B0D0C1B12F4C /* RemoteAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB95DFDD728CF426DEDD7AC /* RemoteAPI.swift */; };
@@ -45,6 +46,7 @@
 		7E2A643795CEFD038EC80AB6 /* ExplorerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6370679D2058B1B691E80EA /* ExplorerView.swift */; };
 		81E4C8BE6B2BE5D6FB85B690 /* ConversionEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 856681329C79CB7670043370 /* ConversionEngine.swift */; };
 		8E67E5D8817BAE93A726A1DE /* OfflineRemoteReadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ABBE9F7380B7FC7953B1FEB /* OfflineRemoteReadTests.swift */; };
+		9450FC854182836F6128DA81 /* OriginalPanelZoomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 751679D7D8342ACB17C4CEC4 /* OriginalPanelZoomView.swift */; };
 		949F82061384E693D084E110 /* MetadataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 283223C9DED144ED4C1C4F1D /* MetadataStore.swift */; };
 		9805465137DD124E0AFC1C48 /* ConnectionVault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E149430519E8A896568481F /* ConnectionVault.swift */; };
 		A09D8FD9CD91E1A03992FBE7 /* SpaceMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BBA872A97C9CCB7D79566DAD /* SpaceMono-Bold.ttf */; };
@@ -67,6 +69,7 @@
 		E0DA161B55C868F3D93ED2CB /* DocumentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DA2ADCEF5A36D0461BBF5F7 /* DocumentStore.swift */; };
 		E4770505B08F7F152247812A /* SpaceGrotesk-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3B97D02F8F3B3753728A0605 /* SpaceGrotesk-Bold.ttf */; };
 		F256BCC1BD746D8E46DD5764 /* ContourRefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FAD8E2D019DC4B43251F28D /* ContourRefiner.swift */; };
+		F614BBC14162761E0993B8D3 /* PanelZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADCD971B8250721B1C25340A /* PanelZoom.swift */; };
 		F626E47981186277C6616566 /* FavoritesWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D1F97D3FBDDF569116B662 /* FavoritesWorkflowTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -111,6 +114,7 @@
 		3B97D02F8F3B3753728A0605 /* SpaceGrotesk-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Bold.ttf"; sourceTree = "<group>"; };
 		42421FC1DCB33B69B791FB3B /* SpaceGrotesk-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "SpaceGrotesk-Regular.ttf"; sourceTree = "<group>"; };
 		487CDABDC2D5B3DE79A70D25 /* ZenKakuGothicNew-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ZenKakuGothicNew-Regular.ttf"; sourceTree = "<group>"; };
+		4ACE6B31BE95706BD12DA51E /* PanelZoomTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelZoomTests.swift; sourceTree = "<group>"; };
 		5D08534A61B2F111598C24DB /* PanelLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelLayout.swift; sourceTree = "<group>"; };
 		5DE401A570B20B11FAFB9005 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		67C74956BC4970C2D99E17E9 /* PairingScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingScanner.swift; sourceTree = "<group>"; };
@@ -119,6 +123,7 @@
 		6F3870AA92B3B1AEC2A65ECD /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		6F69D112924E150735E7E41D /* spacemono-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "spacemono-OFL.txt"; sourceTree = "<group>"; };
 		6F81E3720D66783B3166CADA /* PanelDetector.mlpackage */ = {isa = PBXFileReference; path = PanelDetector.mlpackage; sourceTree = "<group>"; };
+		751679D7D8342ACB17C4CEC4 /* OriginalPanelZoomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OriginalPanelZoomView.swift; sourceTree = "<group>"; };
 		7D2723F15CE916C44110AC21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7DA2ADCEF5A36D0461BBF5F7 /* DocumentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentStore.swift; sourceTree = "<group>"; };
 		816EC226408A0BC1E7D688FF /* OnlineWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineWorkflowTests.swift; sourceTree = "<group>"; };
@@ -137,6 +142,7 @@
 		A3B06ECBEC18ACEA9B32622E /* AutomaticImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticImportTests.swift; sourceTree = "<group>"; };
 		A599305923960D6C90EAECF9 /* ZenKakuGothicNew-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ZenKakuGothicNew-Bold.ttf"; sourceTree = "<group>"; };
 		A6370679D2058B1B691E80EA /* ExplorerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplorerView.swift; sourceTree = "<group>"; };
+		ADCD971B8250721B1C25340A /* PanelZoom.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelZoom.swift; sourceTree = "<group>"; };
 		B26AB8A0CC154D8D4EFB9867 /* archivoblack-OFL.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = "archivoblack-OFL.txt"; sourceTree = "<group>"; };
 		B3A172240371335BE9F15665 /* SeriesLibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeriesLibraryView.swift; sourceTree = "<group>"; };
 		B784E6D43EAB943220D31A85 /* ReaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderView.swift; sourceTree = "<group>"; };
@@ -215,6 +221,7 @@
 			children = (
 				9514AF7AAE987A8555F972C5 /* LibraryModel.swift */,
 				DA23646A9B7FB378F997A80B /* LibraryView.swift */,
+				751679D7D8342ACB17C4CEC4 /* OriginalPanelZoomView.swift */,
 				B784E6D43EAB943220D31A85 /* ReaderView.swift */,
 				B3A172240371335BE9F15665 /* SeriesLibraryView.swift */,
 			);
@@ -306,6 +313,7 @@
 				19EC948B19E7526AE89E56CE /* LocalPanelDetector.swift */,
 				B98F57F916FC0DCD29F3FCE6 /* PageImage.swift */,
 				5D08534A61B2F111598C24DB /* PanelLayout.swift */,
+				ADCD971B8250721B1C25340A /* PanelZoom.swift */,
 				81D13DFC82D6BAFDBD7E18A5 /* Series.swift */,
 			);
 			path = Core;
@@ -319,6 +327,7 @@
 				8C10539866E45547DF7B3668 /* ContourTests.swift */,
 				F104D92F12C9568B671BCF89 /* FavoritesDownloadTests.swift */,
 				8F720442B7A9D5235435795F /* PanelReviewTests.swift */,
+				4ACE6B31BE95706BD12DA51E /* PanelZoomTests.swift */,
 				98185ADBDC0AA67C5F17620A /* PipelineTests.swift */,
 				1FC8AC22A72D5F674847E33B /* RemoteTests.swift */,
 				05E06AE2F207BD401C05AABD /* SeriesMetadataTests.swift */,
@@ -487,6 +496,7 @@
 				3D88AE5DAD05C8819961C81F /* ContourTests.swift in Sources */,
 				372694D336AC315B04B67EC1 /* FavoritesDownloadTests.swift in Sources */,
 				3FF2F53627C0FCFC4F03183E /* PanelReviewTests.swift in Sources */,
+				44102A17724331FFC560CDCE /* PanelZoomTests.swift in Sources */,
 				43E12423329DADCB8CA6DBC2 /* PipelineTests.swift in Sources */,
 				2711920A1E4C4EA6116C03CD /* RemoteTests.swift in Sources */,
 				4AFAED7BE711EA6105E0E158 /* SeriesMetadataTests.swift in Sources */,
@@ -513,10 +523,12 @@
 				1BEB4C13E538F68AAD84B204 /* LocalPanelDetector.swift in Sources */,
 				D19912CF1C8FAAF821232842 /* MangaFlowApp.swift in Sources */,
 				949F82061384E693D084E110 /* MetadataStore.swift in Sources */,
+				9450FC854182836F6128DA81 /* OriginalPanelZoomView.swift in Sources */,
 				48FED1788D3583B0EC0386B4 /* PageImage.swift in Sources */,
 				0CF078B1274CE42BBA4D914F /* PairingScanner.swift in Sources */,
 				C95F5324D2F14DAB9629C1F6 /* PanelDetector.mlpackage in Sources */,
 				C3284C61749BE0C9E6BB22BC /* PanelLayout.swift in Sources */,
+				F614BBC14162761E0993B8D3 /* PanelZoom.swift in Sources */,
 				30E10EA192ACDB62E452EF37 /* ReaderView.swift in Sources */,
 				4658517CAF94B0D0C1B12F4C /* RemoteAPI.swift in Sources */,
 				C378D1AB3352F28C5FD25EF8 /* RemoteModel.swift in Sources */,

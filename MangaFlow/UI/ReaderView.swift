@@ -47,8 +47,15 @@ struct ReaderView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(rows) { row in
                             let ratio = max(0.1, Double(max(row.page.width, 1)) * row.panel.rect.width / (Double(max(row.page.height, 1)) * row.panel.rect.height))
+                            if originalPages {
+                                OriginalPanelZoomView(page: row.page, url: store.pageURL(document, row.page),
+                                                      viewportHeight: geometry.size.height, toggleControls: toggleControls)
+                                    .frame(width: geometry.size.width, height: geometry.size.width / ratio)
+                                    .background(Color.white)
+                                    .id(row.id)
+                            } else {
                             CropImage(url: store.pageURL(document, row.page), rect: row.panel.rect,
-                                      contour: !originalPages && followPanelBorders ? row.panel.contour : nil,
+                                      contour: followPanelBorders ? row.panel.contour : nil,
                                       targetWidth: min(1600, Int(geometry.size.width * 3)))
                                 .frame(width: geometry.size.width, height: geometry.size.width / ratio)
                                 .background(followPanelBorders && row.panel.contour != nil ? Color.clear : Color.white)
@@ -61,17 +68,19 @@ struct ReaderView: View {
                                         }
                                     })
                                 .accessibilityElement(children: .ignore)
-                                .accessibilityLabel(originalPages ? "Page originale \(row.page.id + 1). Toucher pour agrandir." : "Page \(row.page.id + 1), case \(row.panel.id). Toucher pour voir la page originale.")
+                                .accessibilityLabel("Page \(row.page.id + 1), case \(row.panel.id). Toucher pour voir la page originale.")
                                 .accessibilityAddTraits(.isButton)
-                                .accessibilityIdentifier(originalPages ? "original-page-\(row.page.id)" : "panel-\(row.panel.id)")
+                                .accessibilityIdentifier("panel-\(row.panel.id)")
                                 .accessibilityAction { original = row.page }
                                 .accessibilityAction(named: controlsVisible ? "Masquer les commandes" : "Afficher les commandes") { toggleControls() }
                                 .id(row.id)
+                            }
                         }
                         if let nextChapter { Button("Chapitre suivant", action: nextChapter).buttonStyle(ThemeButtonStyle()).padding(24).accessibilityIdentifier("nextChapter") }
                     }
                     .scrollTargetLayout()
                 }
+                .coordinateSpace(name: "readerViewport")
                 .scrollPosition(id: $position, anchor: .top)
                 .id(originalPages)
                 .onScrollGeometryChange(for: Bool.self) { geometry in
@@ -92,7 +101,7 @@ struct ReaderView: View {
                     restored = true
                 }
             }
-            .ignoresSafeArea(.container, edges: .vertical)
+            .ignoresSafeArea(.container, edges: originalPages && controlsVisible ? .bottom : .vertical)
             .navigationTitle(document.title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(p.paper, for: .navigationBar)
