@@ -8,9 +8,14 @@ struct ReaderView: View {
     var onComplete: (() -> Void)? = nil
     var nextChapter: (() -> Void)? = nil
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var position: String?
+    @State private var readerSettings = false
+    @State private var focus: ReaderFocus?
+    @AppStorage("readerGuidedDialogue") private var guided = false
+    @AppStorage("readerDialogueOccupancy") private var occupancy = 0.6
+    @AppStorage("readerDialogueMaximumScale") private var maximumScale = 3.0
     @State private var original: MangaPage?
-    @AppStorage("leftToRightReading") private var leftToRight = false
     @AppStorage("followPanelBorders") private var followPanelBorders = true
     @AppStorage("readOriginalPages") private var originalPages = false
     @AppStorage("readerTwoFingerHintSeen") private var twoFingerHintSeen = false
@@ -28,9 +33,6 @@ struct ReaderView: View {
             if originalPages {
                 // Keep a canonical panel ID so progress survives mode switches.
                 panels = [ReadingPanel(id: page.panels.first?.id ?? "\(page.id)-full", rect: .full, confidence: 1)]
-            } else if leftToRight {
-                let boxes = page.panels.map { Detection(rect: $0.rect, confidence: $0.confidence, kind: 0) }
-                panels = PanelLayout.ordered(boxes, rtl: false).compactMap { box in page.panels.first { $0.rect == box.rect } }
             } else { panels = page.panels }
             return panels.map { Row(page: page, panel: $0) }
         }
@@ -53,7 +55,8 @@ struct ReaderView: View {
                             let ratio = max(0.1, Double(max(row.page.width, 1)) * row.panel.rect.width / (Double(max(row.page.height, 1)) * row.panel.rect.height))
                             if originalPages {
                                 OriginalPanelZoomView(page: row.page, url: store.pageURL(document, row.page),
-                                                      rightToLeft: document.rightToLeft && !leftToRight, viewportHeight: geometry.size.height, toggleControls: toggleControls)
+                                                      viewportHeight: geometry.size.height, toggleControls: toggleControls,
+                                                      selection: $focus, guided: $guided, occupancy: occupancy, maximumScale: maximumScale)
                                     .frame(width: geometry.size.width, height: geometry.size.width / ratio)
                                     .background(Color.white)
                                     .id(row.id)
@@ -89,6 +92,7 @@ struct ReaderView: View {
                 .accessibilityValue("Page \(currentPage + 1), case \(currentPanelNumber)")
                 .background(Color.black)
                 .onChange(of: position) { _, value in
+                    if focus?.pageID != currentPage { focus = nil }
                     if restored, let value { onPosition(value) }
                 }
                 .task {
@@ -104,6 +108,7 @@ struct ReaderView: View {
             .toolbar(.hidden, for: .navigationBar)
             .statusBarHidden(!controlsVisible)
             .persistentSystemOverlays(controlsVisible ? .automatic : .hidden)
+            .sheet(isPresented: $readerSettings) { readingSettings }
             .sheet(item: $original) { page in
                 NavigationStack {
                     OriginalPageView(url: store.pageURL(document, page))
@@ -115,12 +120,28 @@ struct ReaderView: View {
             }
         }
         .overlay(alignment: .bottom) {
+            if originalPages && guided {
+                Button(action: advanceDialogue) {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(p.ink).frame(width: 44, height: 44)
+                        .background(.regularMaterial, in: Circle())
+                        .overlay(Circle().strokeBorder(p.line))
+                }
+                .buttonStyle(.plain)
+                .padding(.bottom, 16)
+                .accessibilityIdentifier("nextTextRegion")
+                .accessibilityLabel("Dialogue suivant")
+                .accessibilityValue(guidanceDescription)
+            }
+        }
+        .overlay(alignment: .bottom) {
             if showGestureHint {
                 Text("Touchez avec deux doigts pour afficher ou masquer l’interface.")
                     .font(.caption).multilineTextAlignment(.center)
                     .foregroundStyle(.white).padding(.horizontal, 16).padding(.vertical, 10)
                     .background(.black.opacity(0.85), in: Capsule())
-                    .padding(.horizontal, 24).padding(.bottom, 24)
+                    .padding(.horizontal, 24).padding(.bottom, originalPages && guided ? 76 : 24)
                     .allowsHitTesting(false)
                     .accessibilityIdentifier("readerGestureHint")
             }
@@ -141,24 +162,75 @@ struct ReaderView: View {
             RoundIconButton(symbol: "chevron.down", label: "Fermer la lecture") { dismiss() }
             Text(document.title).font(p.font(16, title: true)).lineLimit(1)
             Spacer(minLength: 0)
-            RoundIconButton(symbol: originalPages ? "doc.richtext.fill" : "doc.richtext", label: "Pages originales") { setOriginalPages(!originalPages) }
-                .foregroundStyle(originalPages ? p.accent : p.ink)
-                .accessibilityValue(originalPages ? "Activé" : "Désactivé").accessibilityIdentifier("readerOriginalPages")
-            RoundIconButton(symbol: "eye.slash", label: "Masquer l’interface", action: toggleControls)
-                .accessibilityHint("Touchez avec deux doigts pour réafficher les commandes.")
-            Menu {
-                Button("Voir la page originale") { original = document.pages.first { $0.id == currentPage } }
-                Toggle("Lecture de gauche à droite", isOn: $leftToRight)
-                Toggle("Suivre les bords des cases", isOn: $followPanelBorders)
-                Button("Plein écran · deux doigts pour revenir") { toggleControls() }
-                Button("Revenir au début") { position = rows.first?.id }
-            } label: { Image(systemName: "ellipsis").frame(width: 44, height: 44).background(p.surface, in: Circle()).overlay(Circle().stroke(p.line, lineWidth: 1)) }
-                .accessibilityLabel("Options de lecture")
+            RoundIconButton(symbol: "gearshape", label: "Réglages de lecture") { readerSettings = true }
+                .accessibilityIdentifier("readerSettings")
         }.padding(.horizontal, 12).padding(.vertical, 8).background(p.paper)
+    }
+    private var guidanceDescription: String {
+        let pageID = focus?.pageID ?? currentPage
+        guard let page = document.pages.first(where: { $0.id == pageID }) else { return "Page entière" }
+        let texts = PanelZoom.orderedText(page.textRegions ?? [], panels: page.zoomPanels ?? page.panels, rtl: true)
+        if let focus, let index = texts.firstIndex(where: { $0.id == focus.targetID }) { return "\(index + 1) sur \(texts.count)" }
+        return texts.isEmpty ? "Page sans dialogue · page suivante" : "Page entière · premier dialogue"
+    }
+    private func advanceDialogue() {
+        switch ReaderGuidance.next(pages: document.pages.filter(\.processed), pageID: focus?.pageID ?? currentPage, focus: focus) {
+        case .focus(let target): focus = target
+        case .page(let pageID):
+            focus = nil
+            withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.32)) { position = rows.first(where: { $0.page.id == pageID })?.id }
+        case .overview: focus = nil
+        }
+    }
+    private var readingSettings: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                HStack {
+                    Text("Réglages de lecture").font(p.font(22, title: true))
+                    Spacer()
+                    RoundIconButton(symbol: "xmark", label: "Fermer les réglages de lecture") { readerSettings = false }
+                }.padding(20)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 20) {
+                        VStack(spacing: 16) {
+                            Toggle("Pages originales", isOn: Binding(get: { originalPages }, set: setOriginalPages))
+                                .accessibilityIdentifier("readerOriginalPages")
+                            Divider()
+                            Toggle("Lecture guidée des bulles", isOn: Binding(get: { originalPages && guided }, set: { enabled in
+                                guided = enabled; focus = nil
+                                if enabled { setOriginalPages(true) }
+                            })).accessibilityIdentifier("readerGuidedDialogue")
+                            Text("La flèche reste disponible entre les pages. Touchez-la pour commencer les dialogues de la page affichée.")
+                                .font(p.font(13)).foregroundStyle(p.muted)
+                        }.themeCard()
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack { Text("Taille du dialogue"); Spacer(); Text("\(Int(occupancy * 100)) %").monospacedDigit() }
+                            Slider(value: $occupancy, in: 0.3...0.9, step: 0.05).accessibilityIdentifier("readerDialogueSize")
+                            Text("Part de l’espace disponible occupée par la bulle.").font(p.font(13)).foregroundStyle(p.muted)
+                            Divider()
+                            HStack { Text("Zoom maximal"); Spacer(); Text(String(format: "×%.1f", maximumScale)).monospacedDigit() }
+                            Slider(value: $maximumScale, in: 1...6, step: 0.25).accessibilityIdentifier("readerDialogueMaxZoom")
+                            Text("Limite le grossissement des petites bulles.").font(p.font(13)).foregroundStyle(p.muted)
+                        }.themeCard()
+                        VStack(spacing: 16) {
+                            Toggle("Suivre les bords des cases", isOn: $followPanelBorders)
+                            Divider()
+                            Button("Masquer l’interface") { readerSettings = false; controlsVisible = false }
+                                .accessibilityIdentifier("readerHideControls")
+                            Text("Touchez avec deux doigts pour retrouver les commandes.").font(p.font(13)).foregroundStyle(p.muted)
+                            Divider()
+                            Button("Revenir au début") { focus = nil; position = rows.first?.id; readerSettings = false }
+                        }.themeCard()
+                    }.padding(.horizontal, 16).padding(.bottom, 32)
+                }
+            }.foregroundStyle(p.ink).background(p.paper).toolbar(.hidden, for: .navigationBar)
+        }.presentationDetents([.large]).presentationDragIndicator(.visible)
     }
     private func setOriginalPages(_ enabled: Bool) {
         let page = currentPage
+        focus = nil
         originalPages = enabled
+        if !enabled { guided = false }
         position = rows.first { $0.page.id == page }?.id ?? rows.first?.id
     }
     private func toggleControls() {

@@ -1,6 +1,18 @@
 import XCTest
 
 final class ReaderWorkflowTests: XCTestCase {
+    private func showReadChapters(_ app: XCUIApplication) {
+        app.buttons["openMangaSettings"].tap()
+        let hide = app.switches["libraryHideReadChapters"]
+        if hide.value as? String == "1" { hide.tap() }
+        app.buttons["Fermer les réglages du manga"].tap()
+    }
+    private func toggleOriginalPages(_ app: XCUIApplication) {
+        app.buttons["readerSettings"].tap()
+        let toggle = app.switches["readerOriginalPages"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5)); toggle.tap()
+        app.buttons["Fermer les réglages de lecture"].tap()
+    }
     /// UIKit-backed SwiftUI gestures expose an image hit surface inside the semantic
     /// page button. Target that surface for XCTest's multi-touch coordinate synthesis.
     private func readerSurface(in app: XCUIApplication, frame: CGRect) -> XCUIElement {
@@ -20,10 +32,12 @@ final class ReaderWorkflowTests: XCTestCase {
         let app = XCUIApplication(); app.launchArguments = []; app.launch()
         let series = app.buttons["series-panel-zoom-qa"].firstMatch
         XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
+        showReadChapters(app)
         app.buttons["read-Panel Zoom QA"].tap()
-        let toggle = app.descendants(matching: .any)["readerOriginalPages"].firstMatch
-        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
-        if !app.buttons["original-page-0"].exists { toggle.tap() }
+        XCTAssertTrue(app.buttons["readerSettings"].waitForExistence(timeout: 10))
+        if !app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'original-page-'")).firstMatch.exists { toggleOriginalPages(app) }
+        app.buttons["readerSettings"].tap()
+        app.buttons["Revenir au début"].tap()
         let page = app.buttons["original-page-0"]
         XCTAssertTrue(page.waitForExistence(timeout: 5))
         let scroll = app.scrollViews["readerScroll"]
@@ -63,7 +77,7 @@ final class ReaderWorkflowTests: XCTestCase {
             let capture = XCTAttachment(screenshot: app.screenshot())
             capture.name = expected; capture.lifetime = .keepAlways; add(capture)
             if expected == "Bulle agrandie" {
-                let nextText = app.buttons["nextTextRegion-0"]
+                let nextText = app.buttons["nextTextRegion"]
                 XCTAssertTrue(nextText.exists)
                 XCTAssertEqual(nextText.value as? String, "1 sur 2")
                 let nextFrame = nextText.frame
@@ -75,12 +89,12 @@ final class ReaderWorkflowTests: XCTestCase {
                 XCTAssertEqual(page.frame.height, frame.height, accuracy: 1)
                 let guided = XCTAttachment(screenshot: app.screenshot())
                 guided.name = "Guided dialogue next region"; guided.lifetime = .keepAlways; add(guided)
-                nextText.tap()
+                textPoint.tap()
             } else { textPoint.tap() }
             let reset = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Page entière"), object: page)
             XCTAssertEqual(XCTWaiter.wait(for: [reset], timeout: 3), .completed)
         }
-        toggle.tap()
+        toggleOriginalPages(app)
         let cropped = app.buttons["panel-0-0"]
         XCTAssertTrue(cropped.waitForExistence(timeout: 5))
         let initialY = cropped.frame.minY
@@ -110,7 +124,8 @@ final class ReaderWorkflowTests: XCTestCase {
         func openReader() {
             let series = app.buttons["series-panel-zoom-qa"].firstMatch
             XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
-            app.buttons["read-Panel Zoom QA"].tap()
+            showReadChapters(app)
+        app.buttons["read-Panel Zoom QA"].tap()
             XCTAssertTrue(app.buttons["Fermer la lecture"].waitForExistence(timeout: 5))
         }
         openReader()
@@ -137,7 +152,7 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertTrue(read.waitForExistence(timeout: 10)); read.tap()
         XCTAssertTrue(app.buttons["Fermer la lecture"].waitForExistence(timeout: 10))
         if app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'original-page-'")).firstMatch.exists {
-            app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap()
+            toggleOriginalPages(app)
         }
         let next = app.buttons["nextChapter"]
         XCTAssertTrue(next.waitForExistence(timeout: 10)); next.tap()
@@ -164,10 +179,10 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertTrue(read.waitForExistence(timeout: 10))
         let readID = read.identifier
         read.tap()
-        XCTAssertTrue(app.descendants(matching: .any)["readerOriginalPages"].firstMatch.waitForExistence(timeout: 60))
-        app.buttons["Options de lecture"].tap()
+        XCTAssertTrue(app.buttons["readerSettings"].waitForExistence(timeout: 60))
+        app.buttons["readerSettings"].tap()
         app.buttons["Revenir au début"].tap()
-        if !app.buttons["original-page-0"].exists { app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap() }
+        if !app.buttons["original-page-0"].exists { toggleOriginalPages(app) }
         XCTAssertTrue(app.buttons["original-page-0"].waitForExistence(timeout: 5))
         let scroll = app.scrollViews["readerScroll"]
         let first = app.buttons["original-page-0"], second = app.buttons["original-page-1"]
@@ -177,17 +192,17 @@ final class ReaderWorkflowTests: XCTestCase {
         scroll.swipeUp(); scroll.swipeUp()
         let page = (scroll.value as? String ?? "").components(separatedBy: ",")[0]
         XCTAssertFalse(page.isEmpty)
-        app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap()
+        toggleOriginalPages(app)
         XCTAssertTrue(NSPredicate(format: "value BEGINSWITH %@", page).evaluate(with: scroll))
-        app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap()
+        toggleOriginalPages(app)
         app.buttons["Fermer la lecture"].tap()
         XCTAssertTrue(app.buttons[readID].firstMatch.waitForExistence(timeout: 5))
         app.buttons[readID].firstMatch.tap()
-        XCTAssertTrue(app.descendants(matching: .any)["readerOriginalPages"].firstMatch.waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["readerSettings"].waitForExistence(timeout: 10))
         XCTAssertTrue(NSPredicate(format: "value BEGINSWITH %@", page).evaluate(with: app.scrollViews["readerScroll"]))
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "Original pages continuous reading"; screenshot.lifetime = .keepAlways; add(screenshot)
-        app.descendants(matching: .any)["readerOriginalPages"].firstMatch.tap()
+        toggleOriginalPages(app)
     }
 
     func testRealChapterImportReadAndReopen() throws {
@@ -211,7 +226,8 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertTrue(cover.exists); XCTAssertTrue(nextPanel.exists)
         XCTAssertEqual(cover.frame.maxY, nextPanel.frame.minY, accuracy: 1,
                        "Panels must touch, including across page boundaries")
-        app.buttons["Masquer l’interface"].tap()
+        app.buttons["readerSettings"].tap()
+        app.buttons["readerHideControls"].tap()
         XCTAssertFalse(closeReader.exists, "Immersive reading hides the top controls")
         cover.tap()
         XCTAssertTrue(app.buttons["Fermer"].waitForExistence(timeout: 5), "Single tap must still open the original while controls are hidden")
@@ -225,13 +241,13 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertNotNil(savedPosition, "Reader should expose its current page and panel")
         let reading = XCTAttachment(screenshot: app.screenshot()); reading.name = "Converted chapter"; reading.lifetime = .keepAlways
         add(reading)
-        app.buttons["Masquer l’interface"].tap()
+        app.buttons["readerSettings"].tap()
+        app.buttons["readerHideControls"].tap()
         let immersive = XCTAttachment(screenshot: app.screenshot()); immersive.name = "Immersive reading"; immersive.lifetime = .keepAlways
         add(immersive)
         readerSurface(in: app, frame: scroll.frame).twoFingerTap()
         XCTAssertTrue(closeReader.waitForExistence(timeout: 5))
-        app.buttons["Options de lecture"].tap()
-        app.buttons["Voir la page originale"].tap()
+        nextPanel.tap()
         XCTAssertTrue(app.buttons["Fermer"].waitForExistence(timeout: 5))
         app.buttons["Fermer"].tap()
         closeReader.tap()
@@ -246,5 +262,57 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertTrue(app.scrollViews["readerScroll"].exists)
         XCTAssertEqual(app.scrollViews["readerScroll"].value as? String, savedPosition,
                        "Reopening should restore the current page and panel")
+    }
+    func testGuidedModeKeepsFixedButtonAcrossPagesAndSettingsPersist() throws {
+        guard FileManager.default.fileExists(atPath: "/tmp/mangaflow-panel-zoom-review.json") else { throw XCTSkip("Synthetic reader fixture absent") }
+        continueAfterFailure = false
+        let app = XCUIApplication(); app.launch()
+        app.buttons["series-panel-zoom-qa"].firstMatch.tap()
+        showReadChapters(app)
+        app.buttons["read-Panel Zoom QA"].tap()
+        XCTAssertTrue(app.buttons["readerSettings"].waitForExistence(timeout: 10))
+        app.buttons["readerSettings"].tap()
+        XCTAssertFalse(app.staticTexts["Lecture de gauche à droite"].exists)
+        app.sliders["readerDialogueSize"].adjust(toNormalizedSliderPosition: 0.5)
+        app.sliders["readerDialogueMaxZoom"].adjust(toNormalizedSliderPosition: 0.4)
+        let sizeValue = app.sliders["readerDialogueSize"].value as? String
+        let settingsCapture = XCTAttachment(screenshot: app.screenshot())
+        settingsCapture.name = "Reader settings sheet"; settingsCapture.lifetime = .keepAlways; add(settingsCapture)
+        app.buttons["Revenir au début"].tap()
+        if !app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'original-page-'")).firstMatch.exists { toggleOriginalPages(app) }
+        app.buttons["readerSettings"].tap()
+        app.buttons["Revenir au début"].tap()
+        let page = app.buttons["original-page-0"]
+        page.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.13)).tap()
+        let next = app.buttons["nextTextRegion"]
+        XCTAssertTrue(next.waitForExistence(timeout: 5))
+        let y = next.frame.midY
+        next.tap(); next.tap()
+        let scroll = app.scrollViews["readerScroll"]
+        let nextPage = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value BEGINSWITH %@", "Page 2,"), object: scroll)
+        XCTAssertEqual(XCTWaiter.wait(for: [nextPage], timeout: 5), .completed)
+        XCTAssertEqual(app.buttons["original-page-1"].value as? String, "Page entière")
+        XCTAssertTrue(next.exists)
+        XCTAssertEqual(next.frame.midY, y, accuracy: 2)
+        next.tap()
+        let firstDialogue = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Bulle agrandie"), object: app.buttons["original-page-1"])
+        XCTAssertEqual(XCTWaiter.wait(for: [firstDialogue], timeout: 5), .completed)
+        XCTAssertEqual(next.frame.midY, y, accuracy: 2)
+        let guidedCapture = XCTAttachment(screenshot: app.screenshot())
+        guidedCapture.name = "Fixed dialogue control on next page"; guidedCapture.lifetime = .keepAlways; add(guidedCapture)
+        next.tap()
+        XCTAssertTrue(next.exists)
+        XCTAssertEqual(app.buttons["original-page-1"].value as? String, "Page entière")
+        app.buttons["readerSettings"].tap()
+        XCTAssertEqual(app.sliders["readerDialogueSize"].value as? String, sizeValue)
+        app.buttons["Fermer les réglages de lecture"].tap()
+        app.terminate(); app.launch()
+        app.buttons["series-panel-zoom-qa"].firstMatch.tap()
+        showReadChapters(app)
+        app.buttons["read-Panel Zoom QA"].tap()
+        app.buttons["readerSettings"].tap()
+        XCTAssertEqual(app.sliders["readerDialogueSize"].value as? String, sizeValue)
+        app.buttons["Fermer les réglages de lecture"].tap()
+        XCTAssertTrue(app.buttons["nextTextRegion"].exists)
     }
 }

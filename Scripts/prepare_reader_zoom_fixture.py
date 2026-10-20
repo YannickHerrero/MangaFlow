@@ -16,11 +16,14 @@ subprocess.run(['xcrun', 'simctl', 'terminate', sim, 'fr.yannick.mangaflow'], ca
 data = subprocess.run(['xcrun', 'simctl', 'get_app_container', sim, 'fr.yannick.mangaflow', 'data'], capture_output=True, text=True, check=True).stdout.strip()
 marker = Path('/tmp/mangaflow-panel-zoom-review.json')
 root = Path(data) / 'Library/Application Support/MangaFlow'
-if marker.exists():
-    import shutil
-    old = json.loads(marker.read_text())
-    old_id = str(uuid.UUID(old['id'])).upper()
-    shutil.rmtree(root / old_id, ignore_errors=True)
+# Remove only this synthetic group, including fixtures prepared on another simulator.
+import shutil
+for manifest in root.glob('*/manifest.json'):
+    try:
+        if json.loads(manifest.read_text()).get('manualGroupKey') == 'panel-zoom-qa':
+            shutil.rmtree(manifest.parent)
+    except (OSError, ValueError):
+        pass
 chapter_id = str(uuid.uuid4()).upper()
 folder = root / chapter_id
 folder.mkdir(parents=True)
@@ -36,7 +39,7 @@ image.save(folder / 'page.png')
 zoom = [dict(id=f'0-zoom-{i}', rect=dict(zip(['x', 'y', 'width', 'height'], r)), confidence=.95) for i, r in enumerate(rects)]
 full = dict(x=0, y=0, width=1, height=1)
 page = dict(id=0, filename='page.png', width=800, height=1200, processed=True, fallback=False, milliseconds=1, panels=[dict(id='0-0', rect=full, confidence=.9)], zoomPanels=zoom, textRegions=[dict(id='0-text-bubble', rect=dict(x=.65, y=65/1200, width=170/800, height=185/1200), kind='bubble', confidence=.95), dict(id='0-text-free', rect=dict(x=.05, y=.57, width=.3, height=.07), kind='freeText', confidence=.95)])
-page2 = dict(page, id=1, panels=[dict(id='1-0', rect=full, confidence=.9)], zoomPanels=[], textRegions=[])
+page2 = dict(page, id=1, panels=[dict(id='1-0', rect=full, confidence=.9)], zoomPanels=zoom, textRegions=[dict(page['textRegions'][0], id='1-text-bubble')])
 source = Path(__file__).resolve().parent.parent / 'MangaFlow/Core/Document.swift'
 engine = re.search(r'static let engine = "([^"]+)"', source.read_text())[1]
 doc = dict(id=chapter_id, title='Panel Zoom QA', schema=1, created=time.time() - 978307200 + 100, engineVersion=engine, rightToLeft=True, pages=[page, page2], manualGroupKey='panel-zoom-qa', manualSeriesTitle='Panel Zoom QA')

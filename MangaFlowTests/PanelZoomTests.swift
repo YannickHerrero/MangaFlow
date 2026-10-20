@@ -70,4 +70,27 @@ final class PanelZoomTests: XCTestCase {
         XCTAssertEqual(region.rect.midX * size.width * t.scale + t.x, visible.midX, accuracy: 0.001)
         XCTAssertEqual(PanelZoom.textTransform(for: text("tiny", 0.2, 0.3, 0.01, 0.01), size: size, visible: visible).scale, 3)
     }
+    func testGuidanceStartsEachPageWithOverviewAndHandlesMissingText() {
+        var first = MangaPage(id: 0, filename: "a")
+        first.textRegions = [text("a", 0.1, 0.1), text("b", 0.1, 0.4)]
+        var second = MangaPage(id: 1, filename: "b")
+        second.textRegions = [text("c", 0.1, 0.1)]
+        let blank = MangaPage(id: 2, filename: "c")
+        let pages = [first, second, blank]
+        XCTAssertEqual(ReaderGuidance.next(pages: pages, pageID: 0, focus: nil), .focus(.init(pageID: 0, targetID: "a")))
+        XCTAssertEqual(ReaderGuidance.next(pages: pages, pageID: 0, focus: .init(pageID: 0, targetID: "a")), .focus(.init(pageID: 0, targetID: "b")))
+        XCTAssertEqual(ReaderGuidance.next(pages: pages, pageID: 0, focus: .init(pageID: 0, targetID: "b")), .page(1))
+        XCTAssertEqual(ReaderGuidance.next(pages: pages, pageID: 1, focus: nil), .focus(.init(pageID: 1, targetID: "c")))
+        XCTAssertEqual(ReaderGuidance.next(pages: pages, pageID: 1, focus: .init(pageID: 1, targetID: "c")), .page(2))
+        XCTAssertEqual(ReaderGuidance.next(pages: pages, pageID: 2, focus: nil), .overview)
+    }
+    func testZoomPreferencesChangeFramingAndClampInvalidValues() {
+        let region = text("a", 0.2, 0.2)
+        let size = CGSize(width: 400, height: 900), visible = CGRect(x: 0, y: 0, width: 400, height: 800)
+        let small = PanelZoom.textTransform(for: region, size: size, visible: visible, occupancy: 0.3, maximumScale: 6)
+        let large = PanelZoom.textTransform(for: region, size: size, visible: visible, occupancy: 0.9, maximumScale: 6)
+        XCTAssertLessThan(small.scale, large.scale)
+        XCTAssertEqual(PanelZoom.textTransform(for: region, size: size, visible: visible, occupancy: 0.9, maximumScale: 1.5).scale, 1.5)
+        XCTAssertTrue(PanelZoom.textTransform(for: region, size: size, visible: visible, occupancy: .nan, maximumScale: .infinity).scale.isFinite)
+    }
 }

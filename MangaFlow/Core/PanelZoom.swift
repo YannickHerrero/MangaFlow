@@ -60,10 +60,12 @@ enum PanelZoom {
     }
 
     /// Aim for 60% occupancy, while tiny balloons never exceed 3× page scale.
-    static func textTransform(for region: PageTextRegion, size: CGSize, visible: CGRect) -> Transform {
+    static func textTransform(for region: PageTextRegion, size: CGSize, visible: CGRect, occupancy: Double = 0.6, maximumScale: Double = 3) -> Transform {
         let target = ReadingPanel(id: region.id, rect: region.zoomRect, confidence: region.confidence)
-        let inset = visible.insetBy(dx: visible.width * 0.2, dy: visible.height * 0.2)
-        return transform(for: target, size: size, visible: inset, maximumScale: 3)
+        let fraction = min(0.9, max(0.3, occupancy.isFinite ? occupancy : 0.6))
+        let margin = (1 - fraction) / 2
+        let inset = visible.insetBy(dx: visible.width * margin, dy: visible.height * margin)
+        return transform(for: target, size: size, visible: inset, maximumScale: min(6, max(1, maximumScale.isFinite ? maximumScale : 3)))
     }
 
     static func transform(for panel: ReadingPanel, size: CGSize, visible: CGRect, maximumScale: CGFloat = 4) -> Transform {

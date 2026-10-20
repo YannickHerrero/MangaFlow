@@ -22,7 +22,7 @@ Une page, sept cases extraites automatiquement. Cliquez sur une image pour l’a
 - Défilement vertical continu des cases, avec prise en charge des bordures inclinées.
 - Commandes masquables pour une lecture immersive ; toucher à deux doigts pour les réafficher.
 - Simple toucher pour ouvrir la page originale et zoomer.
-- En mode pages originales, toucher un dialogue pour un zoom modéré, puis utiliser la flèche du bas pour suivre les textes dans l’ordre de lecture. La dernière étape réaffiche la page entière. L’ordre géométrique peut rester imparfait sur les compositions atypiques.
+- En mode pages originales, toucher un dialogue pour un zoom modéré, puis utiliser la flèche du bas pour suivre les textes dans l’ordre de lecture. Le bouton reste fixé en bas de l’écran ; chaque nouvelle page commence en vue d’ensemble. Les réglages permettent d’ajuster la taille des dialogues et le zoom maximal. L’ordre géométrique peut rester imparfait sur les compositions atypiques.
 - Reprise des conversions et mémorisation de la position de lecture.
 - Favoris liés à leur source et suivi des téléchargements directement dans les chapitres.
 

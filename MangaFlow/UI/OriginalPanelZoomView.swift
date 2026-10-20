@@ -4,18 +4,19 @@ import SwiftUI
 struct OriginalPanelZoomView: View {
     let page: MangaPage
     let url: URL
-    let rightToLeft: Bool
     let viewportHeight: CGFloat
     let toggleControls: () -> Void
-    @State private var focused: String?
-    @State private var transform = PanelZoom.Transform(scale: 1, x: 0, y: 0)
+    @Binding var selection: ReaderFocus?
+    @Binding var guided: Bool
+    let occupancy: Double
+    let maximumScale: Double
+    private var focused: String? { selection?.pageID == page.id ? selection?.targetID : nil }
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private var panels: [ReadingPanel] { page.zoomPanels ?? page.panels }
     private var textRegions: [PageTextRegion] { page.textRegions ?? [] }
     private var orderedText: [PageTextRegion] {
-        PanelZoom.orderedText(textRegions, panels: panels, rtl: rightToLeft)
+        PanelZoom.orderedText(textRegions, panels: panels, rtl: true)
     }
-    private var focusedTextIndex: Int? { orderedText.firstIndex { $0.id == focused } }
     private var targets: [ReadingPanel] {
         textRegions.map { ReadingPanel(id: $0.id, rect: $0.zoomRect, confidence: $0.confidence) } + panels
     }
@@ -30,12 +31,14 @@ struct OriginalPanelZoomView: View {
             let frame = geometry.frame(in: .named("readerViewport"))
             let visible = CGRect(x: 0, y: max(0, -frame.minY), width: size.width,
                                  height: max(1, min(size.height, viewportHeight - frame.minY) - max(0, -frame.minY)))
+            let transform = currentTransform(size: size, visible: visible)
             CropImage(url: url, rect: .full, targetWidth: min(2400, Int(size.width * 6)))
                 .frame(width: size.width, height: size.height)
                 .scaleEffect(transform.scale, anchor: .topLeading)
                 .offset(x: transform.x, y: transform.y)
                 .frame(width: size.width, height: size.height)
                 .clipped()
+                .animation(reduceMotion ? nil : .easeInOut(duration: 0.32), value: selection)
                 .contentShape(Rectangle())
                 .readerTaps(onTap: { location in
                     if focused != nil { reset() }
@@ -70,28 +73,6 @@ struct OriginalPanelZoomView: View {
                     if focused != nil { Button("Revenir à la page entière") { reset() } }
                     Button("Afficher ou masquer les commandes", action: toggleControls)
                 }
-                .overlay(alignment: .topLeading) {
-                    if let index = focusedTextIndex, visible.height > 80 {
-                        Button {
-                            if index + 1 < orderedText.count {
-                                let next = orderedText[index + 1]
-                                zoom(ReadingPanel(id: next.id, rect: next.zoomRect, confidence: next.confidence), size: size, visible: visible)
-                            } else { reset() }
-                        } label: {
-                            Image(systemName: index + 1 < orderedText.count ? "chevron.right" : "arrow.down.right.and.arrow.up.left")
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundStyle(.primary)
-                                .frame(width: 44, height: 44)
-                                .background(.regularMaterial, in: Circle())
-                                .overlay(Circle().strokeBorder(.primary.opacity(0.12)))
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(index + 1 < orderedText.count ? "Bulle ou texte suivant" : "Revenir à la page entière")
-                        .accessibilityValue("\(index + 1) sur \(orderedText.count)")
-                        .accessibilityIdentifier("nextTextRegion-\(page.id)")
-                        .position(x: visible.midX, y: visible.maxY - 36)
-                    }
-                }
                 .onChange(of: frame.minY) { old, new in
                     if abs(new - old) > 0.5, focused != nil { reset() }
                 }
@@ -104,21 +85,23 @@ struct OriginalPanelZoomView: View {
         }
         .onDisappear { reset() }
     }
-    private func zoom(_ panel: ReadingPanel, size: CGSize, visible: CGRect) {
-        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.32)) {
-            focused = panel.id
-            if let text = textRegions.first(where: { $0.id == panel.id }) {
-                let readingArea = CGRect(x: visible.minX, y: visible.minY, width: visible.width, height: max(1, visible.height - 76))
-                transform = PanelZoom.textTransform(for: text, size: size, visible: readingArea)
-            } else {
-                transform = PanelZoom.transform(for: panel, size: size, visible: visible)
-            }
+    private func currentTransform(size: CGSize, visible: CGRect) -> PanelZoom.Transform {
+        guard let focused, let panel = targets.first(where: { $0.id == focused }) else {
+            return .init(scale: 1, x: 0, y: 0)
         }
+        if let text = textRegions.first(where: { $0.id == focused }) {
+            let readingArea = CGRect(x: visible.minX, y: visible.minY, width: visible.width,
+                                     height: max(1, visible.height - (guided ? 84 : 0)))
+            return PanelZoom.textTransform(for: text, size: size, visible: readingArea,
+                                           occupancy: occupancy, maximumScale: maximumScale)
+        }
+        return PanelZoom.transform(for: panel, size: size, visible: visible)
+    }
+    private func zoom(_ panel: ReadingPanel, size: CGSize, visible: CGRect) {
+        if textRegions.contains(where: { $0.id == panel.id }) { guided = true }
+        selection = .init(pageID: page.id, targetID: panel.id)
     }
     private func reset() {
-        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.22)) {
-            focused = nil
-            transform = .init(scale: 1, x: 0, y: 0)
-        }
+        if focused != nil { selection = nil }
     }
 }

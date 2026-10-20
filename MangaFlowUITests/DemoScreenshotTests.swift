@@ -10,8 +10,10 @@ final class DemoScreenshotTests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["-import", archive]
         app.launch()
-        let hide = app.buttons["Masquer l’interface"]
-        XCTAssertTrue(hide.waitForExistence(timeout: 60))
+        XCTAssertTrue(app.buttons["readerSettings"].waitForExistence(timeout: 60))
+        app.buttons["readerSettings"].tap()
+        let hide = app.buttons["readerHideControls"]
+        XCTAssertTrue(hide.waitForExistence(timeout: 5))
         hide.tap()
         XCTAssertFalse(app.buttons["Fermer la lecture"].exists)
         // Let the system bars finish their disappearance before taking the documentation image.
