@@ -1,0 +1,2 @@
+Réglages de lecture regroupés dans une bottom sheet accessible par la roue crantée : pages originales, lecture guidée, taille des dialogues, zoom maximal, masquage de l’interface et retour au début.
+La lecture guidée reste active entre les pages. La flèche est fixée en bas de l’écran : chaque nouvelle page apparaît entière, puis un appui démarre ses dialogues. Réglages conservés après relancement.
