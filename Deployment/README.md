@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Nouvelle icône et zoom sur les bulles — build 14
+
+**0.1.0 (14)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé Yannick — Personnel avec un seul testeur, sans lien public. Identifiant : `dc83c908-60a7-4708-b63c-35269d084248`.
+
+Nouvelle icône approuvée par l’utilisateur. En mode Pages originales, un appui sur une bulle ou du texte libre agrandit cette zone avec une marge ; un appui sur le dessin agrandit la case individuelle. Un second appui rétablit la page entière. Le double appui conserve le masquage des commandes. Les zones sont détectées pendant la conversion par le modèle Core ML embarqué et une passe complémentaire Apple Vision, puis conservées localement. Le moteur v7 réanalyse les anciens chapitres à leur prochaine ouverture. Les rectangles de détection ne sont pas des contours exacts ; les textes stylisés restent imparfaits.
+
+Validation : 68 tests unitaires (deux tests privés hors périmètre ignorés), parcours des trois cibles de zoom sur simulateurs iPhone et iPad, conversion native des 40 pages des chapitres privés 309 et 310, revue des détections. Aucun changement de code après ces vérifications, hormis le numéro de build. Archive Release signée, signature vérifiée, export interne et disponibilité TestFlight confirmés. [Détails techniques et limites](../Docs/BUBBLE_ZOOM.md).
+
 ## Quatrième thème Terminal — build 13
 
 **0.1.0 (13)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au même groupe privé à un seul testeur, sans lien public. Identifiant : `72fb102c-aa05-4a1c-b20e-12fc2f0aabcf`.
