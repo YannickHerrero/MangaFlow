@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Interface unifiée et navigation native — build 16
+
+**0.1.0 (16)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé Yannick — Personnel avec un seul testeur, sans lien public. Identifiant : `5109f5ba-33db-43a2-a4ba-ebaec6e2c8f4`.
+
+Les quatre thèmes précédents sont remplacés par une interface unique claire/sombre, avec la barre native Liquid Glass et deux onglets Bibliothèque / Explorer. Bibliothèque compacte, couvertures facultatives, recherche et filtres ; connexion au Mac et gestion du stockage dans Réglages. La suppression des chapitres lus retire uniquement les fichiers de l’appareil et conserve l’historique utilisé par le filtre Explorer. AniList fournit le statut de publication quand disponible ; aucun indicateur « À jour » ni suivi des nouveaux chapitres n’est ajouté.
+
+Validation : 79 tests unitaires, trois revues privées optionnelles ignorées, zéro échec. Parcours UI clair/sombre, persistance, connexion et nettoyage local avec historique après relancement sur iPhone. Navigation portrait/paysage et zoom case/bulle/texte avec toucher à deux doigts sur iPhone/iPad ; contrôle du dernier élément au-dessus de la barre native sur iPhone. Archive Release signée vérifiée, export interne et disponibilité TestFlight confirmés. La requête AniList en direct depuis le Mac a reçu un 403 ; le contrat API est validé avec fixtures et les métadonnées restent facultatives. [Architecture et limites](../Docs/REDESIGN.md).
+
 ## Gestes immédiats et filtres de chapitres — build 15
 
 **0.1.0 (15)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé Yannick — Personnel avec un seul testeur, sans lien public. Identifiant : `8566686a-be67-4061-92ea-75bfbb795b1c`.
