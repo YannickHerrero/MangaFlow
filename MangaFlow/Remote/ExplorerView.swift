@@ -19,16 +19,13 @@ struct ExplorerView: View {
         NavigationStack {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 18) {
-                    ThemeHeader(title: "Explorer", remote: remote, library: library)
+                    ThemeHeader(title: "Explorer", settingsImport: { importer = true }, remote: remote, library: library)
                     Text("Explorer").font(p.font(26, title: true))
                     Text("Tes sources et mangas favoris.").font(p.font(14)).foregroundStyle(p.muted)
                     HStack {
                         Image(systemName: "magnifyingglass").foregroundStyle(p.muted)
                         TextField("Source ou manga favori", text: $search).focused($searching).submitLabel(.search).onSubmit { searching = false }
                     }.themeCard().accessibilityIdentifier("explorerSearch")
-                    Button { importer = true } label: {
-                        HStack { Image(systemName: "doc.badge.plus"); Text("Importer un CBZ"); Spacer(); Image(systemName: "chevron.right").font(.caption) }.contentShape(Rectangle())
-                    }.buttonStyle(.plain).themeCard().accessibilityIdentifier("importCBZ")
                     if remote.connection == nil {
                         Text("Pour accéder aux sources, relie ton Mac depuis Réglages → Connexion au Mac.").font(p.font(14)).foregroundStyle(p.muted)
                     } else if !remote.connected {

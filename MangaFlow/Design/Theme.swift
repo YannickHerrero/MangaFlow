@@ -85,17 +85,25 @@ struct ThemeHeader: View {
     let title: String
     var importing: (() -> Void)? = nil
     var search: (() -> Void)? = nil
+    var settingsImport: (() -> Void)? = nil
     let remote: RemoteModel
     let library: LibraryModel
     @State private var settings = false
+    @State private var pendingImport = false
     var body: some View {
         HStack(spacing: 10) {
             Spacer()
             if let search { RoundIconButton(symbol: "magnifyingglass", label: "Rechercher dans la bibliothèque", action: search) }
             if let importing { RoundIconButton(symbol: "plus", label: "Importer des fichiers CBZ", action: importing).accessibilityIdentifier("importCBZ") }
             RoundIconButton(symbol: "gearshape", label: "Réglages") { settings = true }.accessibilityIdentifier("openSettings")
-        }.sheet(isPresented: $settings) { ThemeHost { SettingsView(remote: remote, library: library) }
-            .presentationCornerRadius(30).presentationDragIndicator(.visible)
+        }.sheet(isPresented: $settings, onDismiss: {
+            if pendingImport { pendingImport = false; settingsImport?() }
+        }) {
+            ThemeHost {
+                SettingsView(remote: remote, library: library, onImport: settingsImport == nil ? nil : {
+                    pendingImport = true; settings = false
+                })
+            }.presentationCornerRadius(30).presentationDragIndicator(.visible)
         }
     }
 }

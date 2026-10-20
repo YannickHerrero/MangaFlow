@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     let remote: RemoteModel
     let library: LibraryModel
+    var onImport: (() -> Void)? = nil
     @Environment(ThemeSettings.self) private var settings
     @Environment(MetadataStore.self) private var metadata
     @Environment(\.palette) private var p
@@ -22,6 +23,14 @@ struct SettingsView: View {
                 }.padding(.horizontal, 24).padding(.top, 12).padding(.bottom, 8)
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
+                        if let onImport {
+                            section("Import") {
+                                Button(action: onImport) {
+                                    HStack { Image(systemName: "doc.badge.plus"); Text("Importer un CBZ"); Spacer(); Image(systemName: "chevron.right").font(.caption) }
+                                        .contentShape(Rectangle())
+                                }.buttonStyle(.plain).themeCard().accessibilityIdentifier("importCBZ")
+                            }
+                        }
                         section("Apparence") {
                             HStack(spacing: 4) {
                                 appearance("system", "Système", "iphone")
