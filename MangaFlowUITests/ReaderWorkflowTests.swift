@@ -1,6 +1,17 @@
 import XCTest
 
 final class ReaderWorkflowTests: XCTestCase {
+    /// UIKit-backed SwiftUI gestures expose an image hit surface inside the semantic
+    /// page button. Target that surface for XCTest's multi-touch coordinate synthesis.
+    private func readerSurface(in app: XCUIApplication, frame: CGRect) -> XCUIElement {
+        let candidates = app.images.allElementsBoundByIndex.filter {
+            $0.frame.width > 100 && $0.frame.height > 100 && $0.frame.intersects(frame)
+        }
+        return candidates.max { a, b in
+            let ar = a.frame.intersection(frame), br = b.frame.intersection(frame)
+            return ar.width * ar.height < br.width * br.height
+        } ?? app.scrollViews["readerScroll"]
+    }
     func testPageTapZoomsIndividualCaseInlineAndSecondTapRestoresPage() throws {
         guard FileManager.default.fileExists(atPath: "/tmp/mangaflow-panel-zoom-review.json") else {
             throw XCTSkip("Explicit inline zoom fixture absent")
@@ -29,10 +40,10 @@ final class ReaderWorkflowTests: XCTestCase {
         XCTAssertEqual(scroll.value as? String, saved)
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Individual panel inline zoom"; attachment.lifetime = .keepAlways; add(attachment)
-        point.doubleTap()
+        readerSurface(in: app, frame: page.frame).twoFingerTap()
         XCTAssertFalse(app.buttons["Fermer la lecture"].exists)
-        XCTAssertEqual(page.value as? String, "Case agrandie", "Double tap must not toggle zoom")
-        point.doubleTap()
+        XCTAssertEqual(page.value as? String, "Case agrandie", "Two-finger tap must not toggle zoom")
+        readerSurface(in: app, frame: page.frame).twoFingerTap()
         XCTAssertTrue(app.buttons["Fermer la lecture"].waitForExistence(timeout: 5))
         point.tap()
         let restoredPage = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Page entière"), object: page)
@@ -58,9 +69,46 @@ final class ReaderWorkflowTests: XCTestCase {
         toggle.tap()
         let cropped = app.buttons["panel-0-0"]
         XCTAssertTrue(cropped.waitForExistence(timeout: 5))
-        cropped.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: 0.30)).tap()
+        let initialY = cropped.frame.minY
+        scroll.swipeUp()
+        XCTAssertLessThan(cropped.frame.minY, initialY - 30, "Tap recognizers must not block scrolling")
+        // The next row sits below the toolbar: both synthesized fingers land in the reader.
+        let next = app.buttons["panel-1-0"]
+        readerSurface(in: app, frame: next.frame).twoFingerTap()
+        XCTAssertFalse(app.buttons["Fermer la lecture"].exists)
+        XCTAssertFalse(app.buttons["Fermer"].exists, "Two-finger tap must not open a sheet")
+        readerSurface(in: app, frame: next.frame).twoFingerTap()
+        XCTAssertTrue(app.buttons["Fermer la lecture"].waitForExistence(timeout: 5))
+        let visible = next.frame.intersection(scroll.frame)
+        next.coordinate(withNormalizedOffset: CGVector(dx: 0.75, dy: (visible.midY - next.frame.minY) / next.frame.height)).tap()
         XCTAssertTrue(app.buttons["Fermer"].waitForExistence(timeout: 5), "Panel-mode tap keeps its original zoom sheet")
         app.buttons["Fermer"].tap()
+    }
+
+    func testReaderTwoFingerHintIsShownOnce() throws {
+        guard FileManager.default.fileExists(atPath: "/tmp/mangaflow-panel-zoom-review.json") else {
+            throw XCTSkip("Explicit reader fixture absent")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = ["-theme", "holo", "-readerTwoFingerHintSeen", "NO"]
+        app.launch()
+        func openReader() {
+            let series = app.buttons["series-panel-zoom-qa"].firstMatch
+            XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
+            app.buttons["read-Panel Zoom QA"].tap()
+            XCTAssertTrue(app.buttons["Fermer la lecture"].waitForExistence(timeout: 5))
+        }
+        openReader()
+        let hint = app.staticTexts["readerGestureHint"]
+        XCTAssertTrue(hint.waitForExistence(timeout: 2))
+        let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: hint)
+        XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 7), .completed)
+        app.terminate()
+        app.launchArguments = ["-theme", "holo"]
+        app.launch()
+        openReader()
+        XCTAssertFalse(app.staticTexts["readerGestureHint"].exists, "The hint must not return after relaunch")
     }
 
     func testNextChapterStartsAtBeginningEvenWhenPreviouslyFinished() throws {
@@ -154,9 +202,9 @@ final class ReaderWorkflowTests: XCTestCase {
         cover.tap()
         XCTAssertTrue(app.buttons["Fermer"].waitForExistence(timeout: 5), "Single tap must still open the original while controls are hidden")
         app.buttons["Fermer"].tap()
-        cover.doubleTap()
-        XCTAssertTrue(closeReader.waitForExistence(timeout: 5), "Double tap must restore the controls")
-        XCTAssertFalse(app.buttons["Fermer"].exists, "Double tap must not also open the page")
+        readerSurface(in: app, frame: cover.frame).twoFingerTap()
+        XCTAssertTrue(closeReader.waitForExistence(timeout: 5), "Two-finger tap must restore the controls")
+        XCTAssertFalse(app.buttons["Fermer"].exists, "Two-finger tap must not also open the page")
         scroll.swipeUp()
         scroll.swipeUp()
         let savedPosition = scroll.value as? String
@@ -166,7 +214,7 @@ final class ReaderWorkflowTests: XCTestCase {
         app.buttons["Masquer l’interface"].tap()
         let immersive = XCTAttachment(screenshot: app.screenshot()); immersive.name = "Immersive reading"; immersive.lifetime = .keepAlways
         add(immersive)
-        scroll.doubleTap()
+        readerSurface(in: app, frame: scroll.frame).twoFingerTap()
         XCTAssertTrue(closeReader.waitForExistence(timeout: 5))
         app.buttons["Options de lecture"].tap()
         app.buttons["Voir la page originale"].tap()

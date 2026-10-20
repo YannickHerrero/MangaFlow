@@ -1,6 +1,6 @@
 # Balloon and free-text zoom
 
-Original-page mode prioritizes a detected balloon or text block at the tap location, then falls back to the individual panel. A subsequent tap restores the page. Double tap continues to show/hide controls. The webtoon reader and its panel layout remain unchanged.
+Original-page mode prioritizes a detected balloon or text block at the tap location, then falls back to the individual panel. A subsequent tap restores the page. A simultaneous two-finger tap shows/hides controls in both reader modes. Single taps use a separate one-finger recognizer and no longer wait for a second tap. A nonblocking hint appears once for five seconds; the toolbar and VoiceOver actions remain available. The webtoon reader and its panel layout remain unchanged.
 
 ## Research and choice
 
@@ -49,6 +49,14 @@ Diagnostic pages/manifests stay ignored and local. Model parity checks compare s
 - Chapter 309 produced 82 balloon targets and 62 free-text targets; chapter 310 produced 148 balloon targets and 36 free-text targets. These include incidental text such as credits/jersey lettering and are diagnostics, not human-annotated accuracy scores.
 - Visual overlays were reviewed across both chapters, with larger checks on 309/18 and 310/16. All five main narration blocks on 309/18 are now covered; the six balloons on 310/16 remain separate.
 - Source-weight versus Core ML diagnostics were run on chapter 309; native Swift overlays also confirm coordinate restoration. Filtering/merging differs deliberately from Ultralytics' reference NMS.
-- Synthetic UI tests pass on iPhone and iPad: drawing tap, balloon tap, free-text tap, second-tap reset, double-tap controls, unchanged progress/layout, and preservation of the cropped reader's sheet behavior. Detection tests run actual bundled models separately from these deterministic UI fixtures.
+- Synthetic UI tests pass on iPhone and iPad: drawing tap, balloon tap, free-text tap, second-tap reset, two-finger controls, unchanged progress/layout, and preservation of the cropped reader's sheet behavior. Detection tests run actual bundled models separately from these deterministic UI fixtures.
 - The iPhone test run contains 68 unit tests (2 unrelated opt-in tests skipped) and 1 UI test, with zero failures. The iPad UI test also passes.
 - Private overlays and reports remain under ignored `Artifacts/BubbleReview/`. No manga pages are committed.
+
+## Immediate taps and two-finger controls
+
+`ReaderTapGesture` bridges native one-tap UIKit recognizers with distinct required touch counts. It introduces no double-tap recognizer or failure dependency, so a one-finger action runs on finger release. A simultaneous two-finger tap toggles controls in either mode. Movement still yields to the scroll view. Original-page hit testing uses SwiftUI's local coordinate converter; VoiceOver actions are unchanged.
+
+A noninteractive five-second hint is persisted as seen in `readerTwoFingerHintSeen`. Menu and accessibility instructions now describe the two-finger gesture. No conversion/model or library migration changes are required.
+
+Validation: two iPhone UI tests pass (both reader modes, two-finger toggling without a sheet/zoom side effect, bubble/free-text/panel zoom and reset, scroll movement, hint dismissal and persistence across relaunch). The reader gesture workflow also passes on iPad. XCTest multi-touch targets the image surface inside the semantic page element and a visible row below the toolbar, so both synthesized fingers land in the reader. These functional tests do not claim a hardware latency benchmark.

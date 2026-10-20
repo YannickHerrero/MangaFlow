@@ -32,22 +32,17 @@ struct OriginalPanelZoomView: View {
                 .frame(width: size.width, height: size.height)
                 .clipped()
                 .contentShape(Rectangle())
-                .gesture(TapGesture(count: 2).exclusively(before: SpatialTapGesture())
-                    .onEnded { value in
-                        switch value {
-                        case .first: toggleControls()
-                        case .second(let tap):
-                            if focused != nil { reset() }
-                            else {
-                                let point = CGPoint(x: tap.location.x / size.width, y: tap.location.y / size.height)
-                                if let text = PanelZoom.text(at: point, in: textRegions), let target = targets.first(where: { $0.id == text.id }) {
-                                    zoom(target, size: size, visible: visible)
-                                } else if let panel = PanelZoom.panel(at: point, in: panels) {
-                                    zoom(panel, size: size, visible: visible)
-                                }
-                            }
+                .readerTaps(onTap: { location in
+                    if focused != nil { reset() }
+                    else {
+                        let point = CGPoint(x: location.x / size.width, y: location.y / size.height)
+                        if let text = PanelZoom.text(at: point, in: textRegions), let target = targets.first(where: { $0.id == text.id }) {
+                            zoom(target, size: size, visible: visible)
+                        } else if let panel = PanelZoom.panel(at: point, in: panels) {
+                            zoom(panel, size: size, visible: visible)
                         }
-                    })
+                    }
+                }, onControls: toggleControls)
                 .accessibilityElement(children: .ignore)
                 .accessibilityLabel("Page originale \(page.id + 1)")
                 .accessibilityValue(focusLabel)

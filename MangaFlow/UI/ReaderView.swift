@@ -13,6 +13,8 @@ struct ReaderView: View {
     @AppStorage("leftToRightReading") private var leftToRight = false
     @AppStorage("followPanelBorders") private var followPanelBorders = true
     @AppStorage("readOriginalPages") private var originalPages = false
+    @AppStorage("readerTwoFingerHintSeen") private var twoFingerHintSeen = false
+    @State private var showGestureHint = false
     @State private var controlsVisible = true
     @State private var restored = false
     private struct Row: Identifiable {
@@ -60,13 +62,7 @@ struct ReaderView: View {
                                 .frame(width: geometry.size.width, height: geometry.size.width / ratio)
                                 .background(followPanelBorders && row.panel.contour != nil ? Color.clear : Color.white)
                                 .contentShape(Rectangle())
-                                .gesture(TapGesture(count: 2).exclusively(before: TapGesture())
-                                    .onEnded { gesture in
-                                        switch gesture {
-                                        case .first: toggleControls()
-                                        case .second: original = row.page
-                                        }
-                                    })
+                                .readerTaps(onTap: { _ in original = row.page }, onControls: toggleControls)
                                 .accessibilityElement(children: .ignore)
                                 .accessibilityLabel("Page \(row.page.id + 1), case \(row.panel.id). Toucher pour voir la page originale.")
                                 .accessibilityAddTraits(.isButton)
@@ -123,14 +119,14 @@ struct ReaderView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { toggleControls() } label: { Image(systemName: "eye.slash") }
                         .accessibilityLabel("Masquer l’interface")
-                        .accessibilityHint("Touchez deux fois une case pour réafficher les commandes.")
+                        .accessibilityHint("Touchez avec deux doigts pour réafficher les commandes.")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
                         Button("Voir la page originale") { original = document.pages.first { $0.id == currentPage } }
                         Toggle("Lecture de gauche à droite", isOn: $leftToRight)
                         Toggle("Suivre les bords des cases", isOn: $followPanelBorders)
-                        Button("Plein écran · double toucher pour revenir") { toggleControls() }
+                        Button("Plein écran · deux doigts pour revenir") { toggleControls() }
                         Button("Revenir au début") { position = rows.first?.id }
                     } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("Options de lecture")
                 }
@@ -144,6 +140,24 @@ struct ReaderView: View {
                         .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Fermer") { original = nil } } }
                 }.preferredColorScheme(.dark)
             }
+        }
+        .overlay(alignment: .bottom) {
+            if showGestureHint {
+                Text("Touchez avec deux doigts pour afficher ou masquer l’interface.")
+                    .font(.caption).multilineTextAlignment(.center)
+                    .foregroundStyle(.white).padding(.horizontal, 16).padding(.vertical, 10)
+                    .background(.black.opacity(0.85), in: Capsule())
+                    .padding(.horizontal, 24).padding(.bottom, 24)
+                    .allowsHitTesting(false)
+                    .accessibilityIdentifier("readerGestureHint")
+            }
+        }
+        .task {
+            guard !twoFingerHintSeen else { return }
+            twoFingerHintSeen = true
+            showGestureHint = true
+            try? await Task.sleep(for: .seconds(5))
+            showGestureHint = false
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didReceiveMemoryWarningNotification)) { _ in
             Task { await CropLoader.shared.clear() }

@@ -76,6 +76,7 @@
 		F487AD374C609E3848A47B01 /* TextDetector.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 9299AAEA93E4C635D14B4D35 /* TextDetector.mlpackage */; };
 		F614BBC14162761E0993B8D3 /* PanelZoom.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADCD971B8250721B1C25340A /* PanelZoom.swift */; };
 		F626E47981186277C6616566 /* FavoritesWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D1F97D3FBDDF569116B662 /* FavoritesWorkflowTests.swift */; };
+		F836B5875001019D3B6BDB85 /* ReaderTapGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 978522D62235AF52EDD7B5B6 /* ReaderTapGesture.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -144,6 +145,7 @@
 		933F3B1528F20796EAF18034 /* MangaFlow.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = MangaFlow.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9514AF7AAE987A8555F972C5 /* LibraryModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryModel.swift; sourceTree = "<group>"; };
 		95F1292148065FEFE3DF02D8 /* AutomaticImportQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticImportQueue.swift; sourceTree = "<group>"; };
+		978522D62235AF52EDD7B5B6 /* ReaderTapGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderTapGesture.swift; sourceTree = "<group>"; };
 		98185ADBDC0AA67C5F17620A /* PipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PipelineTests.swift; sourceTree = "<group>"; };
 		9FAFCC1CB06020BAF8370C91 /* ChapterDownloadRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChapterDownloadRow.swift; sourceTree = "<group>"; };
 		A3B06ECBEC18ACEA9B32622E /* AutomaticImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticImportTests.swift; sourceTree = "<group>"; };
@@ -232,6 +234,7 @@
 				9514AF7AAE987A8555F972C5 /* LibraryModel.swift */,
 				DA23646A9B7FB378F997A80B /* LibraryView.swift */,
 				751679D7D8342ACB17C4CEC4 /* OriginalPanelZoomView.swift */,
+				978522D62235AF52EDD7B5B6 /* ReaderTapGesture.swift */,
 				B784E6D43EAB943220D31A85 /* ReaderView.swift */,
 				B3A172240371335BE9F15665 /* SeriesLibraryView.swift */,
 			);
@@ -547,6 +550,7 @@
 				C95F5324D2F14DAB9629C1F6 /* PanelDetector.mlpackage in Sources */,
 				C3284C61749BE0C9E6BB22BC /* PanelLayout.swift in Sources */,
 				F614BBC14162761E0993B8D3 /* PanelZoom.swift in Sources */,
+				F836B5875001019D3B6BDB85 /* ReaderTapGesture.swift in Sources */,
 				30E10EA192ACDB62E452EF37 /* ReaderView.swift in Sources */,
 				4658517CAF94B0D0C1B12F4C /* RemoteAPI.swift in Sources */,
 				C378D1AB3352F28C5FD25EF8 /* RemoteModel.swift in Sources */,
