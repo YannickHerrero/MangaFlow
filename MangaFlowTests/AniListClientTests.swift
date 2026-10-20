@@ -24,6 +24,17 @@ final class AniListClientTests: XCTestCase {
     let body = try XCTUnwrap(MetadataProtocol.request?.httpBody ?? MetadataProtocol.sentBody)
     XCTAssertTrue(String(decoding: body, as: UTF8.self).contains("type:MANGA"))
   }
+  func testLookupRefreshesSelectedMediaPublicationStatusByID() async throws {
+    let session = session(status: 200, body: #"{"data":{"Media":{"id":30011,"title":{"romaji":"NARUTO"},"status":"FINISHED","chapters":700}}}"#)
+    defer { session.invalidateAndCancel() }
+    let result = try await AniListClient(session: session).media(30011)
+    XCTAssertEqual(result.status, "FINISHED")
+    XCTAssertEqual(result.chapters, 700)
+    let body = try XCTUnwrap(MetadataProtocol.request?.httpBody ?? MetadataProtocol.sentBody)
+    let query = String(decoding: body, as: UTF8.self)
+    XCTAssertTrue(query.contains("status chapters"))
+    XCTAssertTrue(query.contains("30011"))
+  }
   func testGraphQLErrorDoesNotEraseAValidCover() async throws {
     let session = session(status: 200, body: #"{"data":null,"errors":[{"message":"Unavailable"}]}"#)
     defer { session.invalidateAndCancel() }
@@ -40,6 +51,16 @@ final class AniListClientTests: XCTestCase {
       XCTFail("Expected rate limit")
     } catch let error as RemoteFailure { XCTAssertEqual(error.code, "metadata_rate_limit") }
   }
+    func testAniListPublicationStateIsDistinctFromReadingOrLatestChapter() throws {
+        let finished = try JSONDecoder().decode(MangaMetadata.self, from: Data(#"{"id":1,"title":{"romaji":"Test"},"status":"FINISHED","chapters":10}"#.utf8))
+        XCTAssertEqual(finished.publicationLabel, "Publication terminée")
+        XCTAssertEqual(finished.chapters, 10)
+        let ongoing = try JSONDecoder().decode(MangaMetadata.self, from: Data(#"{"id":2,"title":{"romaji":"Test"},"status":"RELEASING","chapters":null}"#.utf8))
+        XCTAssertEqual(ongoing.publicationLabel, "En publication")
+        XCTAssertNil(ongoing.chapters)
+        let legacy = try JSONDecoder().decode(MangaMetadata.self, from: Data(#"{"id":3,"title":{"romaji":"Old"}}"#.utf8))
+        XCTAssertNil(legacy.publicationLabel)
+    }
 }
 private final class MetadataProtocol: URLProtocol, @unchecked Sendable {
   static var status = 200

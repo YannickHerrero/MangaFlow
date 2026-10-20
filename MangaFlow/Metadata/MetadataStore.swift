@@ -13,6 +13,18 @@ struct MangaMetadata: Codable, Identifiable, Hashable {
   let synonyms: [String]?
   let coverImage: Cover?
   let siteUrl: String?
+  var status: String? = nil
+  var chapters: Int? = nil
+  var publicationLabel: String? {
+    switch status {
+    case "FINISHED": "Publication terminée"
+    case "RELEASING": "En publication"
+    case "HIATUS": "Publication en pause"
+    case "NOT_YET_RELEASED": "À paraître"
+    case "CANCELLED": "Publication arrêtée"
+    default: nil
+    }
+  }
   var name: String { title.english ?? title.romaji ?? title.native ?? "Manga" }
   func exactMatch(_ value: String) -> Bool {
     ([title.english, title.romaji, title.native].compactMap { $0 } + (synonyms ?? [])).contains {
@@ -29,45 +41,39 @@ actor AniListClient {
   private let session: URLSession
   private var nextRequest = Date.distantPast
   init(session: URLSession = .shared) { self.session = session }
+  private let fields = "id title{romaji english native} synonyms coverImage{large} siteUrl status chapters"
   func search(_ title: String) async throws -> [MangaMetadata] {
+    let data = try await query("query($search:String!){Page(page:1,perPage:8){media(search:$search,type:MANGA){\(fields)}}}", variables: ["search": title])
+    struct Envelope: Decodable {
+      struct Result: Decodable { struct Page: Decodable { let media: [MangaMetadata] }; let Page: Page }
+      let data: Result?
+    }
+    guard let result = try JSONDecoder().decode(Envelope.self, from: data).data else { throw RemoteFailure(code: "metadata_failed", message: "AniList n’a pas renvoyé de résultat exploitable.") }
+    return result.Page.media
+  }
+  func media(_ id: Int) async throws -> MangaMetadata {
+    let data = try await query("query($id:Int!){Media(id:$id,type:MANGA){\(fields)}}", variables: ["id": id])
+    struct Envelope: Decodable { struct Result: Decodable { let Media: MangaMetadata? }; let data: Result? }
+    guard let result = try JSONDecoder().decode(Envelope.self, from: data).data?.Media else { throw RemoteFailure(code: "metadata_failed", message: "AniList n’a pas renvoyé de résultat exploitable.") }
+    return result
+  }
+  private var failure: RemoteFailure { .init(code: "metadata_unavailable", message: "AniList est momentanément indisponible.") }
+  private func query(_ query: String, variables: [String: Any]) async throws -> Data {
     let wait = nextRequest.timeIntervalSinceNow
     nextRequest = max(Date(), nextRequest).addingTimeInterval(2.2)
     if wait > 0 { try await Task.sleep(for: .seconds(wait)) }
     var request = URLRequest(url: URL(string: "https://graphql.anilist.co")!)
-    request.httpMethod = "POST"
-    request.timeoutInterval = 20
+    request.httpMethod = "POST"; request.timeoutInterval = 20
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.httpBody = try JSONSerialization.data(withJSONObject: [
-      "query":
-        "query($search:String!){Page(page:1,perPage:8){media(search:$search,type:MANGA){id title{romaji english native} synonyms coverImage{large} siteUrl}}}",
-      "variables": ["search": title],
-    ])
+    request.httpBody = try JSONSerialization.data(withJSONObject: ["query": query, "variables": variables])
     let (data, response) = try await session.data(for: request)
     if (response as? HTTPURLResponse)?.statusCode == 429 {
-      let delay =
-        Double((response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Retry-After") ?? "60")
-        ?? 60
+      let delay = Double((response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Retry-After") ?? "60") ?? 60
       nextRequest = Date().addingTimeInterval(max(60, delay))
-      throw RemoteFailure(
-        code: "metadata_rate_limit",
-        message: "AniList demande de patienter avant une nouvelle recherche.")
+      throw RemoteFailure(code: "metadata_rate_limit", message: "AniList demande de patienter avant une nouvelle recherche.")
     }
-    guard (response as? HTTPURLResponse)?.statusCode == 200 else {
-      throw RemoteFailure(
-        code: "metadata_unavailable", message: "AniList est momentanément indisponible.")
-    }
-    struct Envelope: Decodable {
-      struct Result: Decodable {
-        struct Page: Decodable { let media: [MangaMetadata] }
-        let Page: Page
-      }
-      let data: Result?
-    }
-    guard let result = try JSONDecoder().decode(Envelope.self, from: data).data else {
-      throw RemoteFailure(
-        code: "metadata_failed", message: "AniList n’a pas renvoyé de résultat exploitable.")
-    }
-    return result.Page.media
+    guard (response as? HTTPURLResponse)?.statusCode == 200 else { throw failure }
+    return data
   }
 }
 @Observable @MainActor
@@ -79,6 +85,7 @@ final class MetadataStore {
   }
   private(set) var entries: [String: Entry] = [:]
   private var pending: Set<String> = []
+  private var attempts: [String: Date] = [:]
   private let client = AniListClient()
   let root: URL
   private var loadFailed = false
@@ -95,18 +102,23 @@ final class MetadataStore {
     }
   }
   func resolve(key: String, title: String) async {
-    guard !loadFailed, !pending.contains(key),
-      entries[key] == nil
-        || (entries[key]?.manual == false
-          && Date().timeIntervalSince(entries[key]!.checkedAt) > 30 * 86400)
-    else { return }
-    pending.insert(key)
+    guard !loadFailed, !pending.contains(key), Date().timeIntervalSince(attempts[key] ?? .distantPast) > 600 else { return }
+    let existing = entries[key]
+    if existing?.manual == true && existing?.media == nil { return }
+    let age = Date().timeIntervalSince(existing?.checkedAt ?? .distantPast)
+    guard existing == nil || (existing?.media != nil && (existing?.media?.status == nil || age > 7 * 86400)) || (existing?.manual == false && age > 30 * 86400) else { return }
+    attempts[key] = Date(); pending.insert(key)
     defer { pending.remove(key) }
     do {
-      let results = try await client.search(title)
-      let exact = results.filter { $0.exactMatch(title) }
-      try set(key, media: exact.count == 1 ? exact.first : entries[key]?.media, manual: false)
-    } catch { /* Covers are optional; keep the last valid result and retry later. */  }
+      if let media = existing?.media {
+        let refreshed = try await client.media(media.id)
+        try set(key, media: refreshed, manual: existing?.manual ?? false)
+      } else {
+        let results = try await client.search(title)
+        let exact = results.filter { $0.exactMatch(title) }
+        try set(key, media: exact.count == 1 ? exact.first : existing?.media, manual: false)
+      }
+    } catch { /* Metadata is optional. Keep the last valid selection and retry later. */ }
   }
   func search(_ title: String) async throws -> [MangaMetadata] { try await client.search(title) }
   func set(_ key: String, media: MangaMetadata?, manual: Bool = true) throws {
