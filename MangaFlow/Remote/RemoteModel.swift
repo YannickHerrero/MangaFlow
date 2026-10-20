@@ -11,6 +11,7 @@ final class RemoteModel {
     var busy = false
     var importing = false
     var sourceSearch = ""
+    var submittingBatch = false
     let automaticImports: AutomaticImportQueue
     var transferFailures: [String: String] = (UserDefaults.standard.dictionary(forKey: "transferFailures") as? [String: String]) ?? [:]
     private func setTransferFailure(_ jobID: String, _ message: String?) {
@@ -72,6 +73,7 @@ final class RemoteModel {
             status = try await client.status()
             connected = true
             saveSnapshot()
+            await submitBatchDownloads()
         } catch is CancellationError {} catch { connected = false; if !silent { report(error) } }
     }
     func forget() {
@@ -114,12 +116,7 @@ final class RemoteModel {
         }
         do {
             let created = try await client.create("download", target: .init(sourceID: manga.sourceID, manga: manga, chapter: chapter))
-            requestAutomaticImport(created)
-            // Reflect acceptance immediately, without waiting for the next polling cycle.
-            acceptedDownloads[created.id] = created
-            hiddenJobs.remove(created.id)
-            UserDefaults.standard.set(Array(hiddenJobs), forKey: "hiddenJobs")
-            jobs.removeAll { $0.id == created.id }; jobs.insert(created, at: 0)
+            acceptDownload(created)
         } catch is CancellationError {} catch {
             downloadErrors[key] = error.localizedDescription
             report(error)
@@ -237,4 +234,44 @@ final class RemoteModel {
         sources = saved.sources; jobs = saved.jobs
     }
     func report(_ error: Error) { if !(error is CancellationError) { self.error = error.localizedDescription } }
+}
+
+extension RemoteModel {
+    private func acceptDownload(_ created: RemoteJob) {
+        requestAutomaticImport(created)
+        acceptedDownloads[created.id] = created
+        hiddenJobs.remove(created.id)
+        UserDefaults.standard.set(Array(hiddenJobs), forKey: "hiddenJobs")
+        jobs.removeAll { $0.id == created.id }; jobs.insert(created, at: 0)
+    }
+    func batchEntries(for manga: RemoteManga) -> [BatchDownloadEntry] {
+        automaticImports.batch.filter { $0.serverID == connection?.serverID && $0.manga.id == manga.id && $0.manga.sourceID == manga.sourceID }
+    }
+    func enqueueDownloads(_ manga: RemoteManga, chapters: [RemoteChapter]) {
+        guard let serverID = connection?.serverID else { return }
+        automaticImports.enqueue(serverID: serverID, manga: manga, chapters: chapters)
+    }
+    func submitBatchDownloads() async {
+        guard !submittingBatch, connected, let client, let serverID = connection?.serverID else { return }
+        submittingBatch = true; defer { submittingBatch = false }
+        while !Task.isCancelled, connected, connection?.serverID == serverID,
+              let entry = automaticImports.batch.first(where: { $0.serverID == serverID && $0.error == nil }) {
+            // Save intent before HTTP; replay uses the same idempotency key after termination.
+            automaticImports.add(serverID: serverID, jobID: Self.importTarget(manga: entry.manga, chapter: entry.chapter))
+            do {
+                let created = try await client.create("download", target: .init(sourceID: entry.manga.sourceID, manga: entry.manga, chapter: entry.chapter), key: entry.id)
+                guard connection?.serverID == serverID else { return }
+                acceptDownload(created)
+                automaticImports.removeBatch(entry.id)
+            } catch is CancellationError { return }
+            catch {
+                if Task.isCancelled { return }
+                automaticImports.pauseBatch(entry.id, error: error.localizedDescription)
+                // Keep the rest of this manga paused until an explicit retry.
+                for pending in batchEntries(for: entry.manga) where pending.error == nil {
+                    automaticImports.pauseBatch(pending.id, error: "Envoi du lot interrompu. Réessaie lorsque le Mac est joignable.")
+                }
+            }
+        }
+    }
 }
