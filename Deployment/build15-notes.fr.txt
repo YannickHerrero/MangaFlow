@@ -1,0 +1,7 @@
+Lecture : le simple appui réagit sans attendre un double appui. Touchez avec deux doigts simultanément pour afficher ou masquer l’interface, dans les deux modes. Une indication apparaît à la première utilisation.
+
+Bibliothèque : tri des chapitres croissant ou décroissant et option pour masquer les chapitres lus.
+
+Explorer : option pour masquer les chapitres antérieurs au chapitre terminé le plus élevé dans la bibliothèque, pour le même manga et la même source. Le chapitre de référence reste visible : si 321 est terminé, la liste commence à 321. Les chapitres spéciaux sans numéro restent affichés.
+
+Les réglages sont mémorisés et l’ordre du bouton Chapitre suivant est conservé.
