@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Lecture guidée et fidélité aux maquettes — build 17
+
+**0.1.0 (17)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé Yannick — Personnel avec un seul testeur, sans lien public. Identifiant : `fefaff31-8840-40e8-9ff5-b7b702306246`.
+
+Navigation animée entre les bulles et textes en mode pages originales, cadrage à environ 60 % avec plafond ×3 et retour à la page entière après le dernier dialogue. Ordre géométrique par cases puis textes, sans nouvel appel réseau. Cette version inclut aussi les derniers ajustements aux maquettes, la barre Liquid Glass élargie, les réglages en bottom sheet et la file persistante d’ajout des chapitres restants.
+
+Validation : 86 tests Swift dont trois revues privées optionnelles ignorées, zéro échec ; neuf tests serveur réussis. Parcours guidé et gestes existants validés sur simulateurs iPhone/iPad. Archive Release signée, signature vérifiée, export interne et disponibilité TestFlight confirmés. L’ordre des dialogues peut rester imparfait sur les compositions atypiques. Le serveur Mac répond après livraison. [Détails de lecture](../Docs/BUBBLE_ZOOM.md).
+
 ## Interface unifiée et navigation native — build 16
 
 **0.1.0 (16)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé Yannick — Personnel avec un seul testeur, sans lien public. Identifiant : `5109f5ba-33db-43a2-a4ba-ebaec6e2c8f4`.
