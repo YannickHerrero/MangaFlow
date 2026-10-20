@@ -25,19 +25,17 @@ final class OnlineWorkflowTests: XCTestCase {
         let download = app.buttons["download-/scan-one-piece/1196"]
         XCTAssertTrue(download.waitForExistence(timeout: 120), "Live chapter list")
         download.tap()
-        app.buttons["routeBack"].tap()
-        app.buttons["routeBack"].tap()
-        let importButton = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "importRemote-")).firstMatch
-        // The download runs on the Mac even while the app is terminated.
+        // The Mac keeps downloading while the app is closed. On relaunch the
+        // persisted automatic import brings the chapter into the library.
         app.terminate()
-        sleep(10)
         app.launchArguments = []
         app.launch()
-        app.buttons["tab-2"].tap()
-        app.swipeUp()
-        app.swipeUp()
-        XCTAssertTrue(importButton.waitForExistence(timeout: 180), "Recovered server job should offer a completed CBZ")
-        importButton.tap()
+        let series = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "One Piece")).firstMatch
+        XCTAssertTrue(series.waitForExistence(timeout: 180))
+        series.tap()
+        let local = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "read-One Piece")).firstMatch
+        XCTAssertTrue(local.waitForExistence(timeout: 120))
+        local.tap()
         let close = app.buttons["Fermer la lecture"]
         XCTAssertTrue(close.waitForExistence(timeout: 120), "Transfer, validation and existing conversion must complete before opening reader")
         XCTAssertTrue(app.scrollViews["readerScroll"].exists)
@@ -45,7 +43,7 @@ final class OnlineWorkflowTests: XCTestCase {
         app.terminate()
         // A subsequent launch never requires the online tab to open a local document.
         app.launch()
-        let local = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "read-One Piece")).firstMatch
+        XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
         XCTAssertTrue(local.waitForExistence(timeout: 10))
         local.tap()
         XCTAssertTrue(close.waitForExistence(timeout: 10))

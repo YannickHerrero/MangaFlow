@@ -1,141 +1,127 @@
 import XCTest
 
 final class ThemeWorkflowTests: XCTestCase {
-  func testAllThemeAndAppearanceScreensAndPersistence() throws {
-    continueAfterFailure = false
-    let app = XCUIApplication()
-    for theme in ["holo", "brutal", "manga"] {
-      for appearance in ["light", "dark"] {
-        app.launchArguments = ["-theme", theme, "-appearance", appearance]
-        app.launch()
-        XCTAssertTrue(app.buttons["tab-0"].waitForExistence(timeout: 10))
-        XCTAssertEqual(
-          app.tabBars.count, 0, "The app uses the design tab bars, never a UIKit tab bar")
-        capture(app, "\(theme)-\(appearance)-library")
-        app.buttons["tab-1"].tap()
-        XCTAssertTrue(app.textFields["explorerSearch"].waitForExistence(timeout: 5))
-        capture(app, "\(theme)-\(appearance)-explorer")
-        app.buttons["tab-2"].tap()
-        XCTAssertTrue(
-          app.staticTexts["Activité"].firstMatch.waitForExistence(timeout: 5)
-            || app.staticTexts["ACTIVITÉ / FILE"].exists || app.staticTexts["ACTIVITÉ"].exists)
-        capture(app, "\(theme)-\(appearance)-activity")
-        app.buttons["Réglages"].tap()
-        XCTAssertTrue(app.buttons["theme-\(theme)"].waitForExistence(timeout: 5))
-        capture(app, "\(theme)-\(appearance)-settings")
-        app.buttons["theme-\(theme)"].tap()
-        app.buttons["OK"].tap()
-        app.terminate()
-      }
+    override func setUpWithError() throws {
+        XCUIApplication().terminate()
+        XCUIDevice.shared.orientation = .portrait
     }
-    app.launchArguments = []
-    app.launch()
-    app.buttons["Réglages"].tap()
-    XCTAssertTrue(app.buttons["theme-manga"].waitForExistence(timeout: 5))
-    XCTAssertEqual(app.buttons["theme-manga"].value as? String, "Sélectionné")
-    app.buttons["theme-holo"].tap()
-    XCTAssertEqual(app.buttons["theme-holo"].value as? String, "Sélectionné")
-    app.buttons["OK"].tap()
-    app.terminate()
-    app.launch()
-    app.buttons["Réglages"].tap()
-    XCTAssertTrue(app.buttons["theme-holo"].waitForExistence(timeout: 5))
-    XCTAssertEqual(app.buttons["theme-holo"].value as? String, "Sélectionné")
-  }
-  func testTabBarReservesScrollViewportAcrossThemesAndRoutes() throws {
-    continueAfterFailure = false
-    let app = XCUIApplication()
-    defer { XCUIDevice.shared.orientation = .portrait }
-    for theme in ["holo", "brutal", "manga", "terminal"] {
-      app.launchArguments = ["-theme", theme, "-appearance", "light"]
-      app.launch()
-      XCTAssertTrue(app.buttons["tab-0"].waitForExistence(timeout: 10))
-      for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
-        XCUIDevice.shared.orientation = orientation
-        for tab in 0..<3 {
-          app.buttons["tab-\(tab)"].tap()
-          let scroll = app.scrollViews.firstMatch
-          XCTAssertTrue(scroll.waitForExistence(timeout: 5))
-          scroll.swipeUp()
-          scroll.swipeUp()
-          assertAboveTabBar(scroll, app: app)
-          capture(app, "bottom-\(theme)-\(orientation.rawValue)-tab\(tab)")
+    func testUnifiedAppearanceSettingsAndTwoTabNavigation() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        for appearance in ["light", "dark"] {
+            app.launchArguments = ["-appearance", appearance]
+            app.launch()
+            let ready = app.buttons["Bibliothèque"].firstMatch.waitForExistence(timeout: 10)
+            if !ready { print(app.debugDescription); capture(app, "missing-navigation") }
+            XCTAssertTrue(ready)
+            XCTAssertFalse(app.buttons["tab-2"].exists)
+            XCTAssertTrue(app.buttons["Explorer"].firstMatch.exists)
+            app.buttons["openSettings"].tap()
+            let covers = app.switches["showLibraryCovers"]
+            if covers.value as? String == "0" { covers.tap() }
+            app.buttons["Fermer les réglages"].tap()
+            capture(app, "\(appearance)-library")
+            app.buttons["openSettings"].tap()
+            XCTAssertTrue(app.buttons["appearance-\(appearance)"].waitForExistence(timeout: 5))
+            XCTAssertFalse(app.buttons["theme-terminal"].exists)
+            XCTAssertTrue(app.switches["showLibraryCovers"].exists)
+            capture(app, "\(appearance)-settings")
+            app.buttons["appearance-\(appearance == "light" ? "dark" : "light")"].tap()
+            app.buttons["Fermer les réglages"].tap()
+            app.buttons["Explorer"].firstMatch.tap()
+            XCTAssertTrue(app.textFields["explorerSearch"].waitForExistence(timeout: 5))
+            XCTAssertFalse(app.buttons["Connecter le Mac"].exists)
+            XCTAssertFalse(app.buttons["macConnection"].exists)
+            XCTAssertTrue(app.buttons["importCBZ"].exists)
+            capture(app, "\(appearance)-explorer")
+            app.buttons["openSettings"].tap()
+            XCTAssertTrue(app.buttons["macConnection"].waitForExistence(timeout: 5))
+            app.buttons["macConnection"].tap()
+            let backReady = app.buttons["routeBack"].waitForExistence(timeout: 5)
+            if !backReady { print(app.debugDescription); capture(app, "missing-back") }
+            XCTAssertTrue(backReady)
+            capture(app, "\(appearance)-connection")
+            app.terminate()
         }
-      }
-      XCUIDevice.shared.orientation = .portrait
-      app.buttons["tab-0"].tap()
-      let series = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'series-'"))
-        .firstMatch
-      if series.exists {
-        series.tap()
-        let scroll = app.scrollViews.firstMatch
-        XCTAssertTrue(scroll.waitForExistence(timeout: 5))
-        scroll.swipeUp()
-        scroll.swipeUp()
-        assertAboveTabBar(scroll, app: app)
-        capture(app, "bottom-\(theme)-series-detail")
-      }
-      app.terminate()
     }
-  }
-  private func assertAboveTabBar(_ scroll: XCUIElement, app: XCUIApplication) {
-    let barTop = (0..<3).map { app.buttons["tab-\($0)"].frame.minY }.min()!
-    XCTAssertLessThanOrEqual(
-      scroll.frame.maxY, barTop + 1,
-      "The scroll viewport must end above the custom tab bar, including pushed destinations")
-  }
-  func testTerminalLatteMochaScreensAndSelection() throws {
-    continueAfterFailure = false
-    let app = XCUIApplication()
-    for appearance in ["light", "dark"] {
-      app.launchArguments = ["-theme", "terminal", "-appearance", appearance]
-      app.launch()
-      XCTAssertTrue(app.buttons["tab-0"].waitForExistence(timeout: 10))
-      XCTAssertEqual(app.tabBars.count, 0)
-      capture(app, "terminal-\(appearance)-library")
-      let series = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'series-'"))
-        .firstMatch
-      if series.exists {
-        series.tap()
-        XCTAssertTrue(app.buttons["routeBack"].waitForExistence(timeout: 5))
-        capture(app, "terminal-\(appearance)-series-detail")
-        app.buttons["routeBack"].tap()
-      }
-      app.buttons["tab-1"].tap()
-      XCTAssertTrue(app.textFields["explorerSearch"].waitForExistence(timeout: 5))
-      capture(app, "terminal-\(appearance)-explorer")
-      app.buttons["tab-2"].tap()
-      capture(app, "terminal-\(appearance)-activity")
-      app.buttons["Réglages"].tap()
-      let terminal = app.buttons["theme-terminal"]
-      XCTAssertTrue(terminal.waitForExistence(timeout: 5))
-      if !terminal.isHittable { app.scrollViews.firstMatch.swipeUp() }
-      terminal.tap()
-      XCTAssertEqual(terminal.value as? String, "Sélectionné")
-      capture(app, "terminal-\(appearance)-settings")
-      app.buttons["OK"].tap()
-      app.terminate()
+    func testAppearanceAndCoversPersistAfterRelaunch() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication(); app.launchArguments = []; app.launch()
+        app.buttons["openSettings"].tap()
+        XCTAssertTrue(app.buttons["appearance-dark"].waitForExistence(timeout: 5))
+        app.buttons["appearance-dark"].tap()
+        let covers = app.switches["showLibraryCovers"]
+        if covers.value as? String == "1" { covers.tap() }
+        app.terminate(); app.launch()
+        app.buttons["openSettings"].tap()
+        XCTAssertTrue(app.switches["showLibraryCovers"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.switches["showLibraryCovers"].value as? String, "0")
+        XCTAssertTrue(app.buttons["appearance-dark"].isSelected)
+        app.buttons["appearance-light"].tap()
+        capture(app, "light-settings-without-covers")
+        app.buttons["Fermer les réglages"].tap()
+        capture(app, "light-library-without-covers")
     }
-    app.launchArguments = ["-theme", "holo"]
-    app.launch()
-    app.buttons["Réglages"].tap()
-    let terminal = app.buttons["theme-terminal"]
-    XCTAssertTrue(terminal.waitForExistence(timeout: 5))
-    if !terminal.isHittable { app.scrollViews.firstMatch.swipeUp() }
-    terminal.tap()
-    XCTAssertEqual(terminal.value as? String, "Sélectionné")
-    app.buttons["OK"].tap()
-    app.terminate()
-    app.launchArguments = []
-    app.launch()
-    app.buttons["Réglages"].tap()
-    XCTAssertTrue(app.buttons["theme-terminal"].waitForExistence(timeout: 5))
-    XCTAssertEqual(app.buttons["theme-terminal"].value as? String, "Sélectionné")
-  }
-  private func capture(_ app: XCUIApplication, _ name: String) {
-    let attachment = XCTAttachment(screenshot: app.screenshot())
-    attachment.name = name
-    attachment.lifetime = .keepAlways
-    add(attachment)
-  }
+    func testTabBarReservesScrollViewportAcrossRoutes() throws {
+        continueAfterFailure = false
+        let app = XCUIApplication(); app.launchArguments = []; app.launch()
+        defer { XCUIDevice.shared.orientation = .portrait; app.terminate() }
+        XCTAssertTrue(app.buttons["Bibliothèque"].firstMatch.waitForExistence(timeout: 10))
+        for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
+            XCUIDevice.shared.orientation = orientation
+            for tab in 0..<2 {
+                app.buttons[tab == 0 ? "Bibliothèque" : "Explorer"].firstMatch.tap()
+                let scroll = app.scrollViews.firstMatch
+                XCTAssertTrue(scroll.waitForExistence(timeout: 5))
+                scroll.swipeUp()
+                XCTAssertTrue(app.buttons["Bibliothèque"].firstMatch.isHittable)
+                if tab == 0 {
+                    let last = app.buttons["series-redesign-qa-5"]
+                    if last.exists {
+                        scroll.swipeUp()
+                        XCTAssertTrue(last.isHittable)
+                        if app.tabBars.count > 0 { XCTAssertLessThanOrEqual(last.frame.maxY, app.tabBars.firstMatch.frame.minY + 1) }
+                        last.tap()
+                        XCTAssertTrue(app.buttons["routeBack"].waitForExistence(timeout: 5))
+                        let detail = app.scrollViews.firstMatch
+                        detail.swipeUp()
+                        let local = app.buttons["read-Vinland Saga 1"]
+                        let chapter = local.exists ? local : app.staticTexts["Lu · supprimé de cet appareil"].firstMatch
+                        XCTAssertTrue(chapter.isHittable)
+                        if app.tabBars.count > 0 { XCTAssertLessThanOrEqual(chapter.frame.maxY, app.tabBars.firstMatch.frame.minY + 1) }
+                        capture(app, "detail-bottom-\(orientation.rawValue)")
+                        app.buttons["routeBack"].tap()
+                    }
+                }
+            }
+        }
+    }
+    func testReadCleanupKeepsMangaAndHistoryAfterRelaunch() throws {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: "/tmp/mangaflow-redesign-qa-marker.json")),
+              let marker = try? JSONSerialization.jsonObject(with: data) as? [String: String],
+              marker["simulator"] == ProcessInfo.processInfo.environment["SIMULATOR_UDID"] else {
+            throw XCTSkip("Only run destructive cleanup on the disposable redesign fixture simulator")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication(); app.launch(); app.buttons["openSettings"].tap()
+        let delete = app.buttons["deleteReadChapters"]
+        for _ in 0..<3 where !delete.isHittable { app.swipeUp() }
+        XCTAssertTrue(delete.isEnabled); delete.tap()
+        app.buttons["Supprimer de cet appareil"].tap()
+        let disabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == false"), object: delete)
+        XCTAssertEqual(XCTWaiter.wait(for: [disabled], timeout: 5), .completed)
+        app.buttons["Fermer les réglages"].tap()
+        app.terminate(); app.launch()
+        let manga = app.buttons["series-redesign-qa-0"]
+        XCTAssertTrue(manga.waitForExistence(timeout: 10))
+        XCTAssertTrue(manga.label.contains("320"))
+        manga.tap()
+        XCTAssertTrue(app.staticTexts["Lu · supprimé de cet appareil"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["read-Blue Lock 320"].exists)
+        XCTAssertTrue(app.buttons["read-Blue Lock 321"].exists)
+        capture(app, "local-read-cleanup-history")
+    }
+    private func capture(_ app: XCUIApplication, _ name: String) {
+        let image = XCTAttachment(screenshot: app.screenshot()); image.name = name; image.lifetime = .keepAlways; add(image)
+    }
 }

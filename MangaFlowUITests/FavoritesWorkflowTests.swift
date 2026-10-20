@@ -47,15 +47,17 @@ final class FavoritesWorkflowTests: XCTestCase {
     screenshot.name = "Blue Lock chapter download feedback"
     screenshot.lifetime = .keepAlways
     add(screenshot)
-    app.buttons["tab-0"].tap()
-    app.buttons["tab-1"].tap()
+    app.buttons["routeBack"].tap()
+    app.buttons["routeBack"].tap()
+    app.buttons["Bibliothèque"].firstMatch.tap()
+    app.buttons["Explorer"].firstMatch.tap()
     let saved = app.buttons["favorite-lelscan-/lecture-en-ligne-blue-lock"]
     XCTAssertTrue(saved.waitForExistence(timeout: 5))
     XCTAssertTrue(app.staticTexts["LELScan"].exists)
     app.terminate()
     app.launchArguments = []
     app.launch()
-    app.buttons["tab-1"].tap()
+    app.buttons["Explorer"].firstMatch.tap()
     XCTAssertTrue(saved.waitForExistence(timeout: 10), "Favorite must survive an app restart")
     saved.tap()
     XCTAssertTrue(
@@ -75,7 +77,7 @@ extension FavoritesWorkflowTests {
       throw XCTSkip("Explicit live pairing required")
     }
     let app = XCUIApplication()
-    app.launchArguments = ["-theme", "holo", "-appearance", "light", "-pair-file", pairing]
+    app.launchArguments = ["-appearance", "light", "-pair-file", pairing]
     app.launch()
     let field = app.textFields["explorerSearch"]
     XCTAssertTrue(field.waitForExistence(timeout: 30))
@@ -101,6 +103,8 @@ extension FavoritesWorkflowTests {
     attachment.lifetime = .keepAlways
     add(attachment)
     app.buttons["Fermer la lecture"].tap()
+    let series = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@ AND label CONTAINS %@", "series-", "Blue Lock")).firstMatch
+    XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
     XCTAssertTrue(app.buttons["read-Blue Lock — 363"].waitForExistence(timeout: 10))
   }
 }

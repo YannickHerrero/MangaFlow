@@ -82,7 +82,9 @@ final class SeriesMetadataTests: XCTestCase {
     XCTAssertEqual(MetadataStore(root: root).entries["series"]?.manual, true)
   }
   @MainActor func testMigrationUsesArtifactIdentityRatherThanFilename() throws {
-    let library = LibraryModel()
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let library = LibraryModel(store: DocumentStore(root: root))
     library.documents = []
     // Do not write to the real library: only a non-matching old import is reconciled.
     var doc = MangaDocument(id: UUID(), title: "Naruto", pages: [])
@@ -92,7 +94,9 @@ final class SeriesMetadataTests: XCTestCase {
     XCTAssertNil(library.documents[0].origin)
   }
   @MainActor func testSourceChaptersGroupWithoutMergingOtherSourcesAndSortNaturally() {
-    let library = LibraryModel()
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let library = LibraryModel(store: DocumentStore(root: root))
     library.documents = []
     var a = MangaDocument(id: UUID(), title: "Naruto — 10", pages: [])
     a.origin = ChapterOrigin(job: job(chapterID: "/10", order: 0), serverID: "mac", sourceName: nil)
@@ -110,7 +114,9 @@ final class SeriesMetadataTests: XCTestCase {
   }
 
   @MainActor func testSeriesDisplaysNewestChapterWithoutChangingReadingOrder() throws {
-    let library = LibraryModel()
+    let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    defer { try? FileManager.default.removeItem(at: root) }
+    let library = LibraryModel(store: DocumentStore(root: root))
     var older = MangaDocument(id: UUID(), title: "309", pages: [])
     var newer = MangaDocument(id: UUID(), title: "310", pages: [])
     older.origin = ChapterOrigin(job: job(chapterID: "/309", order: 55), serverID: "mac", sourceName: nil)

@@ -8,7 +8,7 @@ final class AutomaticImportWorkflowTests: XCTestCase {
       throw XCTSkip("Explicit live pairing required")
     }
     let app = XCUIApplication()
-    app.launchArguments = ["-theme", "holo", "-appearance", "light", "-pair-file", pairing]
+    app.launchArguments = ["-appearance", "light", "-pair-file", pairing]
     app.launch()
     let search = app.textFields["explorerSearch"]
     XCTAssertTrue(search.waitForExistence(timeout: 30))
@@ -38,7 +38,7 @@ final class AutomaticImportWorkflowTests: XCTestCase {
     app.terminate()
     app.launchArguments = []
     app.launch()
-    app.buttons["tab-1"].tap()
+    app.buttons["Explorer"].firstMatch.tap()
     let favorite = app.buttons["favorite-lelscan-/lecture-en-ligne-blue-lock"]
     XCTAssertTrue(favorite.waitForExistence(timeout: 15))
     favorite.tap()

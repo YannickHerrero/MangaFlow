@@ -20,14 +20,14 @@ One page, seven automatically extracted panels. Click either image to view it fu
 
 - Import CBZ files containing JPEG, PNG or WebP images from Files or iCloud Drive.
 - Read panels in a continuous vertical scroll, with support for angled borders.
-- Hide the controls for immersive reading; double-tap a panel to bring them back.
+- Hide the controls for immersive reading; tap with two fingers to bring them back.
 - Tap a panel to open and zoom into the original page.
 - Resume conversions and pick up where you left off reading.
 - Save manga favorites with their original source and track chapter downloads in place.
 
 Manga reading order is right-to-left by default, with a left-to-right option.
 
-Three selectable themes, a series library with AniList covers, and a unified activity view. [Details](Docs/THEMES_AND_LIBRARY.md).
+One light/dark interface, a series library with optional AniList covers, and native Library / Explore tabs. Reading history survives local chapter removal. [Details](Docs/REDESIGN.md).
 
 ## Online sources
 

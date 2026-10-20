@@ -1,3 +1,5 @@
+> Historique des anciens thèmes, remplacés au build 16. Voir [l’interface actuelle](REDESIGN.md).
+
 # Themes and series library
 
 The three native SwiftUI themes reproduce the supplied HTML mockup's distinct compositions, fonts, palettes and custom tab bars. They share behavior, not a UIKit tab bar. The app supports system, light and dark appearances, persists both preferences, and adapts the phone layouts to iPad widths. The reader keeps its immersive zero-spacing flow.

@@ -7,9 +7,13 @@ final class OfflineRemoteReadTests: XCTestCase {
         }
         continueAfterFailure = false
         let app = XCUIApplication(); app.launch()
-        app.buttons["tab-1"].tap()
-        XCTAssertTrue(app.buttons["Mac injoignable"].waitForExistence(timeout: 10))
-        app.buttons["tab-0"].tap()
+        app.buttons["Explorer"].firstMatch.tap()
+        app.buttons["openSettings"].tap(); app.buttons["macConnection"].tap()
+        XCTAssertTrue(app.staticTexts["Mac injoignable"].waitForExistence(timeout: 10))
+        app.buttons["routeBack"].tap(); app.buttons["Fermer les réglages"].tap()
+        app.buttons["Bibliothèque"].firstMatch.tap()
+        let series = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "series-")).firstMatch
+        XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
         let local = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "read-")).firstMatch
         XCTAssertTrue(local.waitForExistence(timeout: 10))
         local.tap()

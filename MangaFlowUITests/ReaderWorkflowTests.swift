@@ -17,7 +17,7 @@ final class ReaderWorkflowTests: XCTestCase {
             throw XCTSkip("Explicit inline zoom fixture absent")
         }
         continueAfterFailure = false
-        let app = XCUIApplication(); app.launchArguments = ["-theme", "holo"]; app.launch()
+        let app = XCUIApplication(); app.launchArguments = []; app.launch()
         let series = app.buttons["series-panel-zoom-qa"].firstMatch
         XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
         app.buttons["read-Panel Zoom QA"].tap()
@@ -105,7 +105,7 @@ final class ReaderWorkflowTests: XCTestCase {
         let dismissed = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: hint)
         XCTAssertEqual(XCTWaiter.wait(for: [dismissed], timeout: 7), .completed)
         app.terminate()
-        app.launchArguments = ["-theme", "holo"]
+        app.launchArguments = []
         app.launch()
         openReader()
         XCTAssertFalse(app.staticTexts["readerGestureHint"].exists, "The hint must not return after relaunch")
@@ -116,7 +116,7 @@ final class ReaderWorkflowTests: XCTestCase {
             throw XCTSkip("Explicit next-chapter review fixture absent")
         }
         continueAfterFailure = false
-        let app = XCUIApplication(); app.launchArguments = ["-theme", "holo"]; app.launch()
+        let app = XCUIApplication(); app.launchArguments = []; app.launch()
         let series = app.buttons["series-reader-qa"].firstMatch
         XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()
         let read = app.buttons["read-Reader QA 1"].firstMatch
@@ -127,7 +127,7 @@ final class ReaderWorkflowTests: XCTestCase {
         }
         let next = app.buttons["nextChapter"]
         XCTAssertTrue(next.waitForExistence(timeout: 10)); next.tap()
-        XCTAssertTrue(app.navigationBars["Reader QA 2"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Reader QA 2"].firstMatch.waitForExistence(timeout: 10))
         let scroll = app.scrollViews["readerScroll"]
         XCTAssertEqual(scroll.value as? String, "Page 1, case 1")
         XCTAssertTrue(app.buttons["panel-0-0"].exists)
@@ -142,7 +142,7 @@ final class ReaderWorkflowTests: XCTestCase {
         }
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments = ["-theme", "holo"]
+        app.launchArguments = []
         app.launch()
         let series = app.buttons["series-reader-qa"].firstMatch
         XCTAssertTrue(series.waitForExistence(timeout: 10)); series.tap()

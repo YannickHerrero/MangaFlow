@@ -20,14 +20,14 @@ Une page, sept cases extraites automatiquement. Cliquez sur une image pour l’a
 
 - Import de CBZ contenant des images JPEG, PNG ou WebP depuis Fichiers ou iCloud Drive.
 - Défilement vertical continu des cases, avec prise en charge des bordures inclinées.
-- Commandes masquables pour une lecture immersive ; double toucher pour les réafficher.
+- Commandes masquables pour une lecture immersive ; toucher à deux doigts pour les réafficher.
 - Simple toucher pour ouvrir la page originale et zoomer.
 - Reprise des conversions et mémorisation de la position de lecture.
 - Favoris liés à leur source et suivi des téléchargements directement dans les chapitres.
 
 L’ordre manga va de droite à gauche par défaut, avec une option gauche à droite.
 
-Trois thèmes au choix, une bibliothèque par série avec couvertures AniList et un suivi d’activité unifié. [Détails](Docs/THEMES_AND_LIBRARY.md).
+Une interface claire/sombre, des couvertures AniList facultatives et deux onglets natifs Bibliothèque / Explorer. L’historique reste conservé après suppression locale des chapitres. [Détails](Docs/REDESIGN.md).
 
 ## Sources en ligne
 

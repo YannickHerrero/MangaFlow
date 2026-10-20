@@ -42,13 +42,9 @@ Le serveur utilise Electron (MIT), @electron/remote (MIT), CryptoJS (MIT), JSZip
 
 ## Typography and optional metadata
 
-Space Grotesk, Archivo Black, Space Mono, Anton and Zen Kaku Gothic New are bundled from the Google Fonts repository under SIL Open Font License 1.1. Individual copyright notices and full license texts are in `MangaFlow/Resources/Fonts/*-OFL.txt`. Space Grotesk's bundled regular/bold instances were generated from the upstream variable font.
+The application uses the system font. Previously bundled Google Fonts and the Terminal theme have been removed.
 
 AniList provides optional manga metadata and cover URLs through its public API (https://anilist.co ; https://docs.anilist.co/guide/terms-of-use). Manga covers and metadata are not covered by MangaFlow's AGPL license. They are fetched for the user's selected series and cached locally; none are bundled in the application.
-
-## Terminal theme palette
-
-The Terminal theme uses color values from the official Catppuccin Latte and Mocha palettes: https://catppuccin.com/palette/. The interface is an original SwiftUI implementation inspired by terminal UI conventions; it does not bundle Ratatui or other Rust code.
 
 ## Balloon and free-text detector
 
