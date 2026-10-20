@@ -1,0 +1,7 @@
+Nouvelle interface épurée, en clair et sombre, inspirée de la nouvelle maquette.
+Deux onglets natifs Liquid Glass : Bibliothèque et Explorer.
+Couvertures facultatives, bibliothèque compacte par source, recherche et filtres.
+Connexion au Mac et gestion du stockage regroupées dans Réglages.
+Suppression des chapitres lus sur l’appareil avec conservation de l’historique et du filtre Explorer ; aucun fichier du Mac n’est supprimé.
+Statut de publication AniList quand disponible, sans indicateur « à jour ».
+Les gestes immédiats, le zoom et les deux modes de lecture restent disponibles.
