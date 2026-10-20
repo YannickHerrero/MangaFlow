@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Gestes immédiats et filtres de chapitres — build 15
+
+**0.1.0 (15)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé Yannick — Personnel avec un seul testeur, sans lien public. Identifiant : `8566686a-be67-4061-92ea-75bfbb795b1c`.
+
+Le simple appui n’attend plus un double appui. Un toucher simultané à deux doigts affiche ou masque les commandes dans les deux modes de lecture ; une indication non bloquante apparaît une seule fois. Dans la bibliothèque, la fiche manga propose un tri croissant/décroissant et le masquage des chapitres effectivement terminés. Dans Explorer, le filtre conserve les chapitres à partir du numéro terminé le plus élevé du même serveur, de la même source et du même manga, numéro inclus. Les chapitres spéciaux sans numéro restent visibles. Les réglages sont mémorisés ; l’ordre du lecteur et de Chapitre suivant est conservé.
+
+Validation : 73 tests unitaires (trois tests privés hors périmètre ignorés), zéro échec ; tests des gestes sur iPhone/iPad, vérification de l’indication après relancement, tri/filtre local et persistance sur iPhone/iPad. La règle de filtrage Explorer est couverte par les tests unitaires, sans nouvelle validation réseau en direct pour ce changement. Archive Release signée, signature vérifiée, export interne et disponibilité TestFlight confirmés. [Filtres et limites](../Docs/CHAPTER_LISTS.md) · [Gestes de lecture](../Docs/BUBBLE_ZOOM.md).
+
 ## Nouvelle icône et zoom sur les bulles — build 14
 
 **0.1.0 (14)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé Yannick — Personnel avec un seul testeur, sans lien public. Identifiant : `dc83c908-60a7-4708-b63c-35269d084248`.
