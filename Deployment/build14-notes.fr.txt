@@ -1,0 +1,5 @@
+Nouvelle icône MangaFlow.
+
+En mode Pages originales, toucher une bulle ou du texte libre zoome sur cette zone ; toucher le dessin zoome sur la case. Un nouvel appui revient à la page entière. Le double appui conserve l’affichage ou le masquage des commandes.
+
+La détection des bulles et du texte fonctionne entièrement sur l’appareil, sans serveur ni LLM. Les chapitres déjà importés sont réanalysés une fois à leur prochaine ouverture. Les contours restent approximatifs pour certaines bulles complexes.
