@@ -3,6 +3,8 @@ import SwiftUI
 @Observable @MainActor
 final class LibraryModel {
     var documents: [MangaDocument] = []
+    var historyDocuments: [MangaDocument] = []
+    var historyFailed = false
     var selected: UUID?
     var error: String?
     var isBusy = false
@@ -17,6 +19,8 @@ final class LibraryModel {
         self.store = store
         do { documents = try store.loadAll() }
         catch { self.error = error.localizedDescription }
+        do { historyDocuments = try ReadingHistoryStore(root: store.root).load() }
+        catch { historyFailed = true; self.error = "L’historique de lecture n’a pas pu être chargé. Il a été conservé." }
     }
     func update(_ doc: MangaDocument) {
         if let index = documents.firstIndex(where: { $0.id == doc.id }) { documents[index] = doc }
@@ -36,6 +40,11 @@ final class LibraryModel {
                 var doc = try await importTask.value
                 doc.remoteArtifactID = remoteArtifactID
                 doc.origin = origin
+                if let saved = allDocuments.first(where: { $0.chapterIdentity == doc.chapterIdentity }) {
+                    doc.lastPanelID = saved.lastPanelID; doc.lastReadAt = saved.lastReadAt
+                    doc.readComplete = saved.readComplete
+                    doc.chapterTitleOverride = saved.chapterTitleOverride; doc.chapterOrder = saved.chapterOrder
+                }
                 try store.save(doc)
                 update(doc)
                 try Task.checkCancellation()
@@ -88,7 +97,11 @@ final class LibraryModel {
     func cancel() { importer?.cancel(); work?.cancel() }
     func remove(_ doc: MangaDocument) {
         guard !isBusy else { return }
-        do { try store.remove(doc); documents.removeAll { $0.id == doc.id } }
+        do {
+            try preserveHistory(doc)
+            if doc.hasLocalFiles { try store.remove(doc) }
+            documents.removeAll { $0.id == doc.id }
+        }
         catch { self.error = error.localizedDescription }
     }
     func remember(documentID: UUID, panelID: String) {

@@ -43,9 +43,9 @@ struct LibrarySeries: Identifiable {
   var lastRead: Date { documents.compactMap(\.lastReadAt).max() ?? .distantPast }
   var added: Date { documents.map(\.created).max() ?? .distantPast }
   var resume: MangaDocument? {
-    documents.filter { $0.readComplete != true }.sorted {
+    documents.filter { $0.hasLocalFiles && $0.readComplete != true }.sorted {
       ($0.lastReadAt ?? .distantPast) > ($1.lastReadAt ?? .distantPast)
-    }.first ?? documents.first
+    }.first ?? documents.first(where: \.hasLocalFiles)
   }
   var progress: Double {
     documents.isEmpty ? 0 : documents.map(\.readingProgress).reduce(0, +) / Double(documents.count)
@@ -68,7 +68,7 @@ extension MangaDocument {
 }
 extension LibraryModel {
   var series: [LibrarySeries] {
-    Dictionary(grouping: documents, by: \.seriesID).map { key, docs in
+    Dictionary(grouping: allDocuments, by: \.seriesID).map { key, docs in
       let manual = docs.contains { $0.chapterOrder != nil }
       let numericTitles = docs.allSatisfy { $0.displayChapterTitle.contains(where: \.isNumber) }
       return LibrarySeries(
@@ -87,11 +87,14 @@ extension LibraryModel {
     var updated = document
     change(&updated)
     do {
-      try store.save(updated)
-      update(updated)
+      if updated.hasLocalFiles {
+        try store.save(updated)
+        update(updated)
+      } else { try preserveHistory(updated) }
     } catch { self.error = error.localizedDescription }
   }
   func open(_ document: MangaDocument, fromBeginning: Bool = false) {
+    guard document.hasLocalFiles else { return }
     var doc = documents.first { $0.id == document.id } ?? document
     if fromBeginning {
       doc.lastPanelID = nil

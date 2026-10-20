@@ -81,6 +81,7 @@ struct MangaPage: Codable, Identifiable, Sendable {
 
 struct MangaDocument: Codable, Identifiable, Sendable {
     static let engine = "yolo26-fp32-contours-v7-text"
+    var localRemoved: Bool? = nil
     var schema = 1
     var engineVersion = Self.engine
     var id: UUID
