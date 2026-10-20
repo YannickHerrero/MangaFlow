@@ -1,5 +1,13 @@
 # TestFlight privé
 
+## Réglages du lecteur et bulles entre les pages — build 18
+
+**0.1.0 (18)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé Yannick — Personnel avec un seul testeur, sans lien public. Identifiant : `e95f69b8-2680-4c67-b377-7c833d201b0d`.
+
+Le menu du lecteur est remplacé par une roue crantée et une bottom sheet : pages originales, lecture guidée, taille du dialogue, zoom maximal, contours, masquage de l’interface et retour au début. Le réglage gauche/droite disparaît. La flèche de lecture guidée est fixée au bas de l’écran et reste présente entre les pages ; chaque nouvelle page apparaît entière avant son premier dialogue. Préférences mémorisées après relancement.
+
+Validation : 88 tests Swift dont trois revues privées optionnelles ignorées, zéro échec. Deux parcours synthétiques validés sur simulateurs iPhone et iPad : réglages, persistance, flèche fixe entre deux pages contenant des dialogues, retour à la vue d’ensemble et gestes existants. Revue des captures et dernier test iPhone après correction de l’affichage des anciennes préférences. Archive Release signée et vérifiée, export interne et disponibilité TestFlight confirmés. Le serveur Mac répond après livraison. [Détails](../Docs/BUBBLE_ZOOM.md).
+
 ## Lecture guidée et fidélité aux maquettes — build 17
 
 **0.1.0 (17)** est confirmé **VALID**, **INTERNAL_ONLY**, **IN_BETA_TESTING**, affecté au groupe privé Yannick — Personnel avec un seul testeur, sans lien public. Identifiant : `fefaff31-8840-40e8-9ff5-b7b702306246`.
