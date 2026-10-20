@@ -15,7 +15,7 @@ Original-page mode prioritizes a detected balloon or text block at the tap locat
 
 `MangaPage.textRegions` persists normalized page coordinates, confidence and kind. It is optional for compatibility with older manifests. The conversion engine version changes to reprocess older chapters on their next open. Individual panel coordinates and reading layout grouping remain separate. Completed pages retain their checkpoint; cancellation resumes at the next unfinished page.
 
-Hit testing uses the original detected rectangle; display framing adds a small page-relative margin, including context around the balloon. Text zoom caps at 6×; panel zoom retains its 4× cap. No visual mask is applied: this zoom displays the original image. Targets have explicit VoiceOver actions and reduced-motion support.
+Hit testing uses the original detected rectangle; display framing adds a small page-relative margin, including context around the balloon. Text framing aims for 60% of the available reading area and caps at 3× page scale; panel zoom retains its 4× cap. No visual mask is applied: this zoom displays the original image. Targets have explicit VoiceOver actions and reduced-motion support.
 
 ## Limits
 
@@ -60,3 +60,11 @@ Diagnostic pages/manifests stay ignored and local. Model parity checks compare s
 A noninteractive five-second hint is persisted as seen in `readerTwoFingerHintSeen`. Menu and accessibility instructions now describe the two-finger gesture. No conversion/model or library migration changes are required.
 
 Validation: two iPhone UI tests pass (both reader modes, two-finger toggling without a sheet/zoom side effect, bubble/free-text/panel zoom and reset, scroll movement, hint dismissal and persistence across relaunch). The reader gesture workflow also passes on iPad. XCTest multi-touch targets the image surface inside the semantic page element and a visible row below the toolbar, so both synthesized fingers land in the reader. These functional tests do not claim a hardware latency benchmark.
+
+## Guided dialogue navigation — build 17
+
+A 44-point circular button appears at the bottom of the visible page slice while a balloon or free-text region is focused. It advances within that page and restores the whole page after the last region. Scale and translation animate together over 0.32 seconds (no animation with Reduce Motion). The target area reserves room for the button. A normal tap still resets; scrolling resets focus to prevent stale viewport framing.
+
+Ordering reuses the existing deterministic XY-cut: first individual cases, then texts within each case, respecting the document direction and the reader’s left-to-right override. Texts are assigned by rectangle overlap, preferring smaller inset cases for similar overlap. Unassigned text remains a standalone layout block. No new inference, server request, or reconversion is required. Unusual compositions and imperfect detections can still yield an incorrect sequence.
+
+Validation: seven geometry tests pass, including a tall right case beside stacked left cases, both reading directions, unassigned captions, empty input, 60% framing and the 3× cap. The guided navigation, final reset, normal taps, two-finger controls and scrolling pass on iPhone and iPad simulators with synthetic fixtures.
