@@ -73,11 +73,11 @@ struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 14) {
                                 HStack { Text("Version"); Spacer(); Text(version).foregroundStyle(p.muted) }
                                 Divider().overlay(p.line)
-                                NavigationLink("Notes de version") { ReleaseNotesView() }
+                                NavigationLink { ReleaseNotesView() } label: { aboutRow("Notes de version") }
                                 Divider().overlay(p.line)
-                                NavigationLink("Licences open source") { LicensesView() }
+                                NavigationLink { LicensesView() } label: { aboutRow("Licences open source") }
                                 Divider().overlay(p.line)
-                                Link("Contact et support", destination: URL(string: "https://github.com/YannickHerrero/MangaFlow/issues")!)
+                                Link(destination: URL(string: "https://github.com/YannickHerrero/MangaFlow/issues")!) { aboutRow("Contact et support") }
                             }.themeCard().foregroundStyle(p.ink)
                         }
                         if let message = error ?? library.error { Text(message).font(p.font(13)).foregroundStyle(p.danger) }
@@ -89,6 +89,9 @@ struct SettingsView: View {
                     Button("Supprimer de cet appareil", role: .destructive) { library.error = nil; library.removeReadChapters(); Task { await measure() } }
                 } message: { Text("L’historique de lecture, les mangas et leurs couvertures sont conservés. Aucun fichier du Mac ne sera supprimé.") }
         }
+    }
+    private func aboutRow(_ title: String) -> some View {
+        HStack { Text(title); Spacer(); Image(systemName: "chevron.right").font(.caption).foregroundStyle(p.muted) }.contentShape(Rectangle())
     }
     private func section<C: View>(_ title: String, @ViewBuilder content: () -> C) -> some View {
         VStack(alignment: .leading, spacing: 8) { Text(title).font(p.font(14)).foregroundStyle(p.muted).padding(.horizontal, 8); content() }

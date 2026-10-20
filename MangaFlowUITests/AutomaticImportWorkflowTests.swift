@@ -15,6 +15,7 @@ final class AutomaticImportWorkflowTests: XCTestCase {
     search.tap()
     search.typeText("LELScan\n")
     app.buttons["source-lelscan"].tap()
+    app.buttons["Rechercher dans le catalogue"].tap()
     let catalog = app.textFields["catalogSearch"]
     XCTAssertTrue(catalog.waitForExistence(timeout: 10))
     catalog.tap()

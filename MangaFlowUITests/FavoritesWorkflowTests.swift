@@ -18,6 +18,7 @@ final class FavoritesWorkflowTests: XCTestCase {
     }
     XCTAssertTrue(source.waitForExistence(timeout: 30))
     source.tap()
+    app.buttons["Rechercher dans le catalogue"].tap()
     let search = app.textFields["catalogSearch"]
     XCTAssertTrue(search.waitForExistence(timeout: 5))
     search.tap()
@@ -84,6 +85,7 @@ extension FavoritesWorkflowTests {
     field.tap()
     field.typeText("LELScan\n")
     app.buttons["source-lelscan"].tap()
+    app.buttons["Rechercher dans le catalogue"].tap()
     let catalog = app.textFields["catalogSearch"]
     XCTAssertTrue(catalog.waitForExistence(timeout: 10))
     catalog.tap()

@@ -17,5 +17,5 @@ struct StorageUsage: Sendable {
         }
         return total
     }
-    static func formatted(_ bytes: Int64) -> String { ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file) }
+    static func formatted(_ bytes: Int64) -> String { bytes.formatted(.byteCount(style: .file).locale(Locale(identifier: "fr_FR"))) }
 }

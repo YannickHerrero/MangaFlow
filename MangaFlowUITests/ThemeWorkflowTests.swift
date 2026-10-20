@@ -65,7 +65,7 @@ final class ThemeWorkflowTests: XCTestCase {
     }
     func testTabBarReservesScrollViewportAcrossRoutes() throws {
         continueAfterFailure = false
-        let app = XCUIApplication(); app.launchArguments = []; app.launch()
+        let app = XCUIApplication(); app.launchArguments = ["-libraryHideReadChapters", "NO"]; app.launch()
         defer { XCUIDevice.shared.orientation = .portrait; app.terminate() }
         XCTAssertTrue(app.buttons["Bibliothèque"].firstMatch.waitForExistence(timeout: 10))
         for orientation in [UIDeviceOrientation.portrait, .landscapeLeft] {
@@ -81,7 +81,7 @@ final class ThemeWorkflowTests: XCTestCase {
                     if last.exists {
                         scroll.swipeUp()
                         XCTAssertTrue(last.isHittable)
-                        if app.tabBars.count > 0 { XCTAssertLessThanOrEqual(last.frame.maxY, app.tabBars.firstMatch.frame.minY + 1) }
+                        XCTAssertLessThanOrEqual(last.frame.maxY, app.buttons["tab-0"].frame.minY + 1)
                         last.tap()
                         XCTAssertTrue(app.buttons["routeBack"].waitForExistence(timeout: 5))
                         let detail = app.scrollViews.firstMatch
@@ -89,7 +89,7 @@ final class ThemeWorkflowTests: XCTestCase {
                         let local = app.buttons["read-Vinland Saga 1"]
                         let chapter = local.exists ? local : app.staticTexts["Lu · supprimé de cet appareil"].firstMatch
                         XCTAssertTrue(chapter.isHittable)
-                        if app.tabBars.count > 0 { XCTAssertLessThanOrEqual(chapter.frame.maxY, app.tabBars.firstMatch.frame.minY + 1) }
+                        XCTAssertFalse(app.buttons["tab-0"].exists)
                         capture(app, "detail-bottom-\(orientation.rawValue)")
                         app.buttons["routeBack"].tap()
                     }

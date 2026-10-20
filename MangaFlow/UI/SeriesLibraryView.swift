@@ -28,7 +28,7 @@ struct SeriesLibraryView: View {
                         .padding(.horizontal, 20).padding(.top, 8)
                     Text("Bibliothèque").font(p.font(26, title: true)).padding(.top, 18).padding(.horizontal, 24)
                     (Text("\(library.series.count) mangas · ").foregroundStyle(p.muted)
-                     + Text("\(library.allDocuments.filter { $0.readComplete != true }.count) chapitres non lus").foregroundStyle(p.accent))
+                     + Text("\(library.allDocuments.filter { $0.readComplete != true }.count) chapitres non lus").foregroundStyle(p.accent).fontWeight(.semibold))
                         .font(p.font(14)).padding(.horizontal, 24).padding(.top, 4).padding(.bottom, 22)
                     if searching {
                         HStack {
@@ -65,7 +65,7 @@ struct SeriesLibraryView: View {
     }
     private func section(_ title: String, books: [LibrarySeries]) -> some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(p.font(14)).foregroundStyle(p.muted).padding(.horizontal, 24)
+            Text(title).font(p.font(14)).fontWeight(.medium).foregroundStyle(p.muted).padding(.horizontal, 24)
             ForEach(books) { series in
                 NavigationLink { SeriesDetailView(seriesID: series.id, library: library, remote: remote) } label: {
                     LibrarySeriesRow(series: series, library: library)
@@ -90,7 +90,7 @@ struct LibrarySeriesRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(series.title).font(p.font(16)).fontWeight(.medium).lineLimit(2)
                 (Text(series.sourceName + " · " + series.readingSummary).foregroundStyle(p.muted)
-                 + Text(series.unread > 0 ? " · \(series.unread) non lus" : "").foregroundStyle(p.accent))
+                 + Text(series.unread > 0 ? " · \(series.unread) non lu\(series.unread > 1 ? "s" : "")" : "").foregroundStyle(p.accent).fontWeight(.semibold))
                     .font(p.font(13)).lineLimit(3)
                 if !series.documents.contains(where: \.hasLocalFiles) { Text("Aucun chapitre local").font(p.font(12)).foregroundStyle(p.muted) }
                 if metadata.entries[series.id]?.media?.status == "FINISHED" { Text("Publication terminée").font(p.font(12)).foregroundStyle(p.muted) }
@@ -188,7 +188,7 @@ struct SeriesDetailView: View {
                         sourceConnected: series?.documents.compactMap(\.origin).first.map { remote.connection?.serverID == $0.serverID } == true,
                         cover: { pendingSettingsAction = .cover; showSettings = false },
                         source: { pendingSettingsAction = .source; showSettings = false })
-                }.presentationCornerRadius(30).presentationDragIndicator(.visible)
+                }.presentationDetents([.height(720), .large]).presentationCornerRadius(30).presentationDragIndicator(.visible)
             }
             .navigationDestination(isPresented: $showSource) {
                 if let origin = series?.documents.compactMap(\.origin).first {

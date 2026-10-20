@@ -15,7 +15,9 @@ final class OnlineWorkflowTests: XCTestCase {
         let source = app.buttons["source-lelscan"]
         XCTAssertTrue(source.waitForExistence(timeout: 30), "Real pairing should expose sources")
         source.tap()
+        app.buttons["sourceOptions"].tap()
         app.buttons["syncCatalog"].tap()
+        app.buttons["Rechercher dans le catalogue"].tap()
         let search = app.textFields["catalogSearch"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap(); search.typeText("One Piece\n")

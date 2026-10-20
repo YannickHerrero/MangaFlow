@@ -86,6 +86,7 @@ struct ThemeHeader: View {
     var importing: (() -> Void)? = nil
     var search: (() -> Void)? = nil
     var settingsImport: (() -> Void)? = nil
+    var filtering: (() -> Void)? = nil
     let remote: RemoteModel
     let library: LibraryModel
     @State private var settings = false
@@ -94,6 +95,7 @@ struct ThemeHeader: View {
         HStack(spacing: 10) {
             Spacer()
             if let search { RoundIconButton(symbol: "magnifyingglass", label: "Rechercher dans la bibliothèque", action: search) }
+            if let filtering { RoundIconButton(symbol: "line.3.horizontal.decrease", label: "Filtrer les sources", action: filtering).accessibilityIdentifier("filterSources") }
             if let importing { RoundIconButton(symbol: "plus", label: "Importer des fichiers CBZ", action: importing).accessibilityIdentifier("importCBZ") }
             RoundIconButton(symbol: "gearshape", label: "Réglages") { settings = true }.accessibilityIdentifier("openSettings")
         }.sheet(isPresented: $settings, onDismiss: {
@@ -103,7 +105,7 @@ struct ThemeHeader: View {
                 SettingsView(remote: remote, library: library, onImport: settingsImport == nil ? nil : {
                     pendingImport = true; settings = false
                 })
-            }.presentationCornerRadius(30).presentationDragIndicator(.visible)
+            }.presentationDetents([.height(720), .large]).presentationCornerRadius(30).presentationDragIndicator(.visible)
         }
     }
 }
@@ -112,7 +114,7 @@ struct ThemedNavigation: ViewModifier {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.palette) private var p
     func body(content: Content) -> some View {
-        content.toolbar(.hidden, for: .navigationBar).safeAreaInset(edge: .top, spacing: 0) {
+        content.preference(key: HideMainTabsKey.self, value: true).toolbar(.hidden, for: .navigationBar).safeAreaInset(edge: .top, spacing: 0) {
             HStack(spacing: 12) {
                 RoundIconButton(symbol: "arrow.left", label: "Retour") { dismiss() }.accessibilityIdentifier("routeBack")
                 Text(title).font(p.font(18, title: true)).lineLimit(1)
