@@ -26,7 +26,7 @@ export function createServer(service){
         const sourceID=string(url.searchParams.get('sourceID'),'sourceID');service.source(sourceID);
         const catalog=store.data.catalogs[sourceID];if(!catalog?.syncedAt)throw new APIError('catalog_not_synced','Synchronize this source first.',409);
         const q=(url.searchParams.get('q')||'').toLowerCase();const offset=Math.max(0,Number(url.searchParams.get('offset')||0)||0);const limit=Math.min(100,Math.max(1,Number(url.searchParams.get('limit')||50)||50));
-        const items=catalog.items.filter(m=>m.title.toLowerCase().includes(q));return json(res,200,{mangas:items.slice(offset,offset+limit),total:items.length,offset,syncedAt:catalog.syncedAt});
+        const items=catalog.items.filter(m=>m.title.toLowerCase().includes(q));if(url.searchParams.get('sort')==='title'){const collator=new Intl.Collator('fr',{numeric:true,sensitivity:'base'});items.sort((a,b)=>collator.compare(a.title,b.title)||String(a.id).localeCompare(String(b.id)));}return json(res,200,{mangas:items.slice(offset,offset+limit),total:items.length,offset,syncedAt:catalog.syncedAt});
       }
       if(req.method==='POST'&&['/api/v1/catalog/sync','/api/v1/chapters','/api/v1/downloads'].includes(route)){
         const data=await body(req);const sourceID=string(data.sourceID,'sourceID');const source=service.source(sourceID);

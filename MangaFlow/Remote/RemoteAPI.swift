@@ -50,7 +50,7 @@ actor RemoteAPI {
     }
     func catalog(_ sourceID: String, query: String, offset: Int = 0) async throws -> ([RemoteManga], Int) {
         struct Response: Decodable { let mangas: [RemoteManga]; let total: Int }
-        let response: Response = try await send("GET", "catalog", query: ["sourceID": sourceID, "q": query, "offset": String(offset), "limit": "50"])
+        let response: Response = try await send("GET", "catalog", query: ["sourceID": sourceID, "q": query, "offset": String(offset), "limit": "50", "sort": "title"])
         return (response.mangas, response.total)
     }
     func create(_ kind: String, target: RemoteJob.Target, key: String = UUID().uuidString) async throws -> RemoteJob {

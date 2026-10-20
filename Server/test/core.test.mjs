@@ -62,6 +62,10 @@ test('HTTP requires authentication for catalog, jobs and artifact bytes; IDs sta
  const server=createServer(service);await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
  for(const p of ['/api/v1/catalog?sourceID=x','/api/v1/jobs','/api/v1/artifacts/secret/file'])assert.equal((await fetch(base+p)).status,401);
  const response=await fetch(base+'/api/v1/catalog?sourceID=x',{headers:{Authorization:'Bearer '+credentials.token}});assert.equal((await response.json()).mangas[0].id,'/opaque?a=b/#é');
+ store.data.catalogs.x.items=[{id:'10',title:'Chapitre 10'},{id:'2',title:'Chapitre 2'},{id:'a',title:'Autre'}];
+ const sorted=await fetch(base+'/api/v1/catalog?sourceID=x&sort=title&offset=1&limit=1',{headers:{Authorization:'Bearer '+credentials.token}});
+ assert.equal((await sorted.json()).mangas[0].id,'2','Natural alphabetical sorting must happen before pagination');
+
  auth.revoke(credentials.deviceID);assert.equal((await fetch(base+'/api/v1/jobs',{headers:{Authorization:'Bearer '+credentials.token}})).status,401);
  server.closeAllConnections();await new Promise(r=>server.close(r));await fs.rm(root,{recursive:true});
 });
