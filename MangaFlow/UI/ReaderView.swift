@@ -53,7 +53,7 @@ struct ReaderView: View {
                             let ratio = max(0.1, Double(max(row.page.width, 1)) * row.panel.rect.width / (Double(max(row.page.height, 1)) * row.panel.rect.height))
                             if originalPages {
                                 OriginalPanelZoomView(page: row.page, url: store.pageURL(document, row.page),
-                                                      viewportHeight: geometry.size.height, toggleControls: toggleControls)
+                                                      rightToLeft: document.rightToLeft && !leftToRight, viewportHeight: geometry.size.height, toggleControls: toggleControls)
                                     .frame(width: geometry.size.width, height: geometry.size.width / ratio)
                                     .background(Color.white)
                                     .id(row.id)

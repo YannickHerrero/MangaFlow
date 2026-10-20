@@ -62,7 +62,21 @@ final class ReaderWorkflowTests: XCTestCase {
             XCTAssertEqual(scroll.value as? String, saved)
             let capture = XCTAttachment(screenshot: app.screenshot())
             capture.name = expected; capture.lifetime = .keepAlways; add(capture)
-            textPoint.tap()
+            if expected == "Bulle agrandie" {
+                let nextText = app.buttons["nextTextRegion-0"]
+                XCTAssertTrue(nextText.exists)
+                XCTAssertEqual(nextText.value as? String, "1 sur 2")
+                let nextFrame = nextText.frame
+                XCTAssertTrue(scroll.frame.contains(CGPoint(x: nextFrame.midX, y: nextFrame.midY)))
+                nextText.tap()
+                let nextFocused = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Texte agrandi"), object: page)
+                XCTAssertEqual(XCTWaiter.wait(for: [nextFocused], timeout: 3), .completed)
+                XCTAssertEqual(nextText.value as? String, "2 sur 2")
+                XCTAssertEqual(page.frame.height, frame.height, accuracy: 1)
+                let guided = XCTAttachment(screenshot: app.screenshot())
+                guided.name = "Guided dialogue next region"; guided.lifetime = .keepAlways; add(guided)
+                nextText.tap()
+            } else { textPoint.tap() }
             let reset = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "Page entière"), object: page)
             XCTAssertEqual(XCTWaiter.wait(for: [reset], timeout: 3), .completed)
         }

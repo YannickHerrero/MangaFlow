@@ -31,6 +31,41 @@ enum PanelZoom {
         }
     }
 
+    /// Keep dialogues in their individual case before moving to the next case.
+    /// Unassigned captions become standalone blocks instead of disappearing.
+    static func orderedText(_ regions: [PageTextRegion], panels: [ReadingPanel], rtl: Bool) -> [PageTextRegion] {
+        let valid = regions.filter { $0.rect.area > 0 && [$0.rect.x, $0.rect.y, $0.rect.width, $0.rect.height].allSatisfy(\.isFinite) }
+        let cases = panels.filter { $0.rect.area > 0 && $0.rect.area < 0.94 }
+        var groups = cases.map { _ in [PageTextRegion]() }
+        var blocks = cases.map { $0.rect }
+        for region in valid {
+            let candidates = cases.indices.filter { region.rect.intersection(cases[$0].rect) / region.rect.area >= 0.3 }
+            let owner = candidates.sorted {
+                let a = region.rect.intersection(cases[$0].rect) / region.rect.area
+                let b = region.rect.intersection(cases[$1].rect) / region.rect.area
+                return abs(a - b) < 0.05 ? cases[$0].rect.area < cases[$1].rect.area : a > b
+            }.first
+            if let owner { groups[owner].append(region) }
+            else { groups.append([region]); blocks.append(region.rect) }
+        }
+        func indices(_ rects: [UnitRect]) -> [Int] {
+            // Confidence carries the index through the existing deterministic XY-cut.
+            PanelLayout.ordered(rects.enumerated().map {
+                Detection(rect: $0.element, confidence: Double($0.offset), kind: 0)
+            }, rtl: rtl).map { Int($0.confidence) }
+        }
+        return indices(blocks).flatMap { group in
+            indices(groups[group].map(\.rect)).map { groups[group][$0] }
+        }
+    }
+
+    /// Aim for 60% occupancy, while tiny balloons never exceed 3× page scale.
+    static func textTransform(for region: PageTextRegion, size: CGSize, visible: CGRect) -> Transform {
+        let target = ReadingPanel(id: region.id, rect: region.zoomRect, confidence: region.confidence)
+        let inset = visible.insetBy(dx: visible.width * 0.2, dy: visible.height * 0.2)
+        return transform(for: target, size: size, visible: inset, maximumScale: 3)
+    }
+
     static func transform(for panel: ReadingPanel, size: CGSize, visible: CGRect, maximumScale: CGFloat = 4) -> Transform {
         let rect = panel.rect.cgRect
         guard size.width > 0, size.height > 0, rect.width > 0, rect.height > 0 else {

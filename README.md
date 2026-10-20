@@ -22,6 +22,7 @@ One page, seven automatically extracted panels. Click either image to view it fu
 - Read panels in a continuous vertical scroll, with support for angled borders.
 - Hide the controls for immersive reading; tap with two fingers to bring them back.
 - Tap a panel to open and zoom into the original page.
+- In original-page mode, tap dialogue for a moderate inline zoom, then use the bottom arrow to move through text in reading order. The last step restores the whole page. Ordering is geometric and may be imperfect on unusual layouts.
 - Resume conversions and pick up where you left off reading.
 - Save manga favorites with their original source and track chapter downloads in place.
 

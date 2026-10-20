@@ -41,4 +41,33 @@ final class PanelZoomTests: XCTestCase {
         legacy.removeValue(forKey: "zoomPanels")
         XCTAssertNil(try JSONDecoder().decode(MangaPage.self, from: JSONSerialization.data(withJSONObject: legacy)).zoomPanels)
     }
+    private func text(_ id: String, _ x: Double, _ y: Double, _ w: Double = 0.12, _ h: Double = 0.08) -> PageTextRegion {
+        .init(id: id, rect: .init(x: x, y: y, width: w, height: h), kind: .bubble, confidence: 0.9)
+    }
+    func testDialoguesStayInsideTallRightCaseBeforeLeftStack() {
+        let cases = [panel("right", .init(x: 0.52, y: 0, width: 0.48, height: 1)),
+                     panel("left-top", .init(x: 0, y: 0, width: 0.48, height: 0.45)),
+                     panel("left-bottom", .init(x: 0, y: 0.5, width: 0.48, height: 0.5))]
+        let texts = [text("left-bottom", 0.1, 0.6), text("right-bottom", 0.7, 0.8),
+                     text("left-top", 0.1, 0.1), text("right-top", 0.7, 0.1)]
+        XCTAssertEqual(PanelZoom.orderedText(texts, panels: cases, rtl: true).map(\.id),
+                       ["right-top", "right-bottom", "left-top", "left-bottom"])
+    }
+    func testBubbleOrderRespectsDirectionAndPreservesUnassignedCaptions() {
+        let texts = [text("left", 0.1, 0.1), text("right", 0.7, 0.1), text("caption", 0.1, 0.85)]
+        let cases = [panel("top", .init(x: 0, y: 0, width: 1, height: 0.6))]
+        XCTAssertEqual(PanelZoom.orderedText(texts, panels: cases, rtl: true).map(\.id), ["right", "left", "caption"])
+        XCTAssertEqual(PanelZoom.orderedText(texts, panels: cases, rtl: false).map(\.id), ["left", "right", "caption"])
+        XCTAssertTrue(PanelZoom.orderedText([], panels: [], rtl: true).isEmpty)
+        XCTAssertEqual(PanelZoom.orderedText(texts, panels: [], rtl: true).count, 3)
+    }
+    func testTextZoomLeavesContextAndCapsTinyBubbles() {
+        let size = CGSize(width: 400, height: 1000)
+        let visible = CGRect(x: 0, y: 200, width: 400, height: 600)
+        let region = text("normal", 0.3, 0.4, 0.3, 0.1)
+        let t = PanelZoom.textTransform(for: region, size: size, visible: visible)
+        XCTAssertEqual(region.zoomRect.width * size.width * t.scale, visible.width * 0.6, accuracy: 0.001)
+        XCTAssertEqual(region.rect.midX * size.width * t.scale + t.x, visible.midX, accuracy: 0.001)
+        XCTAssertEqual(PanelZoom.textTransform(for: text("tiny", 0.2, 0.3, 0.01, 0.01), size: size, visible: visible).scale, 3)
+    }
 }

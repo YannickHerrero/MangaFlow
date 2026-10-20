@@ -4,6 +4,7 @@ import SwiftUI
 struct OriginalPanelZoomView: View {
     let page: MangaPage
     let url: URL
+    let rightToLeft: Bool
     let viewportHeight: CGFloat
     let toggleControls: () -> Void
     @State private var focused: String?
@@ -11,6 +12,10 @@ struct OriginalPanelZoomView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private var panels: [ReadingPanel] { page.zoomPanels ?? page.panels }
     private var textRegions: [PageTextRegion] { page.textRegions ?? [] }
+    private var orderedText: [PageTextRegion] {
+        PanelZoom.orderedText(textRegions, panels: panels, rtl: rightToLeft)
+    }
+    private var focusedTextIndex: Int? { orderedText.firstIndex { $0.id == focused } }
     private var targets: [ReadingPanel] {
         textRegions.map { ReadingPanel(id: $0.id, rect: $0.zoomRect, confidence: $0.confidence) } + panels
     }
@@ -54,7 +59,7 @@ struct OriginalPanelZoomView: View {
                     else if let panel = targets.first(where: { $0.rect.area < 0.94 }) { zoom(panel, size: size, visible: visible) }
                 }
                 .accessibilityActions {
-                    ForEach(Array(textRegions.enumerated()), id: \.element.id) { index, text in
+                    ForEach(Array(orderedText.enumerated()), id: \.element.id) { index, text in
                         Button("Agrandir \(text.kind == .bubble ? "la bulle" : "le texte") \(index + 1)") {
                             if let target = targets.first(where: { $0.id == text.id }) { zoom(target, size: size, visible: visible) }
                         }
@@ -64,6 +69,31 @@ struct OriginalPanelZoomView: View {
                     }
                     if focused != nil { Button("Revenir à la page entière") { reset() } }
                     Button("Afficher ou masquer les commandes", action: toggleControls)
+                }
+                .overlay(alignment: .topLeading) {
+                    if let index = focusedTextIndex, visible.height > 80 {
+                        Button {
+                            if index + 1 < orderedText.count {
+                                let next = orderedText[index + 1]
+                                zoom(ReadingPanel(id: next.id, rect: next.zoomRect, confidence: next.confidence), size: size, visible: visible)
+                            } else { reset() }
+                        } label: {
+                            Image(systemName: index + 1 < orderedText.count ? "chevron.right" : "arrow.down.right.and.arrow.up.left")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundStyle(.primary)
+                                .frame(width: 44, height: 44)
+                                .background(.regularMaterial, in: Circle())
+                                .overlay(Circle().strokeBorder(.primary.opacity(0.12)))
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(index + 1 < orderedText.count ? "Bulle ou texte suivant" : "Revenir à la page entière")
+                        .accessibilityValue("\(index + 1) sur \(orderedText.count)")
+                        .accessibilityIdentifier("nextTextRegion-\(page.id)")
+                        .position(x: visible.midX, y: visible.maxY - 36)
+                    }
+                }
+                .onChange(of: frame.minY) { old, new in
+                    if abs(new - old) > 0.5, focused != nil { reset() }
                 }
                 .onChange(of: size) { _, _ in reset() }
                 .onChange(of: viewportHeight) { _, _ in
@@ -75,9 +105,14 @@ struct OriginalPanelZoomView: View {
         .onDisappear { reset() }
     }
     private func zoom(_ panel: ReadingPanel, size: CGSize, visible: CGRect) {
-        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.22)) {
+        withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.32)) {
             focused = panel.id
-            transform = PanelZoom.transform(for: panel, size: size, visible: visible, maximumScale: textRegions.contains(where: { $0.id == panel.id }) ? 6 : 4)
+            if let text = textRegions.first(where: { $0.id == panel.id }) {
+                let readingArea = CGRect(x: visible.minX, y: visible.minY, width: visible.width, height: max(1, visible.height - 76))
+                transform = PanelZoom.textTransform(for: text, size: size, visible: readingArea)
+            } else {
+                transform = PanelZoom.transform(for: panel, size: size, visible: visible)
+            }
         }
     }
     private func reset() {
