@@ -1,0 +1,2 @@
+Lecture guidée des dialogues : bouton discret pour passer à la bulle ou au texte suivant avec une transition animée, zoom plus modéré et retour à la page entière en fin de parcours.
+Explorer et bibliothèque rapprochés des maquettes : barre Liquid Glass élargie, listes compactes, favoris et réglages en panneaux. Import CBZ depuis les réglages Explorer. Ajout des chapitres restants avec reprise des demandes après interruption.
