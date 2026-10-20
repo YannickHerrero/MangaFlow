@@ -131,6 +131,10 @@ struct SeriesDetailView: View {
     @AppStorage("libraryChaptersAscending") private var ascending = false
     @AppStorage("libraryHideReadChapters") private var hideRead = false
     @State private var showMetadata = false
+    @State private var showSettings = false
+    @State private var showSource = false
+    @State private var pendingSettingsAction: SettingsAction?
+    private enum SettingsAction { case cover, source }
     @State private var edit: MangaDocument?
     @State private var removal: MangaDocument?
     private var series: LibrarySeries? { library.series.first { $0.id == seriesID } }
@@ -146,18 +150,10 @@ struct SeriesDetailView: View {
                             Text(series.readingSummary).font(p.font(13)).foregroundStyle(p.muted)
                             if let status = metadata.entries[series.id]?.media?.publicationLabel { Text(status).font(p.font(13)).foregroundStyle(p.green) }
                         }
+                        Spacer(minLength: 0)
+                        RoundIconButton(symbol: "gearshape", label: "Réglages du manga") { showSettings = true }
+                            .accessibilityIdentifier("openMangaSettings")
                     }
-                    Button("Modifier la couverture AniList") { showMetadata = true }.font(p.font(13))
-                    if let origin = series.documents.compactMap(\.origin).first {
-                        if remote.connection?.serverID == origin.serverID {
-                            NavigationLink("Chapitres de la source") { MangaChaptersView(remote: remote, manga: RemoteManga(id: origin.mangaID, sourceID: origin.sourceID, title: origin.mangaTitle), library: library) }
-                        } else { Text("La connexion à la source se règle dans Réglages → Connexion au Mac.").font(p.font(13)).foregroundStyle(p.muted) }
-                    }
-                    VStack(spacing: 12) {
-                        Picker("Ordre des chapitres", selection: $ascending) { Text("Croissant").tag(true); Text("Décroissant").tag(false) }
-                            .pickerStyle(.menu).accessibilityIdentifier("chapterSortOrder")
-                        Toggle("Masquer les chapitres lus", isOn: $hideRead).accessibilityIdentifier("libraryHideReadChapters")
-                    }.themeCard()
                     let chapters = ChapterListFilter.local(series, ascending: ascending, hideRead: hideRead)
                     if chapters.isEmpty { Text("Aucun chapitre non lu à afficher.").foregroundStyle(p.muted) }
                     ForEach(chapters) { doc in
@@ -182,6 +178,23 @@ struct SeriesDetailView: View {
                 }.padding(24).frame(maxWidth: 800).frame(maxWidth: .infinity)
             }
         }.background(p.paper).themedNavigation(series?.title ?? "Manga")
+            .sheet(isPresented: $showSettings, onDismiss: {
+                let action = pendingSettingsAction; pendingSettingsAction = nil
+                switch action { case .cover: showMetadata = true; case .source: showSource = true; case nil: break }
+            }) {
+                ThemeHost {
+                    MangaSettingsSheet(ascending: $ascending, hideRead: $hideRead,
+                        hasSource: series?.documents.contains(where: { $0.origin != nil }) == true,
+                        sourceConnected: series?.documents.compactMap(\.origin).first.map { remote.connection?.serverID == $0.serverID } == true,
+                        cover: { pendingSettingsAction = .cover; showSettings = false },
+                        source: { pendingSettingsAction = .source; showSettings = false })
+                }.presentationCornerRadius(30).presentationDragIndicator(.visible)
+            }
+            .navigationDestination(isPresented: $showSource) {
+                if let origin = series?.documents.compactMap(\.origin).first {
+                    MangaChaptersView(remote: remote, manga: RemoteManga(id: origin.mangaID, sourceID: origin.sourceID, title: origin.mangaTitle), library: library)
+                }
+            }
             .sheet(isPresented: $showMetadata) { ThemeHost { MetadataPicker(key: seriesID, title: series?.title ?? "") } }
             .sheet(item: $edit) { doc in ThemeHost { ChapterEditor(document: doc, library: library) } }
             .confirmationDialog("Supprimer ce chapitre de cet appareil ? La progression sera conservée. Aucun fichier du Mac ne sera supprimé.", isPresented: Binding(get: { removal != nil }, set: { if !$0 { removal = nil } }), titleVisibility: .visible) {
@@ -191,6 +204,56 @@ struct SeriesDetailView: View {
     private func fallback(_ series: LibrarySeries) -> URL? {
         guard let doc = series.documents.first(where: \.hasLocalFiles), let page = doc.pages.first else { return nil }
         return library.store.pageURL(doc, page)
+    }
+}
+private struct MangaSettingsSheet: View {
+    @Binding var ascending: Bool
+    @Binding var hideRead: Bool
+    let hasSource: Bool
+    let sourceConnected: Bool
+    let cover: () -> Void
+    let source: () -> Void
+    @Environment(\.palette) private var p
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("Réglages du manga").font(p.font(22, title: true))
+                Spacer()
+                RoundIconButton(symbol: "xmark", label: "Fermer les réglages du manga") { dismiss() }
+            }.padding(.horizontal, 24).padding(.top, 12).padding(.bottom, 8)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Chapitres").font(p.font(14)).foregroundStyle(p.muted).padding(.horizontal, 8)
+                        VStack(spacing: 16) {
+                            Picker("Ordre des chapitres", selection: $ascending) { Text("Croissant").tag(true); Text("Décroissant").tag(false) }
+                                .pickerStyle(.menu).accessibilityIdentifier("chapterSortOrder")
+                            Divider().overlay(p.line)
+                            Toggle("Masquer les chapitres lus", isOn: $hideRead).accessibilityIdentifier("libraryHideReadChapters")
+                        }.themeCard()
+                    }
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Manga").font(p.font(14)).foregroundStyle(p.muted).padding(.horizontal, 8)
+                        VStack(alignment: .leading, spacing: 16) {
+                            Button(action: cover) { settingsRow("Modifier la couverture AniList") }
+                                .accessibilityIdentifier("editMangaCover")
+                            if hasSource {
+                                Divider().overlay(p.line)
+                                if sourceConnected {
+                                    Button(action: source) { settingsRow("Chapitres de la source") }.accessibilityIdentifier("openMangaSource")
+                                } else {
+                                    Text("La connexion à la source se règle dans Réglages → Connexion au Mac.").font(p.font(13)).foregroundStyle(p.muted)
+                                }
+                            }
+                        }.buttonStyle(.plain).themeCard()
+                    }
+                }.padding(.horizontal, 16).padding(.bottom, 34).frame(maxWidth: 700).frame(maxWidth: .infinity)
+            }
+        }.background(p.paper)
+    }
+    private func settingsRow(_ title: String) -> some View {
+        HStack { Text(title).font(p.font(16)); Spacer(); Image(systemName: "chevron.right").font(.caption).foregroundStyle(p.muted) }.contentShape(Rectangle())
     }
 }
 struct ChapterEditor: View {
