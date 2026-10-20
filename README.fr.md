@@ -27,7 +27,7 @@ Une page, sept cases extraites automatiquement. Cliquez sur une image pour l’a
 
 L’ordre manga va de droite à gauche par défaut, avec une option gauche à droite.
 
-Une interface claire/sombre, des couvertures AniList facultatives et deux onglets natifs Bibliothèque / Explorer. L’historique reste conservé après suppression locale des chapitres. [Détails](Docs/REDESIGN.md).
+Une interface claire/sombre, des couvertures AniList facultatives et une navigation large Liquid Glass Bibliothèque / Explorer. L’historique reste conservé après suppression locale des chapitres. [Détails](Docs/REDESIGN.md).
 
 ## Sources en ligne
 

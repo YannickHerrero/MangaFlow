@@ -27,7 +27,7 @@ One page, seven automatically extracted panels. Click either image to view it fu
 
 Manga reading order is right-to-left by default, with a left-to-right option.
 
-One light/dark interface, a series library with optional AniList covers, and native Library / Explore tabs. Reading history survives local chapter removal. [Details](Docs/REDESIGN.md).
+One light/dark interface, a series library with optional AniList covers, and wide Liquid Glass Library / Explore navigation. Reading history survives local chapter removal. [Details](Docs/REDESIGN.md).
 
 ## Online sources
 
