@@ -42,15 +42,6 @@ targets:
     info:
       path: MangaFlow/Info.plist
       properties:
-        UIAppFonts:
-          - ZenKakuGothicNew-Bold.ttf
-          - ArchivoBlack-Regular.ttf
-          - Anton-Regular.ttf
-          - SpaceMono-Regular.ttf
-          - SpaceMono-Bold.ttf
-          - ZenKakuGothicNew-Regular.ttf
-          - SpaceGrotesk-Regular.ttf
-          - SpaceGrotesk-Bold.ttf
         ITSAppUsesNonExemptEncryption: false
         NSAppTransportSecurity:
           NSAllowsLocalNetworking: true

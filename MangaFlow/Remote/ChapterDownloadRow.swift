@@ -41,15 +41,18 @@ struct ChapterDownloadRow: View {
                         ProgressView(value: Double(job.progress.completed), total: Double(job.progress.total))
                         Text("\(job.progress.completed) / \(job.progress.total) images").font(.caption).foregroundStyle(.secondary)
                     }
+                    Button("Annuler") { Task { await remote.cancel(job) } }
                 } else if completed {
                     if remote.transferJobID == job.id {
                         ProgressView(remote.transferPhase).font(.caption)
+                        Button("Annuler le transfert") { remote.cancelTransfer(library: library) }
                     } else if let local = remote.localDocument(for: job, library: library), local.complete {
                         Text("Dans la bibliothèque · disponible hors ligne").font(.caption).foregroundStyle(.secondary)
                         Button("Lire") { library.open(local) }.accessibilityIdentifier("readChapter-\(chapter.id)")
                     } else if let error = remote.transferFailures[job.id] {
                         Text(error).font(.caption).foregroundStyle(.orange)
                         Button("Réessayer l’import") { remote.requestAutomaticImport(job); remote.processAutomaticImports(library: library) }
+                        Button("Télécharger à nouveau depuis la source") { Task { await remote.download(manga, chapter: chapter) } }
                     } else if remote.isAwaitingImport(job) {
                         Text("Ajout à la bibliothèque en attente…").font(.caption).foregroundStyle(.secondary)
                     } else {

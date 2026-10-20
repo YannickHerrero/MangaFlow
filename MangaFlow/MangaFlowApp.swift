@@ -17,9 +17,9 @@ struct MangaFlowApp: App {
                 .environment(theme)
                 .environment(metadata)
                 .environment(favorites)
-                .alert("Sources", isPresented: Binding(get: { remote.error != nil }, set: { if !$0 { remote.error = nil } })) {
-                    Button("Fermer", role: .cancel) { remote.error = nil }
-                } message: { Text(remote.error ?? "") }
+                .alert("MangaFlow", isPresented: Binding(get: { remote.error != nil || library.error != nil }, set: { if !$0 { remote.error = nil; library.error = nil } })) {
+                    Button("Fermer", role: .cancel) { remote.error = nil; library.error = nil }
+                } message: { Text(remote.error ?? library.error ?? "") }
                 .onChange(of: library.selected) { _, selected in if selected != nil { tab = 0 } }
                 .task(id: scenePhase) {
                     guard scenePhase == .active else { return }
@@ -47,7 +47,6 @@ struct MangaFlowApp: App {
                 .task {
                     #if DEBUG
                     let arguments = ProcessInfo.processInfo.arguments
-                    if let i = arguments.firstIndex(of: "-theme"), arguments.indices.contains(i + 1), let chosen = AppTheme(rawValue: arguments[i + 1]) { theme.theme = chosen }
                     if let i = arguments.firstIndex(of: "-appearance"), arguments.indices.contains(i + 1) { theme.appearance = arguments[i + 1] }
                     if let index = arguments.firstIndex(of: "-import"), arguments.indices.contains(index + 1), !library.isBusy {
                         library.importCBZ(URL(fileURLWithPath: arguments[index + 1]))
@@ -64,9 +63,10 @@ struct MangaFlowApp: App {
     }
     private func nextChapter(after document: MangaDocument) -> (() -> Void)? {
         guard let series = library.series.first(where: { $0.id == document.seriesID }),
-              let index = series.documents.firstIndex(where: { $0.id == document.id }),
-              series.documents.indices.contains(index + 1) else { return nil }
-        let next = series.documents[index + 1]
+              let index = series.documents.filter(\.hasLocalFiles).firstIndex(where: { $0.id == document.id }) else { return nil }
+        let available = series.documents.filter(\.hasLocalFiles)
+        guard available.indices.contains(index + 1) else { return nil }
+        let next = available[index + 1]
         return {
             library.selected = nil
             Task { @MainActor in

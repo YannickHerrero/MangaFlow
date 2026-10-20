@@ -1,182 +1,90 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ExplorerView: View {
-  @Bindable var remote: RemoteModel
-  let library: LibraryModel
-  @Environment(FavoriteStore.self) private var favorites
-  @Environment(\.palette) private var p
-  @State private var search = ""
-  @FocusState private var searchFocused: Bool
-  @State private var connection = false
-  @AppStorage("favoriteSources") private var favoriteSources = "[]"
-  private var keys: [String] {
-    (try? JSONDecoder().decode([String].self, from: Data(favoriteSources.utf8))) ?? []
-  }
-  private func key(_ source: RemoteSource) -> String {
-    ChapterOrigin.key(remote.connection?.serverID ?? "", source.id, "")
-  }
-  private func saved(_ source: RemoteSource) -> Bool { keys.contains(key(source)) }
-  private var sources: [RemoteSource] {
-    remote.sources.filter {
-      search.isEmpty
-        || ($0.name + " " + $0.languages.joined(separator: " ") + " "
-          + $0.tags.joined(separator: " ")).localizedCaseInsensitiveContains(search)
+    @Bindable var remote: RemoteModel
+    let library: LibraryModel
+    @Environment(FavoriteStore.self) private var favorites
+    @Environment(\.palette) private var p
+    @State private var search = ""
+    @State private var importer = false
+    @FocusState private var searching: Bool
+    @AppStorage("favoriteSources") private var favoriteSources = "[]"
+    private var keys: [String] { (try? JSONDecoder().decode([String].self, from: Data(favoriteSources.utf8))) ?? [] }
+    private func key(_ source: RemoteSource) -> String { ChapterOrigin.key(remote.connection?.serverID ?? "", source.id, "") }
+    private var sources: [RemoteSource] {
+        remote.sources.filter { search.isEmpty || ($0.name + " " + $0.languages.joined(separator: " ") + " " + $0.tags.joined(separator: " ")).localizedCaseInsensitiveContains(search) }
     }
-  }
-  var body: some View {
-    NavigationStack {
-      ScrollView {
-        VStack(alignment: .leading, spacing: 20) {
-          ThemeHeader(
-            title: p.theme == .brutal ? "Explorer / \(remote.sources.count) sources" : "Explorer",
-            remote: remote, library: library)
-          Text(
-            p.theme == .terminal
-              ? "[ \(remote.sources.count) sources ]"
-              : p.theme == .brutal
-                ? "TROU\nVER." : p.theme == .manga ? "Quoi lire ensuite ?!" : "Trouver\nla suite."
-          ).font(p.font(p.theme == .brutal ? 70 : 42, title: true)).tracking(
-            p.theme == .terminal ? 0 : -1.5)
-          HStack {
-            Image(systemName: "magnifyingglass")
-            TextField("Source ou manga favori", text: $search).focused($searchFocused).submitLabel(
-              .search
-            ).onSubmit { searchFocused = false }
-          }.themeCard().accessibilityIdentifier("explorerSearch")
-          Button {
-            connection = true
-          } label: {
-            Label(
-              remote.connection == nil
-                ? "Connecter le Mac" : remote.connected ? "Mac connecté" : "Mac injoignable",
-              systemImage: remote.connected ? "checkmark.circle" : "network")
-          }.buttonStyle(.plain)
-          if !remote.connected {
-            Text(
-              "Le Mac doit être allumé et joignable. Les chapitres importés restent lisibles hors ligne."
-            ).font(p.font(12))
-          }
-          Text("Mangas favoris").font(p.font(20, title: true))
-          if let error = favorites.loadError { Text(error).foregroundStyle(.orange) }
-          if favorites.items.isEmpty {
-            Text("Ajoute un manga avec le cœur depuis sa liste de chapitres.").font(p.font(13))
-          }
-          ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
-              ForEach(
-                favorites.items.filter {
-                  search.isEmpty || $0.manga.title.localizedCaseInsensitiveContains(search)
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 18) {
+                    ThemeHeader(title: "Explorer", remote: remote, library: library)
+                    Text("Explorer").font(p.font(26, title: true))
+                    Text("Tes sources et mangas favoris.").font(p.font(14)).foregroundStyle(p.muted)
+                    HStack {
+                        Image(systemName: "magnifyingglass").foregroundStyle(p.muted)
+                        TextField("Source ou manga favori", text: $search).focused($searching).submitLabel(.search).onSubmit { searching = false }
+                    }.themeCard().accessibilityIdentifier("explorerSearch")
+                    Button { importer = true } label: {
+                        HStack { Image(systemName: "doc.badge.plus"); Text("Importer un CBZ"); Spacer(); Image(systemName: "chevron.right").font(.caption) }.contentShape(Rectangle())
+                    }.buttonStyle(.plain).themeCard().accessibilityIdentifier("importCBZ")
+                    if remote.connection == nil {
+                        Text("Pour accéder aux sources, relie ton Mac depuis Réglages → Connexion au Mac.").font(p.font(14)).foregroundStyle(p.muted)
+                    } else if !remote.connected {
+                        Text("Les sources affichées correspondent à la dernière connexion. Réessaie quand le Mac sera joignable ; les chapitres locaux restent lisibles.").font(p.font(13)).foregroundStyle(p.muted)
+                    }
+                    if let error = favorites.loadError { Text(error).foregroundStyle(p.danger) }
+                    if !favorites.items.isEmpty {
+                        Text("Mangas favoris").font(p.font(14)).foregroundStyle(p.muted)
+                        ForEach(favorites.items.filter { search.isEmpty || $0.manga.title.localizedCaseInsensitiveContains(search) }) { favorite in
+                            if remote.connection?.serverID == favorite.serverID {
+                                NavigationLink { MangaChaptersView(remote: remote, manga: favorite.manga, library: library) } label: {
+                                    HStack { VStack(alignment: .leading, spacing: 4) { Text(favorite.manga.title).font(p.font(16, title: true)); Text(favorite.sourceName).font(p.font(13)).foregroundStyle(p.muted) }; Spacer(); Image(systemName: "chevron.right").font(.caption) }.contentShape(Rectangle())
+                                }.buttonStyle(.plain).accessibilityIdentifier("favorite-\(favorite.manga.sourceID)-\(favorite.manga.id)")
+                                    .contextMenu { Button("Retirer des favoris", role: .destructive) { do { try favorites.remove(favorite) } catch { remote.report(error) } } }
+                            } else {
+                                Text(favorite.manga.title + " · autre Mac").foregroundStyle(p.muted)
+                                    .contextMenu { Button("Retirer des favoris", role: .destructive) { do { try favorites.remove(favorite) } catch { remote.report(error) } } }
+                            }
+                        }
+                    }
+                    if sources.contains(where: { keys.contains(key($0)) }) {
+                        Text("Sources favorites").font(p.font(14)).foregroundStyle(p.muted)
+                        ForEach(sources.filter { keys.contains(key($0)) }) { sourceRow($0, featured: true) }
+                    }
+                    if !sources.isEmpty { Text("Toutes les sources").font(p.font(14)).foregroundStyle(p.muted) }
+                    ForEach(sources) { sourceRow($0) }
+                    if sources.isEmpty && remote.connection != nil {
+                        Text("Aucune source à afficher.").foregroundStyle(p.muted)
+                        Button("Actualiser les sources") { Task { await remote.refresh() } }
+                    }
+                }.padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 24).frame(maxWidth: 800).frame(maxWidth: .infinity)
+            }.background(p.paper).toolbar(.hidden, for: .navigationBar).scrollDismissesKeyboard(.interactively)
+                .refreshable { await remote.refresh() }
+                .fileImporter(isPresented: $importer, allowedContentTypes: [.zip, UTType(filenameExtension: "cbz") ?? .zip]) { result in
+                    do { library.importCBZ(try result.get()) } catch { remote.report(error) }
                 }
-              ) { fav in
-                VStack(alignment: .leading, spacing: 6) {
-                  if remote.connection?.serverID == fav.serverID {
-                    NavigationLink {
-                      MangaChaptersView(remote: remote, manga: fav.manga, library: library)
-                    } label: {
-                      favoriteTile(fav)
-                    }.buttonStyle(.plain).accessibilityIdentifier(
-                      "favorite-\(fav.manga.sourceID)-\(fav.manga.id)")
-                  } else {
-                    favoriteTile(fav)
-                    Text("Reconnecte le Mac d’origine").font(p.font(10))
-                  }
-                }.contextMenu {
-                  Button("Retirer des favoris", role: .destructive) {
-                    do { try favorites.remove(fav) } catch { remote.report(error) }
-                  }
-                }
-              }
-            }
-          }
-          if sources.contains(where: saved) {
-            Text("Sources favorites").font(p.font(20, title: true))
-            ForEach(sources.filter(saved)) { source in sourceRow(source, featured: true) }
-          }
-          Text("Toutes les sources").font(p.font(20, title: true))
-          ForEach(sources) { source in sourceRow(source) }
-          if sources.isEmpty && remote.connection != nil {
-            Text("Aucune source à afficher.")
-            Button("Actualiser") { Task { await remote.refresh() } }
-          }
-        }.padding(p.theme == .brutal ? 14 : 18).padding(.bottom, 24).frame(maxWidth: 850).frame(
-          maxWidth: .infinity)
-      }.scrollDismissesKeyboard(.interactively).background { ThemeBackground() }.toolbar(
-        .hidden, for: .navigationBar
-      ).refreshable { await remote.refresh() }
-        .sheet(isPresented: $connection) {
-          NavigationStack {
-            ConnectionView(remote: remote, library: library).toolbar {
-              ToolbarItem(placement: .confirmationAction) {
-                Button("Fermer") { connection = false }
-              }
-            }
-          }
         }
     }
-  }
-  @ViewBuilder private func favoriteTile(_ fav: FavoriteManga) -> some View {
-    if p.theme == .terminal {
-      VStack(alignment: .leading, spacing: 6) {
-        Text("[★] " + fav.manga.title).font(p.font(14, title: true))
-        Text(fav.sourceName).font(p.font(11)).foregroundStyle(p.muted)
-      }.frame(minWidth: 140, minHeight: 44, alignment: .leading).themeCard()
-    } else {
-      VStack(alignment: .leading, spacing: 8) {
-        SeriesCover(
-          key: ChapterOrigin.key(fav.serverID, fav.manga.sourceID, fav.manga.id),
-          title: fav.manga.title
-        ).frame(width: 110, height: 155).clipShape(RoundedRectangle(cornerRadius: p.radius))
-        Text(fav.manga.title).font(p.font(14, title: true)).lineLimit(1)
-        Text(fav.sourceName).font(p.font(11))
-      }.frame(width: 110, alignment: .leading)
-    }
-  }
-  private func sourceRow(_ source: RemoteSource, featured: Bool = false) -> some View {
-    HStack {
-      NavigationLink {
-        SourceCatalogView(remote: remote, source: source, library: library)
-      } label: {
+    private func sourceRow(_ source: RemoteSource, featured: Bool = false) -> some View {
         HStack(spacing: 12) {
-          if p.theme != .terminal {
-            Text(String(source.name.prefix(1))).font(p.font(24, title: true)).frame(
-              width: 44, height: 44
-            ).background(p.accent.opacity(0.18), in: RoundedRectangle(cornerRadius: p.radius))
-          }
-          VStack(alignment: .leading, spacing: 4) {
-            Text(source.name).font(p.font(16, title: true))
-            Text(status(source)).font(p.font(11))
-            if let explanation = source.explanation {
-              Text(explanation).font(p.font(10)).lineLimit(2)
-            }
-          }
-          Spacer()
-        }
-      }.buttonStyle(.plain).accessibilityIdentifier(
-        "\(featured ? "featured-source" : "source")-\(source.id)")
-      Button {
-        var updated = keys
-        let id = key(source)
-        if let index = updated.firstIndex(of: id) {
-          updated.remove(at: index)
-        } else {
-          updated.append(id)
-        }
-        if let data = try? JSONEncoder().encode(updated) {
-          favoriteSources = String(decoding: data, as: UTF8.self)
-        }
-      } label: {
-        Image(systemName: saved(source) ? "star.fill" : "star").padding(10)
-      }.accessibilityLabel(
-        saved(source) ? "Retirer la source des favoris" : "Ajouter la source aux favoris")
-    }.themeCard()
-  }
-  private func status(_ source: RemoteSource) -> String {
-    if !source.capabilities.catalog { return "Sans catalogue complet" }
-    if source.catalog.state == "syncing" { return "Synchronisation…" }
-    if source.catalog.lastError != nil { return "Dernière synchronisation échouée" }
-    if let date = source.catalog.syncedAt {
-      return "\(source.catalog.count ?? 0) mangas · \(date.prefix(10))"
+            NavigationLink { SourceCatalogView(remote: remote, source: source, library: library) } label: {
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(source.name).font(p.font(16)).fontWeight(.medium)
+                        Text(source.languages.joined(separator: " · ")).font(p.font(13)).foregroundStyle(p.muted)
+                        if !source.capabilities.catalog { Text(source.explanation ?? "Sans catalogue complet").font(p.font(12)).foregroundStyle(p.muted) }
+                    }
+                    Spacer(); Image(systemName: "chevron.right").font(.caption).foregroundStyle(p.muted)
+                }.frame(minHeight: 44).contentShape(Rectangle())
+            }.buttonStyle(.plain).accessibilityIdentifier("\(featured ? "featured-source" : "source")-\(source.id)")
+            Button {
+                var updated = keys; let id = key(source)
+                if let index = updated.firstIndex(of: id) { updated.remove(at: index) } else { updated.append(id) }
+                if let data = try? JSONEncoder().encode(updated) { favoriteSources = String(decoding: data, as: UTF8.self) }
+            } label: { Image(systemName: keys.contains(key(source)) ? "star.fill" : "star").frame(width: 44, height: 44) }
+                .accessibilityLabel(keys.contains(key(source)) ? "Retirer la source des favoris" : "Ajouter la source aux favoris")
+        }.padding(.vertical, 4)
     }
-    return "À charger"
-  }
 }

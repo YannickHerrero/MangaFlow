@@ -44,6 +44,8 @@ struct ReaderView: View {
     }
     var body: some View {
         NavigationStack {
+          VStack(spacing: 0) {
+            if controlsVisible { readerHeader }
             GeometryReader { geometry in
                 ScrollView {
                     LazyVStack(spacing: 0) {
@@ -97,40 +99,11 @@ struct ReaderView: View {
                     restored = true
                 }
             }
-            .ignoresSafeArea(.container, edges: originalPages && controlsVisible ? .bottom : .vertical)
-            .navigationTitle(document.title)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(p.paper, for: .navigationBar)
-            .toolbar(controlsVisible ? .visible : .hidden, for: .navigationBar)
+            .ignoresSafeArea(.container, edges: .bottom)
+          }
+            .toolbar(.hidden, for: .navigationBar)
             .statusBarHidden(!controlsVisible)
             .persistentSystemOverlays(controlsVisible ? .automatic : .hidden)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { dismiss() } label: { Image(systemName: "chevron.down") }.accessibilityLabel("Fermer la lecture")
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Toggle(isOn: Binding(get: { originalPages }, set: setOriginalPages)) {
-                        Image(systemName: "doc.richtext")
-                    }.toggleStyle(.button)
-                        .accessibilityLabel("Pages originales")
-                        .accessibilityHint("Afficher les pages entières en défilement continu, sans recadrage.")
-                        .accessibilityIdentifier("readerOriginalPages")
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { toggleControls() } label: { Image(systemName: "eye.slash") }
-                        .accessibilityLabel("Masquer l’interface")
-                        .accessibilityHint("Touchez avec deux doigts pour réafficher les commandes.")
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Menu {
-                        Button("Voir la page originale") { original = document.pages.first { $0.id == currentPage } }
-                        Toggle("Lecture de gauche à droite", isOn: $leftToRight)
-                        Toggle("Suivre les bords des cases", isOn: $followPanelBorders)
-                        Button("Plein écran · deux doigts pour revenir") { toggleControls() }
-                        Button("Revenir au début") { position = rows.first?.id }
-                    } label: { Image(systemName: "ellipsis.circle") }.accessibilityLabel("Options de lecture")
-                }
-            }
             .sheet(item: $original) { page in
                 NavigationStack {
                     OriginalPageView(url: store.pageURL(document, page))
@@ -163,13 +136,35 @@ struct ReaderView: View {
             Task { await CropLoader.shared.clear() }
         }
     }
+    private var readerHeader: some View {
+        HStack(spacing: 8) {
+            RoundIconButton(symbol: "chevron.down", label: "Fermer la lecture") { dismiss() }
+            Text(document.title).font(p.font(16, title: true)).lineLimit(1)
+            Spacer(minLength: 0)
+            RoundIconButton(symbol: originalPages ? "doc.richtext.fill" : "doc.richtext", label: "Pages originales") { setOriginalPages(!originalPages) }
+                .foregroundStyle(originalPages ? p.accent : p.ink)
+                .accessibilityValue(originalPages ? "Activé" : "Désactivé").accessibilityIdentifier("readerOriginalPages")
+            RoundIconButton(symbol: "eye.slash", label: "Masquer l’interface", action: toggleControls)
+                .accessibilityHint("Touchez avec deux doigts pour réafficher les commandes.")
+            Menu {
+                Button("Voir la page originale") { original = document.pages.first { $0.id == currentPage } }
+                Toggle("Lecture de gauche à droite", isOn: $leftToRight)
+                Toggle("Suivre les bords des cases", isOn: $followPanelBorders)
+                Button("Plein écran · deux doigts pour revenir") { toggleControls() }
+                Button("Revenir au début") { position = rows.first?.id }
+            } label: { Image(systemName: "ellipsis").frame(width: 44, height: 44).background(p.surface, in: Circle()).overlay(Circle().stroke(p.line, lineWidth: 1)) }
+                .accessibilityLabel("Options de lecture")
+        }.padding(.horizontal, 12).padding(.vertical, 8).background(p.paper)
+    }
     private func setOriginalPages(_ enabled: Bool) {
         let page = currentPage
         originalPages = enabled
         position = rows.first { $0.page.id == page }?.id ?? rows.first?.id
     }
     private func toggleControls() {
-        withAnimation(.easeInOut(duration: 0.2)) { controlsVisible.toggle() }
+        var transaction = Transaction(animation: nil)
+        transaction.disablesAnimations = true
+        withTransaction(transaction) { controlsVisible.toggle() }
     }
 }
 

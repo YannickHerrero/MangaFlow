@@ -40,7 +40,7 @@ struct ConnectionView: View {
                 }
             }
             .scrollContentBackground(.hidden).background(p.paper)
-            .navigationTitle("Connexion au Mac")
+            .themedNavigation("Connexion au Mac")
             .refreshable { await remote.refresh() }
             .sheet(isPresented: $scanner) { PairingScanner { value in Task { await remote.pair(value) } } }
             .fileImporter(isPresented: $filePicker, allowedContentTypes: [.json, .plainText]) { result in
@@ -85,7 +85,7 @@ struct SourceCatalogView: View {
             }
             ForEach(mangas) { manga in
                 NavigationLink { MangaChaptersView(remote: remote, manga: manga, library: library) } label: {
-                    HStack { Text(manga.title); Spacer(); Image(systemName: "chevron.right") }.themeCard()
+                    HStack { Text(manga.title); Spacer(); Image(systemName: "chevron.right") }.contentShape(Rectangle()).themeCard()
                 }.buttonStyle(.plain).accessibilityIdentifier("manga-\(manga.id)")
             }
             if loading { ProgressView() }
@@ -119,10 +119,12 @@ struct MangaChaptersView: View {
     @AppStorage("explorerHideReadChapters") private var hideRead = false
     @State private var jobID: String?
     @State private var starting = false
-    private var job: RemoteJob? { remote.jobs.first { $0.id == jobID } }
+    private var job: RemoteJob? {
+        remote.jobs.first { $0.id == jobID } ?? remote.jobs.first { $0.kind == "chapters" && $0.target.sourceID == manga.sourceID && $0.target.manga?.id == manga.id && $0.result?.chapters != nil }
+    }
     private var chapters: [RemoteChapter] { job?.result?.chapters ?? [] }
     private var readBoundary: Decimal? {
-        ChapterListFilter.readBoundary(documents: library.documents, serverID: remote.connection?.serverID,
+        ChapterListFilter.readBoundary(documents: library.allDocuments, serverID: remote.connection?.serverID,
                                        manga: manga, chapters: chapters)
     }
     private var visibleChapters: [RemoteChapter] {
@@ -161,8 +163,8 @@ struct MangaChaptersView: View {
           }.padding(18).frame(maxWidth: 800).frame(maxWidth: .infinity)
         }
         .background { ThemeBackground() }.themedNavigation(manga.title)
-        .task {
-            guard let client = remote.client else { return }
+        .task(id: remote.connected) {
+            guard let client = remote.client, remote.connected else { return }
             starting = true; defer { starting = false }
             do {
                 let created = try await client.create("chapters", target: .init(sourceID: manga.sourceID, manga: manga, chapter: nil))
