@@ -320,6 +320,8 @@ struct SeriesDetailView: View {
   @Bindable var library: LibraryModel
   let remote: RemoteModel
   @Environment(\.palette) private var p
+  @AppStorage("libraryChaptersAscending") private var ascending = false
+  @AppStorage("libraryHideReadChapters") private var hideRead = false
   @State private var metadata = false
   @State private var edit: MangaDocument?
   @State private var removal: MangaDocument?
@@ -352,7 +354,19 @@ struct SeriesDetailView: View {
                 library: library)
             }
           }
-          ForEach(series.chaptersNewestFirst) { doc in
+          VStack(alignment: .leading, spacing: 12) {
+            Picker("Ordre des chapitres", selection: $ascending) {
+              Text("Croissant").tag(true)
+              Text("Décroissant").tag(false)
+            }.pickerStyle(.menu).tint(p.accent).accessibilityIdentifier("chapterSortOrder")
+            Toggle("Masquer les chapitres lus", isOn: $hideRead)
+              .tint(p.accent).accessibilityIdentifier("libraryHideReadChapters")
+          }.themeCard()
+          let chapters = ChapterListFilter.local(series, ascending: ascending, hideRead: hideRead)
+          if chapters.isEmpty && hideRead {
+            Text("Tous les chapitres de ce manga sont déjà lus.").font(p.font(13))
+          }
+          ForEach(chapters) { doc in
             HStack {
               VStack(alignment: .leading, spacing: 6) {
                 Text(doc.displayChapterTitle).font(p.font(17, title: true))

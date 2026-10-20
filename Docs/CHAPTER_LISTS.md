@@ -1,0 +1,13 @@
+# Chapter list controls
+
+The local manga detail has an ascending/descending presentation selector and a switch to hide completed chapters. Descending remains the default. Filtering removes only documents whose `readComplete` is true: an unread 312 remains in the library even when 321 is complete. Neither control mutates the stored series order used for next-chapter navigation.
+
+The source manga detail in Explorer has its own switch. It finds the highest completed chapter number in the current local library for the exact server/source/manga identity, then keeps source chapters with numbers greater than or equal to that boundary. Example: 321 complete, 312 unread → Explorer shows 321 onward; switching the filter off restores all source chapters. The inclusive boundary is intentional and explained in the screen.
+
+Numbers come from the current catalogue chapter title matched by opaque chapter ID, or the original imported chapter title if it is no longer in the catalogue. Local title/order overrides do not alter the source watermark. Decimal numbers are supported; connector `order` indices are never compared because they can be newest-first and can change after a refresh. The manga title is removed before interpreting a bare number. Explicit chapter/scan labels take precedence over volume numbers. Unnumbered/ambiguous specials stay visible. Without a completed numeric chapter or a matching server identity, the full source list stays visible with an explanation.
+
+The watermark is derived from the library each time, including after read/unread changes. Deleting the highest completed chapter can therefore lower it; there is no separate historical tracking database. The two switches are independent and, together with the sort preference, persist across app launches as global display preferences.
+
+Implementation: `ChapterListFilter`, `SeriesDetailView`, `MangaChaptersView`. No server API, download, import, reader or progress-storage change.
+
+Validation: five focused unit tests cover inclusive cutoff, unread gaps, decimal parsing, changing connector indices, special chapters, source/server/manga isolation, local renaming and keeping reading order intact. Full unit run: 73 tests, three unrelated opt-in private tests skipped, zero failures. The local sort/filter/persistence workflow passes on iPhone and iPad with a metadata-only test fixture. Explorer's new cutoff logic is covered by unit tests; this change does not claim a new live source/network validation. Existing real LELScan chapter titles were checked locally (`364.1`, `363`, etc.). Fixtures and screenshots remain local and ignored.

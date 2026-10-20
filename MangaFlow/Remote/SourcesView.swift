@@ -116,9 +116,18 @@ struct MangaChaptersView: View {
     let manga: RemoteManga
     let library: LibraryModel
     @Environment(FavoriteStore.self) private var favorites
+    @AppStorage("explorerHideReadChapters") private var hideRead = false
     @State private var jobID: String?
     @State private var starting = false
     private var job: RemoteJob? { remote.jobs.first { $0.id == jobID } }
+    private var chapters: [RemoteChapter] { job?.result?.chapters ?? [] }
+    private var readBoundary: Decimal? {
+        ChapterListFilter.readBoundary(documents: library.documents, serverID: remote.connection?.serverID,
+                                       manga: manga, chapters: chapters)
+    }
+    private var visibleChapters: [RemoteChapter] {
+        ChapterListFilter.remote(chapters, boundary: hideRead ? readBoundary : nil, mangaTitle: manga.title)
+    }
     var body: some View {
         ScrollView {
           LazyVStack(alignment: .leading, spacing: 14) {
@@ -127,9 +136,26 @@ struct MangaChaptersView: View {
                 Spacer()
                 favoriteButton
             }
+            VStack(alignment: .leading, spacing: 6) {
+                Toggle("Masquer les chapitres lus", isOn: $hideRead)
+                    .tint(p.accent).accessibilityIdentifier("explorerHideReadChapters")
+                if hideRead {
+                    if let boundary = readBoundary {
+                        Text("À partir du chapitre \(NSDecimalNumber(decimal: boundary).stringValue), dernier chapitre terminé dans la bibliothèque (inclus).")
+                            .font(p.font(12)).foregroundStyle(p.muted)
+                    } else {
+                        Text("Aucun chapitre numéroté terminé dans la bibliothèque pour ce manga et cette source. Tous les chapitres restent affichés.")
+                            .font(p.font(12)).foregroundStyle(p.muted)
+                    }
+                }
+            }.themeCard()
             if starting || (job != nil && job?.finished == false) { ProgressView("Chargement des chapitres sur le Mac…") }
             if let error = job?.error { Text(error.localizedDescription).foregroundStyle(.orange) }
-            ForEach(job?.result?.chapters ?? []) { chapter in
+            if job?.state == "completed" && visibleChapters.isEmpty {
+                Text(hideRead && readBoundary != nil ? "Aucun chapitre à partir de ce numéro dans la source." : "Aucun chapitre disponible.")
+                    .font(p.font(13))
+            }
+            ForEach(visibleChapters) { chapter in
                 ChapterDownloadRow(remote: remote, library: library, manga: manga, chapter: chapter).themeCard()
             }
           }.padding(18).frame(maxWidth: 800).frame(maxWidth: .infinity)
